@@ -1,65 +1,81 @@
-import Image from "next/image";
+"use client"
+
+import { Hero } from "@/components/home/Hero"
+import { FeaturedCategories } from "@/components/home/FeaturedCategories"
+import { GovernmentEntities } from "@/components/home/GovernmentEntities"
+import { AuctionCard } from "@/components/auction/AuctionCard"
+import { useLanguage } from "@/lib/language-context"
 
 export default function Home() {
+  const { t, language } = useLanguage()
+
+  const featuredAuctions = [
+    {
+      id: "1",
+      title: "2023 Porsche 911 GT3 RS",
+      image: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?q=80&w=2670&auto=format&fit=crop",
+      currentBid: 850000,
+      endTime: "2h 15m",
+      aiInsight: "High Demand",
+      bids: 42
+    },
+    {
+      id: "2",
+      title: "Luxury Palm Jumeirah Villa",
+      image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2671&auto=format&fit=crop",
+      currentBid: 15200000,
+      endTime: "5d 12h",
+      aiInsight: "Undervalued",
+      bids: 18
+    },
+    {
+      id: "3",
+      title: "VIP Plate Number A-99",
+      image: "https://images.unsplash.com/photo-1550355291-bbee04a92027?q=80&w=2636&auto=format&fit=crop",
+      currentBid: 4500000,
+      endTime: "45m",
+      aiInsight: "Trending",
+      bids: 156
+    },
+    {
+      id: "4",
+      title: "Rolex Daytona Panda",
+      image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=2680&auto=format&fit=crop",
+      currentBid: 125000,
+      endTime: "12h 30m",
+      bids: 24
+    }
+  ]
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen">
+      <Hero />
+
+      <FeaturedCategories />
+
+      <GovernmentEntities />
+
+      <section className="py-20 container mx-auto px-4">
+        <div className={`flex items-end justify-between mb-12 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+          <div className={language === 'ar' ? 'text-right' : 'text-left'}>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">
+              {t("Live Auctions")}
+            </h2>
+            <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">
+              {t("Happening now. Don't miss out.")}
+            </p>
+          </div>
+          <button className={`text-lg font-bold text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary transition-colors flex items-center gap-2 group ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+            {t("View All")} <span className={`transition-transform ${language === 'ar' ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}>{language === 'ar' ? '←' : '→'}</span>
+          </button>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredAuctions.map((auction) => (
+            <AuctionCard key={auction.id} {...auction} />
+          ))}
         </div>
-      </main>
+      </section>
     </div>
-  );
+  )
 }
