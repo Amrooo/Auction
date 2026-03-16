@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { AuthModal } from "@/components/auth/AuthModal"
+import { useLanguage } from "@/lib/language-context"
 
 const data = [
     { time: '10:00', bid: 850000 },
@@ -27,31 +28,29 @@ console.error = (...args) => {
 };
 
 const images = [
-    "https://images.unsplash.com/photo-1609521263047-f8f205293f24?q=80&w=2670&auto=format&fit=crop", // Front 3/4 (G-Wagon)
-    "https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=2670&auto=format&fit=crop", // Side Profile (Dark SUV)
-    "https://images.unsplash.com/photo-1553440638-dffe3a137aa8?q=80&w=2670&auto=format&fit=crop", // Interior (Luxury)
-    "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=2664&auto=format&fit=crop", // Wheel Detail
-    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop", // Side/Rear (White Sport)
-    "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=2670&auto=format&fit=crop", // Dashboard
+    "https://images.unsplash.com/photo-1609521263047-f8f205293f24?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1553440638-dffe3a137aa8?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=2664&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=2670&auto=format&fit=crop",
 ]
 
 export default function AuctionDetailPage() {
-    const [activeImage, setActiveImage] = useState(0)
+    const { t, language } = useLanguage()
+    const isAr = language === 'ar'
+    const dir = isAr ? 'rtl' : 'ltr'
 
-    // Action Modals
+    const [activeImage, setActiveImage] = useState(0)
     const [isBidOpen, setIsBidOpen] = useState(false)
     const [isBuyNowOpen, setIsBuyNowOpen] = useState(false)
-
-    // Auth State
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
     const [authTab, setAuthTab] = useState<"login" | "signup">("login")
     const [pendingAction, setPendingAction] = useState<"bid" | "buy" | null>(null)
-
     const [bidAmount, setBidAmount] = useState(960000)
     const [showSuccess, setShowSuccess] = useState(false)
 
-    // Handlers
     const handleAction = (action: "bid" | "buy") => {
         if (!isLoggedIn) {
             setAuthTab("login")
@@ -66,8 +65,6 @@ export default function AuctionDetailPage() {
     const handleAuthComplete = () => {
         setIsLoggedIn(true)
         setIsAuthModalOpen(false)
-
-        // Resume pending action
         if (pendingAction === "bid") setIsBidOpen(true)
         if (pendingAction === "buy") setIsBuyNowOpen(true)
         setPendingAction(null)
@@ -86,12 +83,31 @@ export default function AuctionDetailPage() {
         setTimeout(() => setShowSuccess(false), 3000)
     }
 
+    // Translated specs
+    const specs = isAr ? [
+        { label: 'المحرك', value: '4.0L V8 بيتوربو' },
+        { label: 'القوة', value: '577 حصان' },
+        { label: 'ناقل الحركة', value: 'أوتوماتيك 9 سرعات' },
+        { label: '0-100 كم/ساعة', value: '4.5 ثانية' },
+        { label: 'اللون', value: 'أسود ليلي مات' },
+        { label: 'الداخلية', value: 'أحمر البنغال / أسود' },
+        { label: 'رقم الهيكل', value: 'W1N463***291' }
+    ] : [
+        { label: 'Engine', value: '4.0L V8 Biturbo' },
+        { label: 'Power', value: '577 HP' },
+        { label: 'Transmission', value: '9-Speed Auto' },
+        { label: '0-100 km/h', value: '4.5s' },
+        { label: 'Color', value: 'Night Black Magno' },
+        { label: 'Interior', value: 'Bengal Red / Black' },
+        { label: 'VIN', value: 'W1N463***291' }
+    ]
+
     return (
-        <div className="container mx-auto px-4 py-8 lg:py-12 relative">
+        <div className="container mx-auto px-4 py-8 lg:py-12 relative" dir={dir}>
             {/* Global Auth Modal */}
             <AuthModal
                 isOpen={isAuthModalOpen}
-                onClose={() => handleAuthComplete()} // For demo, closing/submitting logs you in
+                onClose={() => handleAuthComplete()}
                 defaultTab={authTab}
             />
 
@@ -105,7 +121,7 @@ export default function AuctionDetailPage() {
                         className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-emerald-500 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-md"
                     >
                         <CheckCircle className="w-6 h-6" />
-                        <span className="font-bold text-lg">Action Successful!</span>
+                        <span className="font-bold text-lg">{isAr ? 'تمت العملية بنجاح!' : 'Action Successful!'}</span>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -126,8 +142,9 @@ export default function AuctionDetailPage() {
                             exit={{ scale: 0.95, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
                             className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] p-8 shadow-2xl border border-white/10 relative overflow-hidden"
+                            dir={dir}
                         >
-                            <button onClick={() => { setIsBidOpen(false); setIsBuyNowOpen(false) }} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer">
+                            <button onClick={() => { setIsBidOpen(false); setIsBuyNowOpen(false) }} className={`absolute top-6 ${isAr ? 'left-6' : 'right-6'} text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer`}>
                                 <X className="w-6 h-6" />
                             </button>
 
@@ -136,21 +153,21 @@ export default function AuctionDetailPage() {
                                     <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 text-slate-900 dark:text-white">
                                         <Gavel className="w-8 h-8" />
                                     </div>
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Place Your Bid</h2>
-                                    <p className="text-slate-500 mb-6">Current Highest: <span className="font-bold text-slate-900 dark:text-white">AED 950,000</span></p>
+                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{isAr ? 'قدّم مزايدتك' : 'Place Your Bid'}</h2>
+                                    <p className="text-slate-500 mb-6">{isAr ? 'أعلى مزايدة حالية:' : 'Current Highest:'} <span className="font-bold text-slate-900 dark:text-white">AED 950,000</span></p>
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">Your Max Bid (AED)</label>
+                                            <label className={`text-sm font-medium text-slate-700 dark:text-slate-300 ${isAr ? 'mr-1' : 'ml-1'}`}>{isAr ? 'حد مزايدتك (درهم)' : 'Your Max Bid (AED)'}</label>
                                             <input
                                                 type="number"
                                                 value={bidAmount}
                                                 onChange={(e) => setBidAmount(Number(e.target.value))}
                                                 className="w-full mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-primary text-lg font-bold"
                                             />
-                                            <p className="text-xs text-slate-400 mt-2 ml-1">Minimum bid increment: AED 5,000</p>
+                                            <p className={`text-xs text-slate-400 mt-2 ${isAr ? 'mr-1 text-right' : 'ml-1'}`}>{isAr ? 'الحد الأدنى للزيادة: 5,000 درهم' : 'Minimum bid increment: AED 5,000'}</p>
                                         </div>
-                                        <Button size="lg" className="w-full h-12 rounded-xl text-lg mt-4 cursor-pointer">Confirm Bid</Button>
+                                        <Button size="lg" className="w-full h-12 rounded-xl text-lg mt-4 cursor-pointer">{isAr ? 'تأكيد المزايدة' : 'Confirm Bid'}</Button>
                                     </div>
                                 </form>
                             )}
@@ -160,17 +177,17 @@ export default function AuctionDetailPage() {
                                     <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-6 text-emerald-600 dark:text-emerald-400">
                                         <Wallet className="w-8 h-8" />
                                     </div>
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Buy It Now</h2>
-                                    <p className="text-slate-500 mb-6">You are about to purchase this vehicle for:</p>
+                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{isAr ? 'شراء فوري' : 'Buy It Now'}</h2>
+                                    <p className="text-slate-500 mb-6">{isAr ? 'أنت على وشك شراء هذه المركبة بسعر:' : 'You are about to purchase this vehicle for:'}</p>
 
                                     <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl mb-8 text-center border border-slate-100 dark:border-slate-700">
                                         <span className="text-3xl font-bold text-slate-900 dark:text-white">AED 1,200,000</span>
-                                        <p className="text-sm text-slate-400 mt-1">+ 5% Buyers Premium</p>
+                                        <p className="text-sm text-slate-400 mt-1">{isAr ? '+ 5% رسوم المشتري' : '+ 5% Buyers Premium'}</p>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3">
-                                        <Button variant="outline" size="lg" className="rounded-xl h-12 cursor-pointer" onClick={() => setIsBuyNowOpen(false)}>Cancel</Button>
-                                        <Button size="lg" className="rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white border-0 cursor-pointer" onClick={handleBuyNowSubmit}>Confirm Purchase</Button>
+                                        <Button variant="outline" size="lg" className="rounded-xl h-12 cursor-pointer" onClick={() => setIsBuyNowOpen(false)}>{isAr ? 'إلغاء' : 'Cancel'}</Button>
+                                        <Button size="lg" className="rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white border-0 cursor-pointer" onClick={handleBuyNowSubmit}>{isAr ? 'تأكيد الشراء' : 'Confirm Purchase'}</Button>
                                     </div>
                                 </div>
                             )}
@@ -195,7 +212,7 @@ export default function AuctionDetailPage() {
                             alt="Mercedes G63"
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
                             <button className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white hover:text-red-500 transition-colors border border-white/20 cursor-pointer">
                                 <Heart className="w-5 h-5" />
                             </button>
@@ -230,47 +247,71 @@ export default function AuctionDetailPage() {
                 {/* Info & Bidding */}
                 <div className="space-y-8 flex flex-col justify-center">
                     <div>
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className={`flex items-center gap-3 mb-4 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
                             <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider border border-blue-500/20">
-                                Premium Lot
+                                {t("Premium Lot")}
                             </span>
                             <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-emerald-500/20">
-                                <ShieldCheck className="w-3 h-3" /> Verified
+                                <ShieldCheck className="w-3 h-3" /> {t("Verified")}
                             </span>
                         </div>
-                        <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">2024 Mercedes-AMG G63</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-lg font-medium">Grand Edition • 1 of 1000 • 0km Mileage</p>
+                        <h1 className={`text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
+                            {isAr ? 'مرسيدس AMG G63 2024' : '2024 Mercedes-AMG G63'}
+                        </h1>
+                        <p className={`text-slate-500 dark:text-slate-400 text-lg font-medium ${isAr ? 'text-right' : 'text-left'}`}>
+                            {isAr ? 'الإصدار الكبير • 1 من 1000 • صفر كيلومتر' : 'Grand Edition • 1 of 1000 • 0km Mileage'}
+                        </p>
                     </div>
 
                     <div className="p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden">
-                        {/* Gradient Glow */}
                         <div className="absolute -top-20 -right-20 w-64 h-64 bg-accent/5 rounded-full blur-3xl" />
 
-                        <div className="flex flex-col sm:flex-row justify-between items-end mb-8 relative z-10 gap-4">
-                            <div>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">Current Bid</p>
+                        <div className={`flex flex-col sm:flex-row justify-between items-end mb-8 relative z-10 gap-4 ${isAr ? 'sm:flex-row-reverse' : ''}`}>
+                            <div className={isAr ? 'text-right' : 'text-left'}>
+                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">{t("Current Bid")}</p>
                                 <div className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">AED 950,000</div>
                             </div>
-                            <div className="text-left sm:text-right bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700">
-                                <div className="flex items-center gap-2 text-orange-600 font-bold mb-1">
+                            <div className={`bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 ${isAr ? 'text-right' : 'text-left sm:text-right'}`}>
+                                <div className={`flex items-center gap-2 text-orange-600 font-bold mb-1 ${isAr ? 'flex-row-reverse' : ''}`}>
                                     <Clock className="w-4 h-4 animate-pulse" />
                                     <span className="font-mono">4h 20m 15s</span>
                                 </div>
-                                <p className="text-xs text-slate-400 font-medium">Ends Today, 6:00 PM</p>
+                                <p className="text-xs text-slate-400 font-medium">{isAr ? 'ينتهي اليوم، الساعة 6:00 مساءً' : 'Ends Today, 6:00 PM'}</p>
                             </div>
                         </div>
 
                         <div className="space-y-4 mb-6 relative z-10">
                             <Button size="lg" onClick={() => handleAction("bid")} className="w-full text-lg h-14 rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800 dark:hover:bg-slate-100 shadow-lg shadow-slate-900/20 transition-all hover:scale-[1.01] cursor-pointer">
-                                Place Bid <span className="opacity-70 ml-2 font-normal text-sm">(Min AED 960,000)</span>
+                                {isAr ? 'قدّم مزايدة' : 'Place Bid'} <span className="opacity-70 ml-2 font-normal text-sm">{isAr ? '(الحد الأدنى: 960,000 درهم)' : '(Min AED 960,000)'}</span>
                             </Button>
+
+                            <div className="space-y-2">
+                                <p className={`text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-muted-foreground ${isAr ? 'text-right' : 'text-left'}`}>
+                                    {isAr ? 'مزايدة سريعة (درهم)' : 'Quick Bid (AED)'}
+                                </p>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {[100, 200, 400, 800].map((amount) => (
+                                        <button
+                                            key={amount}
+                                            onClick={() => {
+                                                setBidAmount(950000 + amount);
+                                                handleAction("bid");
+                                            }}
+                                            className="py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-[10px] font-black hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-500 cursor-pointer flex items-center justify-center gap-0.5"
+                                        >
+                                            +{amount}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             <Button variant="outline" size="lg" onClick={() => handleAction("buy")} className="w-full h-12 rounded-2xl border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 font-medium cursor-pointer">
-                                Buy It Now <span className="text-slate-400 ml-2">AED 1,200,000</span>
+                                {isAr ? 'شراء فوري' : 'Buy It Now'} <span className="text-slate-400 ml-2">AED 1,200,000</span>
                             </Button>
                         </div>
 
-                        <p className="text-center text-xs text-slate-400 relative z-10">
-                            *All bids are legally binding. 5% deposit required.
+                        <p className={`text-center text-xs text-slate-400 relative z-10`}>
+                            {isAr ? '*جميع المزايدات ملزمة قانوناً. يشترط وديعة 5%.' : '*All bids are legally binding. 5% deposit required.'}
                         </p>
                     </div>
 
@@ -278,17 +319,20 @@ export default function AuctionDetailPage() {
                     <div className="p-6 rounded-[2rem] bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-500/20 backdrop-blur-sm relative overflow-hidden group">
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                        <div className="flex items-start gap-4 relative z-10">
-                            <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400">
+                        <div className={`flex items-start gap-4 relative z-10 ${isAr ? 'flex-row-reverse' : ''}`}>
+                            <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
                                 <Zap className="w-6 h-6 fill-current" />
                             </div>
-                            <div>
+                            <div className={isAr ? 'text-right' : 'text-left'}>
                                 <h3 className="font-bold text-indigo-900 dark:text-indigo-200 mb-1 flex items-center gap-2">
-                                    AI Market Insight
+                                    {t("AI Market Insight")}
                                     <span className="px-2 py-0.5 rounded-full bg-indigo-200/50 dark:bg-indigo-500/20 text-[10px] uppercase font-bold tracking-wider text-indigo-700 dark:text-indigo-300">Beta</span>
                                 </h3>
                                 <p className="text-sm text-indigo-800 dark:text-indigo-300 leading-relaxed max-w-md">
-                                    This lot is currently <span className="font-bold text-indigo-700 dark:text-white decoration-2 underline decoration-indigo-400/50">undervalued by 8%</span> compared to similar G63 Grand Edition models. Demand is <span className="font-bold text-green-600 dark:text-green-400">High</span>, with prices trending upwards (+5%).
+                                    {isAr
+                                        ? <>هذا العرض <span className="font-bold text-indigo-700 dark:text-white decoration-2 underline decoration-indigo-400/50">مقيّم بأقل من قيمته بنسبة 8%</span> مقارنةً بطرازات G63 المماثلة. الطلب <span className="font-bold text-green-600 dark:text-green-400">مرتفع</span>، والأسعار في اتجاه تصاعدي (+5%).</>
+                                        : <>This lot is currently <span className="font-bold text-indigo-700 dark:text-white decoration-2 underline decoration-indigo-400/50">undervalued by 8%</span> compared to similar G63 Grand Edition models. Demand is <span className="font-bold text-green-600 dark:text-green-400">High</span>, with prices trending upwards (+5%).</>
+                                    }
                                 </p>
                             </div>
                         </div>
@@ -300,16 +344,16 @@ export default function AuctionDetailPage() {
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-3">
+                        <div className={`flex items-center justify-between mb-8 ${isAr ? 'flex-row-reverse' : ''}`}>
+                            <div className={`flex items-center gap-3 ${isAr ? 'flex-row-reverse' : ''}`}>
                                 <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
                                     <ChartIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Bidding History</h3>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t("Bidding History")}</h3>
                             </div>
                             <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm font-medium px-3 py-2 text-slate-600 dark:text-slate-300 outline-none cursor-pointer">
-                                <option>Last 24 Hours</option>
-                                <option>All Time</option>
+                                <option>{isAr ? 'آخر 24 ساعة' : 'Last 24 Hours'}</option>
+                                <option>{isAr ? 'كل الوقت' : 'All Time'}</option>
                             </select>
                         </div>
 
@@ -323,37 +367,15 @@ export default function AuctionDetailPage() {
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
-                                    <XAxis
-                                        dataKey="time"
-                                        stroke="#94a3b8"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        dy={10}
-                                    />
-                                    <YAxis
-                                        stroke="#94a3b8"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickFormatter={(value) => `${value / 1000}k`}
-                                        dx={-10}
-                                    />
+                                    <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} dy={10} />
+                                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} dx={-10} />
                                     <Tooltip
                                         contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(4px)' }}
                                         itemStyle={{ color: '#0f172a', fontWeight: 600 }}
                                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                        formatter={(value: any) => [`AED ${Number(value || 0).toLocaleString()}`, 'Bid Amount']}
+                                        formatter={(value: any) => [`AED ${Number(value || 0).toLocaleString()}`, isAr ? 'مبلغ المزايدة' : 'Bid Amount']}
                                     />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="bid"
-                                        stroke="#6366f1"
-                                        strokeWidth={3}
-                                        fillOpacity={1}
-                                        fill="url(#colorBid)"
-
-                                    />
+                                    <Area type="monotone" dataKey="bid" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorBid)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -363,25 +385,17 @@ export default function AuctionDetailPage() {
                 <div className="lg:col-span-1">
                     {/* Specs Grid */}
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm h-full">
-                        <h3 className="font-bold text-slate-900 dark:text-white mb-6 text-xl">Specifications</h3>
+                        <h3 className={`font-bold text-slate-900 dark:text-white mb-6 text-xl ${isAr ? 'text-right' : 'text-left'}`}>{t("Specifications")}</h3>
                         <div className="space-y-0">
-                            {[
-                                { label: 'Engine', value: '4.0L V8 Biturbo' },
-                                { label: 'Power', value: '577 HP' },
-                                { label: 'Transmission', value: '9-Speed Auto' },
-                                { label: '0-100 km/h', value: '4.5s' },
-                                { label: 'Color', value: 'Night Black Magno' },
-                                { label: 'Interior', value: 'Bengal Red / Black' },
-                                { label: 'VIN', value: 'W1N463***291' }
-                            ].map((spec, i) => (
-                                <div key={spec.label} className="flex justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-4 px-4 transition-colors">
+                            {specs.map((spec) => (
+                                <div key={spec.label} className={`flex justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-4 px-4 transition-colors ${isAr ? 'flex-row-reverse' : ''}`}>
                                     <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">{spec.label}</span>
-                                    <span className="text-sm font-bold text-slate-900 dark:text-white text-right">{spec.value}</span>
+                                    <span className={`text-sm font-bold text-slate-900 dark:text-white ${isAr ? 'text-left' : 'text-right'}`}>{spec.value}</span>
                                 </div>
                             ))}
                         </div>
-                        <Button variant="ghost" className="w-full mt-6 text-slate-500 hover:text-slate-900 cursor-pointer">
-                            View Full Specs <ArrowRight className="w-4 h-4 ml-2" />
+                        <Button variant="ghost" className={`w-full mt-6 text-slate-500 hover:text-slate-900 cursor-pointer flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
+                            {isAr ? 'عرض كامل المواصفات' : 'View Full Specs'} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                         </Button>
                     </div>
                 </div>

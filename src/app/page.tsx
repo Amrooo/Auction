@@ -5,6 +5,7 @@ import { FeaturedCategories } from "@/components/home/FeaturedCategories"
 import { GovernmentEntities } from "@/components/home/GovernmentEntities"
 import { AuctionCard } from "@/components/auction/AuctionCard"
 import { useLanguage } from "@/lib/language-context"
+import { cn } from "@/lib/utils"
 
 export default function Home() {
   const { t, language } = useLanguage()
@@ -57,8 +58,8 @@ export default function Home() {
 
       <section className="py-20 container mx-auto px-4">
         <div className={`flex items-end justify-between mb-12 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
-          <div className={language === 'ar' ? 'text-right' : 'text-left'}>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">
+          <div className={cn("flex flex-col gap-2", language === 'ar' ? 'text-right' : 'text-left')} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {t("Live Auctions")}
             </h2>
             <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">

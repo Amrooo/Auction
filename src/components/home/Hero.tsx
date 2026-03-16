@@ -62,7 +62,7 @@ export function Hero() {
                             <Button size="lg" className="rounded-full px-10 h-16 text-lg bg-accent text-white hover:bg-accent/90 shadow-2xl shadow-accent/20 transition-all hover:scale-105 font-bold border-none">
                                 {t("Start Bidding")} {language === 'ar' ? <ArrowLeft className="mr-2 w-5 h-5" /> : <ArrowRight className="ml-2 w-5 h-5" />}
                             </Button>
-                            <Button variant="outline" size="lg" className="rounded-full px-10 h-16 text-lg border-slate-200 dark:border-border bg-white dark:bg-background hover:bg-slate-200 dark:hover:bg-secondary text-slate-900 dark:text-foreground shadow-sm transition-all font-bold">
+                            <Button variant="outline" size="lg" className="rounded-full px-10 h-16 text-lg border-slate-200 dark:border-border bg-white dark:bg-background hover:bg-slate-900 dark:hover:bg-white text-slate-900 dark:text-foreground hover:text-white dark:hover:text-slate-900 shadow-sm transition-all font-bold">
                                 {t("How It Works")}
                             </Button>
                         </div>
