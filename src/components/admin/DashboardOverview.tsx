@@ -48,7 +48,7 @@ export function DashboardOverview() {
                     <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2 leading-tight">Command Center</h1>
                     <p className="text-slate-600 dark:text-slate-400 font-medium text-lg leading-relaxed flex items-center gap-2">
                         <Sparkles className="w-5 h-5 text-accent animate-pulse" />
-                        AI Analytics indicate high-demand surge in <span className="text-slate-900 dark:text-white font-bold underline decoration-accent underline-offset-4">Classic Motors</span> today.
+                        AI Analytics indicate high-demand surge in <span className="text-slate-900 dark:text-white font-bold underline decoration-accent underline-offset-4">SafeYard Vehicle Assets</span> today.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export function DashboardOverview() {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'Total Revenue', value: 'AED 42.8M', trend: '+12.5%', icon: Revenue, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+                    { label: 'Total Revenue', value: 'AED 42.8M', trend: '+12.5%', icon: Revenue, color: 'text-red-500', bg: 'bg-red-500/10' },
                     { label: 'Total Bids', value: '84,120', trend: '+24.1%', icon: TotalBids, color: 'text-accent', bg: 'bg-accent/10' },
                     { label: 'Active Auctions', value: '1,248', trend: '-2.4%', icon: ActiveAuctions, color: 'text-green-500', bg: 'bg-green-500/10' },
                     { label: 'Conversion Rate', value: '92.4%', trend: '+5.2%', icon: FastSales, color: 'text-amber-500', bg: 'bg-amber-500/10' },
@@ -96,6 +96,30 @@ export function DashboardOverview() {
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* Connected Systems Status Indicators */}
+            <div className="space-y-4">
+                <h2 className="text-xs font-black uppercase tracking-widest text-slate-400">Interconnected Systems Status</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
+                    {[
+                        { name: "1. SafeYard", status: "CONNECTED", color: "bg-green-500" },
+                        { name: "2. Transport Center", status: "CONNECTED", color: "bg-green-500" },
+                        { name: "3. Saaed Hub", status: "ONLINE", color: "bg-red-500 animate-pulse" },
+                        { name: "4. Inspection", status: "LISTENING", color: "bg-green-500" },
+                        { name: "5. UAE PASS", status: "ACTIVE", color: "bg-green-500" },
+                        { name: "6. Payments", status: "CONNECTED", color: "bg-green-500" },
+                        { name: "7. Towing", status: "LISTENING", color: "bg-green-500" }
+                    ].map((sys, idx) => (
+                        <div key={idx} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-slate-350 transition-all">
+                            <div>
+                                <p className="text-[8px] font-black uppercase text-slate-500 tracking-wider leading-none">{sys.name}</p>
+                                <span className="text-[9px] font-black text-slate-800 dark:text-slate-300 mt-1.5 block leading-none">{sys.status}</span>
+                            </div>
+                            <div className={`w-2 h-2 rounded-full ${sys.color}`} />
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Charts Section */}
@@ -161,7 +185,7 @@ export function DashboardOverview() {
 
                 {/* AI Bidding Insight Card */}
                 <div className="flex flex-col gap-6">
-                    <div className="bg-gradient-to-br from-indigo-700 to-indigo-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-indigo-600/20 flex-1 cursor-pointer">
+                    <div className="bg-gradient-to-br from-red-950 to-slate-950 border border-red-900/30 rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl shadow-red-950/20 flex-1 cursor-pointer">
                         <div className="absolute top-0 right-0 p-4 transform translate-x-4 -translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform">
                             <ActiveAI className="w-32 h-32 opacity-10" />
                         </div>
@@ -173,7 +197,7 @@ export function DashboardOverview() {
                                 <h3 className="text-xl font-black tracking-tight leading-none uppercase italic underline decoration-white/20 underline-offset-8 mb-4">AI Market Signal</h3>
                                 <p className="text-sm font-bold opacity-80 leading-relaxed">System has detected <span className="text-green-300 font-extrabold">24 high-yield assets</span> currently undervalued by more than 15%. </p>
                             </div>
-                            <button className="px-6 py-2.5 rounded-full bg-white text-indigo-900 text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
+                            <button className="px-6 py-2.5 rounded-full bg-white text-red-950 text-[10px] font-black uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all outline-none">
                                 Review AI Alerts
                             </button>
                         </div>
@@ -224,10 +248,10 @@ export function DashboardOverview() {
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {[
-                                { status: 'AI ALERT', desc: 'Predictive Price Surge detected for License Plate 8888 UAE', category: 'Plates', time: '14:24:12', type: 'alert' },
-                                { status: 'SECURED', desc: 'Auto-bid bot blocked from auction Lot #912A', category: 'Security', time: '14:21:05', type: 'success' },
-                                { status: 'SYSTEM', desc: 'High traffic detected from Dubai region. Autoscaling enabled.', category: 'Infra', time: '14:18:42', type: 'msg' },
-                                { status: 'AI RECOMMEND', desc: 'AI recommends promoting 2022 Porsche 911 GT3 to featured', category: 'Growth', time: '14:12:30', type: 'ai' },
+                                { status: 'SAFEYARD SYNC', desc: 'Auto-imported 18 vehicles eligible for auction (unclaimed for 6 months)', category: 'SafeYard', time: '14:24:12', type: 'ai' },
+                                { status: 'VALUATION', desc: 'Valuation & 360 media submitted for Lot #V-9912 by Inspectco', category: 'Inspection', time: '14:21:05', type: 'success' },
+                                { status: 'UAE PASS Login', desc: 'Bidder UAE PASS KYC validation successful for user #12891', category: 'Identity', time: '14:18:42', type: 'success' },
+                                { status: 'TOWING DISPATCH', desc: 'Saaed flatbed #9 dispatched for scrap pickup Lot #V-9910', category: 'Logistics', time: '14:12:30', type: 'alert' },
                             ].map((row, i) => (
                                 <tr key={i} className="group hover:bg-white/5 transition-colors cursor-pointer">
                                     <td className="px-8 py-4">

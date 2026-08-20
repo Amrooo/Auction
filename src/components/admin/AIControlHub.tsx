@@ -69,7 +69,7 @@ export function AIControlHub() {
                             value={settings.predictionSensitivity}
                             onChange={(e) => setSettings({ ...settings, predictionSensitivity: parseInt(e.target.value) })}
                         />
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium italic underline decoration-slate-200 dark:decoration-white/5 underline-offset-4">AI determines the confidence threshold for "Undervalued" asset flags.</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium italic underline decoration-slate-200 dark:decoration-white/5 underline-offset-4">AI determines the confidence threshold for undervaluation alerts based on condition grades and scrap metal indices.</p>
                     </div>
                 </div>
 

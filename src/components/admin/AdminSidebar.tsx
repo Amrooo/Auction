@@ -12,6 +12,7 @@ import {
     History,
     ShieldCheck,
     Car,
+    Cpu,
     LogOut
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -22,6 +23,9 @@ const navigation = [
     { name: 'Vehicle Fleet', href: '/admin/fleet', icon: Car },
     { name: 'Bidding Trends', href: '/admin/analytics', icon: TrendingUp },
     { name: 'AI Monitoring', href: '/admin/ai-monitoring', icon: ActiveAI },
+    { name: 'SafeYard Portal', href: '/admin/safeyard', icon: ShieldCheck },
+    { name: 'ITC Portal', href: '/admin/itc', icon: Cpu },
+    { name: 'System Integrations', href: '/admin/integrations', icon: ShieldCheck },
     { name: 'User Management', href: '/admin/users', icon: Users },
     { name: 'Bot Security', href: '/admin/security', icon: ShieldCheck },
     { name: 'History', href: '/admin/history', icon: History },

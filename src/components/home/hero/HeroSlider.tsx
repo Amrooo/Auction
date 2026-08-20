@@ -1,0 +1,154 @@
+"use client"
+
+import React, { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ChevronLeft, ChevronRight, Gavel } from "lucide-react"
+import { useLanguage } from "@/lib/language-context"
+import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
+
+export const heroSlides = [
+    {
+        image: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?q=80&w=2670&auto=format&fit=crop",
+        titleKey: "Saaed new online Auto Auctions",
+        descKey: "Discover premium vehicles, exclusive luxury watches, VIP plates, and high-end real estate listings with AI-driven valuation estimates."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2670&auto=format&fit=crop",
+        titleKey: "Bid on Premium Government Lots",
+        descKey: "Access verified state-owned assets, salvage vehicles, and commercial real estate directly from official agencies."
+    },
+    {
+        image: "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?q=80&w=2670&auto=format&fit=crop",
+        titleKey: "Exclusive Watches & Fine Jewelry",
+        descKey: "Explore authenticated luxury timepieces and fine jewelry curated by certified appraisers with real-time bidding."
+    }
+]
+
+export function HeroSlider() {
+    const [currentImage, setCurrentImage] = useState(0)
+    const { t, language } = useLanguage()
+    const router = useRouter()
+
+    // Auto-advance slides
+    useEffect(() => {
+        const timer = setInterval(() => {
+            handleNext()
+        }, 7000)
+        return () => clearInterval(timer)
+    }, [])
+
+    const handlePrev = () => {
+        setCurrentImage((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)
+    }
+
+    const handleNext = () => {
+        setCurrentImage((prev) => (prev + 1) % heroSlides.length)
+    }
+
+    const slide = heroSlides[currentImage % heroSlides.length] || heroSlides[0]
+
+    return (
+        <>
+            {/* Background Image Slider */}
+            <div className="absolute inset-0 z-0">
+                <AnimatePresence mode="wait">
+                    <motion.img
+                        key={currentImage}
+                        src={slide.image}
+                        initial={{ opacity: 0, scale: 1.05 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.9, ease: "easeInOut" }}
+                        alt="Background Slider Car"
+                        className="absolute inset-0 w-full h-full object-cover filter saturate-[0.6] brightness-[0.7] contrast-[1.05] pointer-events-none"
+                    />
+                </AnimatePresence>
+                {/* Visual Overlay */}
+                <div className="absolute inset-0 bg-slate-950/20 mix-blend-multiply" />
+            </div>
+
+            {/* Slider Navigation Arrows */}
+            <button 
+                onClick={handlePrev}
+                className="absolute top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-all cursor-pointer border-none backdrop-blur-sm left-6"
+                aria-label="Previous slide"
+            >
+                <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button 
+                onClick={handleNext}
+                className="absolute top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-all cursor-pointer border-none backdrop-blur-sm right-6"
+                aria-label="Next slide"
+            >
+                <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Left/Right Aligned Hero Content based on RTL */}
+            <div className={cn(
+                "w-full max-w-6xl mx-auto px-4 md:px-8 relative z-10 flex-1 flex flex-col justify-center mt-12",
+                language === 'ar' ? 'items-start text-right' : 'items-start text-left'
+            )}>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={currentImage}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.5 }}
+                        className="w-full"
+                    >
+                        <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-white tracking-tight uppercase max-w-full md:max-w-[50%] leading-tight">
+                            {t(slide.titleKey)}
+                        </h1>
+
+                        <p className="text-xs sm:text-sm text-slate-200/90 font-medium max-w-full md:max-w-[50%] leading-relaxed mt-3 mb-8">
+                            {t(slide.descKey)}
+                        </p>
+                    </motion.div>
+                </AnimatePresence>
+
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="flex flex-wrap gap-4"
+                >
+                    <button
+                        onClick={() => router.push('/category/motors')}
+                        className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black shadow-lg shadow-red-600/20 transition-all flex items-center gap-2.5 text-lg group cursor-pointer border-none hover:scale-105 active:scale-95"
+                    >
+                        <span>{t("Live Auction")}</span>
+                        <span className={cn(
+                            "text-sm transition-transform",
+                            language === 'ar' ? "group-hover:-translate-x-1" : "group-hover:translate-x-1"
+                        )}>
+                            {language === 'ar' ? "◀" : "▶"}
+                        </span>
+                    </button>
+                    <button
+                        onClick={() => router.push('/category/motors')}
+                        className="px-8 py-4 bg-slate-950 dark:bg-slate-800 text-white rounded-2xl font-black shadow-lg hover:bg-slate-900 dark:hover:bg-slate-700 transition-all flex items-center gap-2.5 text-lg group cursor-pointer border-none hover:scale-105 active:scale-95"
+                    >
+                        <Gavel className="w-5 h-5 animate-bounce" />
+                        <span>{t("Bidding Now")}</span>
+                    </button>
+                </motion.div>
+            </div>
+
+            {/* Bullet Slide Indicators */}
+            <div className="flex justify-center gap-2 absolute bottom-24 left-0 right-0 z-20">
+                {heroSlides.map((_, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => setCurrentImage(idx)}
+                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border-none cursor-pointer ${
+                            idx === currentImage ? 'bg-[#3B82F6] w-6' : 'bg-slate-400/50'
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                    />
+                ))}
+            </div>
+        </>
+    )
+}

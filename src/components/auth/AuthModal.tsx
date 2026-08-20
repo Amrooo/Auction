@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Mail, Lock, User, Github, ArrowRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,7 +17,9 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) {
     const [activeTab, setActiveTab] = useState<"login" | "signup">(defaultTab)
     const [isLoading, setIsLoading] = useState(false)
+    const [email, setEmail] = useState("")
     const { t, language } = useLanguage()
+    const router = useRouter()
 
     // Reset tab when opening
     if (!isOpen) return null
@@ -27,6 +30,29 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
         setTimeout(() => {
             setIsLoading(false)
             onClose()
+            const emailLower = email.toLowerCase()
+            localStorage.setItem("user_logged_in", "true")
+            if (emailLower.includes("admin")) {
+                localStorage.setItem("user_role", "admin")
+                window.dispatchEvent(new Event("login_state_change"))
+                router.push("/admin")
+            } else if (emailLower.includes("yard") || emailLower.includes("supervisor")) {
+                localStorage.setItem("user_role", "yard")
+                window.dispatchEvent(new Event("login_state_change"))
+                router.push("/admin/safeyard")
+            } else if (emailLower.includes("itc") || emailLower.includes("transport")) {
+                localStorage.setItem("user_role", "itc")
+                window.dispatchEvent(new Event("login_state_change"))
+                router.push("/admin/itc")
+            } else if (emailLower.includes("inspect")) {
+                localStorage.setItem("user_role", "inspect")
+                window.dispatchEvent(new Event("login_state_change"))
+                router.push("/admin/integrations")
+            } else {
+                localStorage.setItem("user_role", "bidder")
+                window.dispatchEvent(new Event("login_state_change"))
+                router.push("/dashboard")
+            }
         }, 1500)
     }
 
@@ -108,6 +134,8 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                                         <input
                                             type="email"
                                             placeholder={t("John Doe")}
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             className={`w-full py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white font-medium ${language === 'ar' ? 'pr-12 pl-4' : 'pl-12 pr-4'}`}
                                             required
                                         />
@@ -160,7 +188,13 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                             </div>
 
                             <div className="space-y-3">
-                                <button className={`w-full h-14 flex items-center justify-center gap-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 transition-all duration-300 cursor-pointer shadow-sm group ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
+                                <button 
+                                    onClick={() => {
+                                        router.push("/dashboard")
+                                        onClose()
+                                    }}
+                                    className={`w-full h-14 flex items-center justify-center gap-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 transition-all duration-300 cursor-pointer shadow-sm group ${language === 'ar' ? 'flex-row-reverse' : ''}`}
+                                >
                                     <img
                                         src="/images/uae-pass-fingerprint.png"
                                         alt="UAE Pass"

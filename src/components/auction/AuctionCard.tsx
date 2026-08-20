@@ -89,7 +89,7 @@ export function AuctionCard({
                         {bids} {t("Bids")}
                     </div>
                     <Link href={`/auctions/${id}`} className="flex-1">
-                        <Button size="lg" className="w-full rounded-2xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-accent dark:hover:bg-accent dark:hover:text-white font-black transition-all shadow-lg hover:shadow-accent/20 active:scale-95 text-xs uppercase tracking-widest border-none">
+                        <Button size="lg" className="w-full rounded-2xl bg-red-600 hover:bg-red-700 text-white hover:text-white font-black transition-all shadow-lg hover:shadow-red-600/20 active:scale-95 text-xs uppercase tracking-widest border-none">
                             {t("Bid Now")}
                         </Button>
                     </Link>

@@ -11,16 +11,25 @@ const categories = [
     { name: "Jewelry", icon: Gem, count: "230+", color: "from-purple-500/20 to-purple-500/5", span: "md:col-span-1", height: "h-64", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2670&auto=format&fit=crop" },
     { name: "Plates", icon: Hash, count: "890+", color: "from-orange-500/20 to-orange-500/5", span: "md:col-span-2", height: "h-64", image: "/images/license-plate.png" },
     { name: "Watches", icon: Watch, count: "150+", color: "from-amber-500/20 to-amber-500/5", span: "md:col-span-1", height: "h-64", image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?q=80&w=2669&auto=format&fit=crop" },
-    { name: "General", icon: Gavel, count: "1.2k+", color: "from-indigo-500/20 to-indigo-500/5", span: "md:col-span-3", height: "h-64", image: "https://images.unsplash.com/photo-1550948537-130a1ce83314?q=80&w=2672&auto=format&fit=crop" },
+    { name: "General", icon: Gavel, count: "1.2k+", color: "from-indigo-500/20 to-indigo-500/5", span: "md:col-span-3", height: "h-64", image: "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?q=80&w=2670&auto=format&fit=crop" },
 ]
 
 
+
+const gradientBorders: Record<string, string> = {
+    Motors: "from-blue-500 to-indigo-600",
+    "Real Estate": "from-emerald-400 to-teal-600",
+    Jewelry: "from-purple-500 to-pink-600",
+    Plates: "from-orange-400 to-red-600",
+    Watches: "from-amber-400 to-yellow-600",
+    General: "from-indigo-400 to-violet-600",
+}
 
 export function FeaturedCategories() {
     const { t, language } = useLanguage()
 
     return (
-        <section className="py-24 bg-slate-50/50 dark:bg-slate-950/50">
+        <section id="featured-categories" className="py-24 bg-slate-50/50 dark:bg-slate-950/50">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-20 space-y-4">
                     <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white">
@@ -32,23 +41,31 @@ export function FeaturedCategories() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 auto-rows-fr">
-                    {categories.map((cat, i) => (
-                        <div
-                            key={cat.name}
-                            className={`relative group rounded-[3rem] overflow-hidden ${cat.span} ${cat.height} ring-1 ring-slate-200 dark:ring-border shadow-sm hover:shadow-2xl transition-all duration-500`}
-                        >
-                            {/* Animated Gradient Border Overlay */}
-                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r ${cat.color} -z-10 bg-clip-text`} />
-
-                            <Link
-                                href={`/category/${cat.name.toLowerCase()}`}
+                    {categories.map((cat, i) => {
+                        const borderGrad = gradientBorders[cat.name] || "from-slate-200 to-slate-300";
+                        return (
+                            <div
+                                key={cat.name}
                                 className={cn(
-                                    "block h-full w-full relative transition-all duration-500",
-                                    cat.name === "Plates" ? "bg-slate-900/90" : "bg-white dark:bg-slate-900/90"
+                                    "relative group p-[2px] transition-all duration-500 rounded-[3rem] overflow-hidden shadow-sm hover:shadow-2xl",
+                                    cat.span,
+                                    cat.height,
+                                    "bg-gradient-to-br from-slate-200/80 to-slate-300/80 dark:from-slate-800/80 dark:to-slate-700/80",
+                                    `hover:bg-gradient-to-br hover:${borderGrad}`
                                 )}
                             >
-                                {/* Colored Glow */}
-                                <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none`} />
+                                {/* Animated Gradient Border Overlay */}
+                                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-r ${cat.color} -z-10 bg-clip-text`} />
+
+                                <Link
+                                    href={`/category/${cat.name.toLowerCase()}`}
+                                    className={cn(
+                                        "block h-full w-full relative transition-all duration-500 rounded-[2.85rem] overflow-hidden",
+                                        cat.name === "Plates" ? "bg-slate-900/90" : "bg-white dark:bg-slate-900/90"
+                                    )}
+                                >
+                                    {/* Colored Glow */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none`} />
 
                                 {/* Image Background */}
                                 <div className="absolute inset-0 z-0 overflow-hidden">
@@ -108,7 +125,8 @@ export function FeaturedCategories() {
                                 <div className={`absolute bottom-0 left-0 h-1.5 bg-accent w-0 group-hover:w-full transition-all duration-1000 ease-in-out shadow-[0_0_15px_rgba(220,38,38,0.5)]`} />
                             </Link>
                         </div>
-                    ))}
+                    )
+                })}
                 </div>
             </div>
         </section>

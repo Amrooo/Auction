@@ -3,9 +3,13 @@
 import Link from "next/link"
 import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
+import { usePathname } from "next/navigation"
 
 export function Footer() {
+    const pathname = usePathname()
     const { t, language } = useLanguage()
+
+    if (pathname.startsWith("/admin")) return null
 
     return (
         <footer className="bg-slate-950 text-slate-400 py-16 rounded-t-[3rem] mt-20 relative overflow-hidden">
@@ -32,10 +36,16 @@ export function Footer() {
                     <div className={language === 'ar' ? 'text-right' : 'text-left'}>
                         <h3 className="text-white font-bold mb-6 tracking-wide uppercase text-xs">{t("Platform")}</h3>
                         <ul className="space-y-3 text-sm">
-                            {['Live Auctions', 'Ending Soon', 'Motors', 'Real Estate', 'Consignments'].map((item) => (
-                                <li key={item}>
-                                    <Link href="#" className="text-slate-500 hover:text-accent transition-colors">
-                                        {t(item)}
+                            {[
+                                { name: 'Live Auctions', path: '#' },
+                                { name: 'Ending Soon', path: '#' },
+                                { name: 'Motors', path: '/category/motors' },
+                                { name: 'Real Estate', path: '/category/real estate' },
+                                { name: 'Consignments', path: '#' }
+                            ].map((item) => (
+                                <li key={item.name}>
+                                    <Link href={item.path} className="text-slate-500 hover:text-accent transition-colors">
+                                        {t(item.name)}
                                     </Link>
                                 </li>
                             ))}
