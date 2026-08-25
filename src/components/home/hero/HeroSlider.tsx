@@ -71,22 +71,22 @@ export function HeroSlider() {
             {/* Slider Navigation Arrows */}
             <button 
                 onClick={handlePrev}
-                className="absolute top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-all cursor-pointer border-none backdrop-blur-sm left-6"
+                className="absolute top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition-all cursor-pointer border-none backdrop-blur-sm left-2 sm:left-6 shadow-md"
                 aria-label="Previous slide"
             >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
             </button>
             <button 
                 onClick={handleNext}
-                className="absolute top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-all cursor-pointer border-none backdrop-blur-sm right-6"
+                className="absolute top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition-all cursor-pointer border-none backdrop-blur-sm right-2 sm:right-6 shadow-md"
                 aria-label="Next slide"
             >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
             </button>
 
             {/* Left/Right Aligned Hero Content based on RTL */}
             <div className={cn(
-                "w-full max-w-6xl mx-auto px-4 md:px-8 relative z-10 flex-1 flex flex-col justify-center mt-12",
+                "w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 relative z-10 flex-1 flex flex-col justify-center mt-4 sm:mt-8 md:mt-12",
                 language === 'ar' ? 'items-start text-right' : 'items-start text-left'
             )}>
                 <AnimatePresence mode="wait">
@@ -98,11 +98,11 @@ export function HeroSlider() {
                         transition={{ duration: 0.5 }}
                         className="w-full"
                     >
-                        <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-white tracking-tight uppercase max-w-full md:max-w-[50%] leading-tight">
+                        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight uppercase max-w-full md:max-w-[70%] lg:max-w-[55%] leading-tight">
                             {t(slide.titleKey)}
                         </h1>
 
-                        <p className="text-xs sm:text-sm text-slate-200/90 font-medium max-w-full md:max-w-[50%] leading-relaxed mt-3 mb-8">
+                        <p className="text-xs sm:text-sm text-slate-200/90 font-medium max-w-full md:max-w-[70%] lg:max-w-[55%] leading-relaxed mt-2 sm:mt-3 mb-5 sm:mb-8 line-clamp-3 sm:line-clamp-none">
                             {t(slide.descKey)}
                         </p>
                     </motion.div>
@@ -112,15 +112,15 @@ export function HeroSlider() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="flex flex-wrap gap-4"
+                    className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto"
                 >
                     <button
                         onClick={() => router.push('/category/motors')}
-                        className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black shadow-lg shadow-red-600/20 transition-all flex items-center gap-2.5 text-lg group cursor-pointer border-none hover:scale-105 active:scale-95"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl sm:rounded-2xl font-black shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2.5 text-sm sm:text-base md:text-lg group cursor-pointer border-none hover:scale-105 active:scale-95"
                     >
                         <span>{t("Live Auction")}</span>
                         <span className={cn(
-                            "text-sm transition-transform",
+                            "text-xs sm:text-sm transition-transform",
                             language === 'ar' ? "group-hover:-translate-x-1" : "group-hover:translate-x-1"
                         )}>
                             {language === 'ar' ? "◀" : "▶"}
@@ -128,9 +128,9 @@ export function HeroSlider() {
                     </button>
                     <button
                         onClick={() => router.push('/category/motors')}
-                        className="px-8 py-4 bg-slate-950 dark:bg-slate-800 text-white rounded-2xl font-black shadow-lg hover:bg-slate-900 dark:hover:bg-slate-700 transition-all flex items-center gap-2.5 text-lg group cursor-pointer border-none hover:scale-105 active:scale-95"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-950 dark:bg-slate-800 text-white rounded-xl sm:rounded-2xl font-black shadow-lg hover:bg-slate-900 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2.5 text-sm sm:text-base md:text-lg group cursor-pointer border-none hover:scale-105 active:scale-95"
                     >
-                        <Gavel className="w-5 h-5 animate-bounce" />
+                        <Gavel className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
                         <span>{t("Bidding Now")}</span>
                     </button>
                 </motion.div>

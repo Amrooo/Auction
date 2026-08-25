@@ -220,7 +220,7 @@ export function Header() {
                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 15, scale: 1 }}
                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    className="absolute top-full right-0 mt-2 w-80 md:w-96 z-[60]"
+                                    className="absolute top-full right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 md:w-96 max-w-sm z-[60]"
                                 >
                                     <div className="bg-white dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/60 dark:border-border/50 rounded-2xl shadow-2xl p-4 overflow-hidden">
                                         <div className="relative group">
@@ -366,26 +366,51 @@ export function Header() {
                                     </button>
                                     <ThemeToggle />
                                 </div>
-                                <div className="flex flex-col gap-2">
-                                    <button
-                                        onClick={() => {
-                                            setIsMobileMenuOpen(false);
-                                            openAuthModal("signup");
-                                        }}
-                                        className="w-full py-3 rounded-2xl text-sm font-black bg-slate-950 dark:bg-slate-800 text-white hover:bg-slate-900 dark:hover:bg-slate-700 transition-all cursor-pointer border-none shadow-md"
-                                    >
-                                        {t("Register")}
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setIsMobileMenuOpen(false);
-                                            openAuthModal("login");
-                                        }}
-                                    className="w-full py-3 rounded-2xl text-sm font-black bg-red-600 hover:bg-red-700 text-white transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] cursor-pointer border-none active:scale-95"
-                                    >
-                                        {t("Login")}
-                                    </button>
-                                </div>
+                                {isLoggedIn ? (
+                                    <div className="flex flex-col gap-2">
+                                        <Link
+                                            href={getPortalHref()}
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className="w-full py-3 rounded-2xl text-sm font-black bg-slate-950 dark:bg-slate-800 text-white hover:bg-slate-900 dark:hover:bg-slate-700 transition-all cursor-pointer border-none shadow-md text-center block"
+                                        >
+                                            {userRole === "admin" ? "Admin Panel" :
+                                             userRole === "yard" ? "Yard Portal" :
+                                             userRole === "itc" ? "ITC Portal" :
+                                             userRole === "inspect" ? "Integrations" :
+                                             "Dashboard"}
+                                        </Link>
+                                        <button
+                                            onClick={() => {
+                                                setIsMobileMenuOpen(false);
+                                                handleLogout();
+                                            }}
+                                            className="w-full py-3 rounded-2xl text-sm font-black bg-red-600 hover:bg-red-700 text-white transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] cursor-pointer border-none active:scale-95"
+                                        >
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setIsMobileMenuOpen(false);
+                                                openAuthModal("signup");
+                                            }}
+                                            className="w-full py-3 rounded-2xl text-sm font-black bg-slate-950 dark:bg-slate-800 text-white hover:bg-slate-900 dark:hover:bg-slate-700 transition-all cursor-pointer border-none shadow-md"
+                                        >
+                                            {t("Register")}
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setIsMobileMenuOpen(false);
+                                                openAuthModal("login");
+                                            }}
+                                            className="w-full py-3 rounded-2xl text-sm font-black bg-red-600 hover:bg-red-700 text-white transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] cursor-pointer border-none active:scale-95"
+                                        >
+                                            {t("Login")}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     </>
