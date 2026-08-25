@@ -92,16 +92,33 @@ export function Header() {
                 )}
             >
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between relative z-10">
-                    <Link href="/" className="flex items-center group">
-                        <img
-                            src="/images/saaed-logo.png"
-                            alt="Saaed"
-                            className={cn(
-                                "h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105",
-                                isScrolled && "dark:brightness-0 dark:invert"
-                            )}
-                        />
-                    </Link>
+                    <div className="flex items-center relative">
+                        {/* UAE flag graphic: left side in English, right side in Arabic */}
+                        <div className={cn(
+                            "absolute top-1/2 -translate-y-1/2 z-20 bg-black rounded-xl p-1.5 sm:p-2 shadow-xl border border-slate-800 flex items-center justify-center",
+                            language === 'ar' ? "-right-6 sm:-right-10" : "-left-6 sm:-left-10"
+                        )}>
+                            <img
+                                src="/images/uae-flag-original.png"
+                                alt="UAE Flag"
+                                className="h-8 sm:h-10 w-auto object-contain"
+                            />
+                        </div>
+
+                        <Link href="/" className={cn(
+                            "flex items-center group relative z-10",
+                            language === 'ar' ? "pe-12 sm:pe-16" : "ps-12 sm:ps-16"
+                        )}>
+                            <img
+                                src="/images/saaed-logo.png"
+                                alt="Saaed"
+                                className={cn(
+                                    "h-11 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105",
+                                    isScrolled && "dark:brightness-0 dark:invert"
+                                )}
+                            />
+                        </Link>
+                    </div>
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-2">
@@ -278,13 +295,25 @@ export function Header() {
                         >
                             <div>
                                 <div className="flex items-center justify-between mb-8">
-                                    <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <img
-                                            src="/images/saaed-logo.png"
-                                            alt="Saaed"
-                                            className="h-10 w-auto object-contain dark:brightness-0 dark:invert"
-                                        />
-                                    </Link>
+                                    <div className="flex items-center gap-3">
+                                        <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <img
+                                                src="/images/saaed-logo.png"
+                                                alt="Saaed"
+                                                className="h-9 w-auto object-contain dark:brightness-0 dark:invert"
+                                            />
+                                        </Link>
+                                        <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200/80 dark:border-slate-700/80">
+                                            <img
+                                                src="/images/uae-flag-ribbon.png"
+                                                alt="UAE Flag"
+                                                className="h-2 w-auto object-contain"
+                                            />
+                                            <span className="text-[9px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                                UAE
+                                            </span>
+                                        </div>
+                                    </div>
                                     <button
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-pointer"

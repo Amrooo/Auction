@@ -16,13 +16,49 @@ const categories = [
 
 
 
-const gradientBorders: Record<string, string> = {
-    Motors: "from-blue-500 to-indigo-600",
-    "Real Estate": "from-emerald-400 to-teal-600",
-    Jewelry: "from-purple-500 to-pink-600",
-    Plates: "from-orange-400 to-red-600",
-    Watches: "from-amber-400 to-yellow-600",
-    General: "from-indigo-400 to-violet-600",
+const categoryColors: Record<string, { border: string; bar: string; shadow: string; iconHover: string; badgeHover: string }> = {
+    Motors: {
+        border: "from-blue-500 to-indigo-600",
+        bar: "bg-gradient-to-r from-blue-500 to-indigo-600",
+        shadow: "shadow-[0_0_15px_rgba(59,130,246,0.6)]",
+        iconHover: "group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-600 group-hover:text-white",
+        badgeHover: "group-hover:border-blue-500/30 group-hover:text-blue-500 dark:group-hover:text-blue-400",
+    },
+    "Real Estate": {
+        border: "from-emerald-400 to-teal-600",
+        bar: "bg-gradient-to-r from-emerald-400 to-teal-600",
+        shadow: "shadow-[0_0_15px_rgba(16,185,129,0.6)]",
+        iconHover: "group-hover:bg-gradient-to-br group-hover:from-emerald-400 group-hover:to-teal-600 group-hover:text-white",
+        badgeHover: "group-hover:border-emerald-500/30 group-hover:text-emerald-500 dark:group-hover:text-emerald-400",
+    },
+    Jewelry: {
+        border: "from-purple-500 to-pink-600",
+        bar: "bg-gradient-to-r from-purple-500 to-pink-600",
+        shadow: "shadow-[0_0_15px_rgba(168,85,247,0.6)]",
+        iconHover: "group-hover:bg-gradient-to-br group-hover:from-purple-500 group-hover:to-pink-600 group-hover:text-white",
+        badgeHover: "group-hover:border-purple-500/30 group-hover:text-purple-500 dark:group-hover:text-purple-400",
+    },
+    Plates: {
+        border: "from-orange-400 to-red-600",
+        bar: "bg-gradient-to-r from-orange-400 to-red-600",
+        shadow: "shadow-[0_0_15px_rgba(249,115,22,0.6)]",
+        iconHover: "group-hover:bg-gradient-to-br group-hover:from-orange-400 group-hover:to-red-600 group-hover:text-white",
+        badgeHover: "group-hover:border-orange-500/30 group-hover:text-orange-500 dark:group-hover:text-orange-400",
+    },
+    Watches: {
+        border: "from-amber-400 to-yellow-600",
+        bar: "bg-gradient-to-r from-amber-400 to-yellow-600",
+        shadow: "shadow-[0_0_15px_rgba(245,158,11,0.6)]",
+        iconHover: "group-hover:bg-gradient-to-br group-hover:from-amber-400 group-hover:to-yellow-600 group-hover:text-white",
+        badgeHover: "group-hover:border-amber-500/30 group-hover:text-amber-500 dark:group-hover:text-amber-400",
+    },
+    General: {
+        border: "from-indigo-400 to-violet-600",
+        bar: "bg-gradient-to-r from-indigo-400 to-violet-600",
+        shadow: "shadow-[0_0_15px_rgba(99,102,241,0.6)]",
+        iconHover: "group-hover:bg-gradient-to-br group-hover:from-indigo-400 group-hover:to-violet-600 group-hover:text-white",
+        badgeHover: "group-hover:border-indigo-500/30 group-hover:text-indigo-500 dark:group-hover:text-indigo-400",
+    },
 }
 
 export function FeaturedCategories() {
@@ -42,7 +78,13 @@ export function FeaturedCategories() {
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 auto-rows-fr">
                     {categories.map((cat, i) => {
-                        const borderGrad = gradientBorders[cat.name] || "from-slate-200 to-slate-300";
+                        const theme = categoryColors[cat.name] || {
+                            border: "from-slate-200 to-slate-300",
+                            bar: "bg-accent",
+                            shadow: "shadow-[0_0_15px_rgba(220,38,38,0.5)]",
+                            iconHover: "group-hover:bg-accent group-hover:text-white",
+                            badgeHover: "group-hover:border-accent/30 group-hover:text-accent"
+                        };
                         return (
                             <div
                                 key={cat.name}
@@ -51,7 +93,7 @@ export function FeaturedCategories() {
                                     cat.span,
                                     cat.height,
                                     "bg-gradient-to-br from-slate-200/80 to-slate-300/80 dark:from-slate-800/80 dark:to-slate-700/80",
-                                    `hover:bg-gradient-to-br hover:${borderGrad}`
+                                    `hover:bg-gradient-to-br hover:${theme.border}`
                                 )}
                             >
                                 {/* Animated Gradient Border Overlay */}
@@ -94,7 +136,8 @@ export function FeaturedCategories() {
                                             {cat.name !== "Plates" && (
                                                 <div className={cn(
                                                     "w-14 h-14 rounded-[1.25rem] flex items-center justify-center mb-5 transition-all duration-500 shadow-xl backdrop-blur-xl",
-                                                    "bg-slate-50 dark:bg-white/10 border border-slate-200 dark:border-white/20 group-hover:bg-accent group-hover:text-white group-hover:scale-110 group-hover:rotate-6 text-slate-900 dark:text-white"
+                                                    "bg-slate-50 dark:bg-white/10 border border-slate-200 dark:border-white/20 group-hover:scale-110 group-hover:rotate-6 text-slate-900 dark:text-white",
+                                                    theme.iconHover
                                                 )}>
                                                     <cat.icon className="w-7 h-7" />
                                                 </div>
@@ -109,7 +152,7 @@ export function FeaturedCategories() {
                                                 "text-[10px] uppercase font-black px-4 py-1.5 rounded-full w-fit backdrop-blur-md border tracking-widest transition-all duration-500",
                                                 cat.name === "Plates"
                                                     ? "bg-white/20 text-white border-white/30"
-                                                    : "bg-white dark:bg-white/5 text-slate-900 dark:text-white/70 border-slate-300 dark:border-white/10 group-hover:border-accent/30 group-hover:text-accent"
+                                                    : cn("bg-white dark:bg-white/5 text-slate-900 dark:text-white/70 border-slate-300 dark:border-white/10", theme.badgeHover)
                                             )}>
                                                 {cat.count} {t("listings")}
                                             </p>
@@ -121,8 +164,12 @@ export function FeaturedCategories() {
                                     </div>
                                 </div>
 
-                                {/* Hover Border Line */}
-                                <div className={`absolute bottom-0 left-0 h-1.5 bg-accent w-0 group-hover:w-full transition-all duration-1000 ease-in-out shadow-[0_0_15px_rgba(220,38,38,0.5)]`} />
+                                {/* Hover Border Line (Matches Category Border Color) */}
+                                <div className={cn(
+                                    "absolute bottom-0 left-0 h-1.5 w-0 group-hover:w-full transition-all duration-1000 ease-in-out",
+                                    theme.bar,
+                                    theme.shadow
+                                )} />
                             </Link>
                         </div>
                     )
@@ -132,3 +179,4 @@ export function FeaturedCategories() {
         </section>
     )
 }
+

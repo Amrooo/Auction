@@ -29,7 +29,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                         className={`px-6 md:px-8 py-3 font-bold text-xs md:text-sm rounded-t-2xl transition-all border-none cursor-pointer shrink-0 ${
                             activeCategory === cat 
                                 ? "bg-white dark:bg-slate-900 text-[#1F2937] dark:text-white shadow-[0_-2px_10px_rgba(0,0,0,0.06)]" 
-                                : "bg-[#3B82F6] text-white hover:bg-[#3B82F6]/90"
+                                : "bg-[#3B82F6] text-white hover:bg-[#3B82F6]/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
                         }`}
                     >
                         {t(cat)}
