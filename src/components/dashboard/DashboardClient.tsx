@@ -152,26 +152,42 @@ export default function DashboardClient() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className={cn(
-          "flex flex-col md:flex-row md:items-end justify-between gap-6",
-          language === 'ar' && "md:flex-row-reverse"
+          "flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2",
+          language === 'ar' && "sm:flex-row-reverse"
         )}
       >
         <div className="text-start">
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200/60 dark:border-red-900/60">
+              {t("Customer Portal") || "Customer Portal"}
+            </span>
+            <span className="text-slate-300 dark:text-slate-700">•</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+              {language === 'ar' ? 'لوحة المزادات المباشرة' : 'Live Auction Hub'}
+            </span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
             {language === 'ar' ? `مرحباً، عمرو! 👋` : `Hello, Amro! 👋`}
           </h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 font-bold">
+          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-bold mt-1">
             {t("Welcome back to your auction dashboard.")}
           </p>
         </div>
-        <div className={cn("flex items-center gap-3", language === 'ar' && "flex-row-reverse")}>
-            <div className="w-12 h-12 rounded-full border-2 border-white dark:border-slate-800 overflow-hidden shadow-xl">
-                <img src="https://i.pravatar.cc/100?u=amro" alt="Amro" />
+
+        <div className={cn("flex items-center gap-3 shrink-0", language === 'ar' && "flex-row-reverse")}>
+          <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black text-xs shadow-md shadow-amber-500/20">
+              VIP
             </div>
             <div className="text-start">
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-1">PRO MEMBER</p>
-                <p className="font-black text-slate-900 dark:text-white leading-none tracking-tight">Amro El-Gezeri</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider leading-none">
+                {t("Membership Tier") || "Membership Tier"}
+              </p>
+              <p className="font-black text-xs text-slate-900 dark:text-white mt-1 leading-none">
+                {t("Pro Bidder") || "Pro Bidder"}
+              </p>
             </div>
+          </div>
         </div>
       </motion.div>
 

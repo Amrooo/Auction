@@ -18,8 +18,8 @@ export function Hero() {
                 <HeroSlider />
             </section>
 
-            {/* Overlapping Filter Panel */}
-            <div className="-mt-16 sm:-mt-20 relative z-30">
+            {/* Overlapping Filter Panel: Tabs baseline aligns with slider bottom line */}
+            <div className="-mt-11 md:-mt-12 relative z-30">
                 <HeroFilterPanel 
                     categories={categories}
                     activeCategory={activeCategory}

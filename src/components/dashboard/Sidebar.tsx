@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { 
+  LayoutDashboard,
   SlidersHorizontal, 
   Heart, 
   Gavel, 
@@ -15,13 +16,16 @@ import {
   LogOut,
   ChevronRight,
   ChevronLeft,
-  User
+  User,
+  ShieldCheck,
+  Plus
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/language-context"
 import { DepositModal } from "@/components/dashboard/DepositModal"
 
 const menuItems = [
+  { icon: LayoutDashboard, label: "Overview", value: "overview" },
   { icon: SlidersHorizontal, label: "Saved Filters", value: "saved-filters" },
   { icon: Heart, label: "Watchlist", value: "watchlist" },
   { icon: Gavel, label: "My Bids", value: "my-bids" },
@@ -65,72 +69,86 @@ export function DashboardSidebar() {
 
   return (
     <div className={cn(
-      "w-full lg:w-80 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)]",
+      "w-full lg:w-80 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-[0_10px_40px_rgba(0,0,0,0.03)]",
       language === 'ar' && "text-right"
     )}>
       {/* User Header Profile Card */}
       <Link 
         href="/dashboard?tab=profile"
         className={cn(
-          "flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all mb-6 group border border-slate-100 dark:border-slate-800",
+          "flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all mb-5 group border border-slate-100 dark:border-slate-700/60 shadow-xs",
           language === 'ar' && "flex-row-reverse"
         )}
       >
-        <div className={cn("flex items-center gap-3", language === 'ar' && "flex-row-reverse")}>
-          <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300">
-            <User className="w-6 h-6" />
+        <div className={cn("flex items-center gap-3 min-w-0", language === 'ar' && "flex-row-reverse")}>
+          <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm shrink-0 bg-slate-200 dark:bg-slate-700">
+            <img 
+              src="https://i.pravatar.cc/100?u=amro" 
+              alt="Amro El-Gezeri" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900" />
           </div>
-          <div className="text-start">
-            <h4 className="font-extrabold text-sm text-slate-800 dark:text-slate-100 tracking-tight line-clamp-1">
-              AMRO,MOHAMMED...
+          <div className="text-start min-w-0 flex-1">
+            <h4 className="font-black text-sm text-slate-900 dark:text-white tracking-tight truncate">
+              Amro El-Gezeri
             </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold">
-              {t("View Profile")}
-            </p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                {t("Verified") || "Verified"}
+              </span>
+            </div>
           </div>
         </div>
-        <div className={cn("flex items-center gap-1", language === 'ar' && "flex-row-reverse")}>
-          <span className="bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase px-2.5 py-1 rounded-full">
-            {t("Verified") || "Verified"}
-          </span>
-          <ChevronIcon className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+        <div className={cn("flex items-center text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors shrink-0", language === 'ar' && "flex-row-reverse")}>
+          <ChevronIcon className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
         </div>
       </Link>
 
       {/* Security Deposit Info Card */}
       {depositAmount === 0 ? (
-        <div className="bg-red-50/50 dark:bg-red-950/10 border border-red-100 dark:border-red-900/40 rounded-2xl p-5 mb-6 text-start">
-          <h5 className="font-black text-sm text-red-600 dark:text-red-500 mb-1">
-            {t("Add Security Deposit") || "Add Security Deposit"}
-          </h5>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal mb-4 font-bold">
-            {t("In order to bid you have to add a security deposit.") || "In order to bid you have to add a security deposit."}
+        <div className="bg-gradient-to-br from-red-500/10 via-rose-500/5 to-transparent border border-red-200/60 dark:border-red-900/40 rounded-2xl p-4 mb-5 text-start">
+          <div className="flex items-center justify-between mb-1.5">
+            <h5 className="font-black text-xs text-red-600 dark:text-red-400 uppercase tracking-wider">
+              {t("Security Deposit") || "Security Deposit"}
+            </h5>
+            <span className="text-[10px] font-bold text-red-500 bg-red-100 dark:bg-red-950/60 px-2 py-0.5 rounded-full">
+              {t("Required") || "Required"}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-3 font-semibold">
+            {t("Deposit required to unlock live bidding capabilities.") || "Deposit required to unlock live bidding capabilities."}
           </p>
           <button 
             onClick={() => setIsDepositOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-black shadow-md cursor-pointer transition-all active:scale-95 border-none"
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black shadow-md shadow-red-600/20 cursor-pointer transition-all active:scale-98 border-none"
           >
-            <span>+</span> {t("Add") || "Add"}
+            <Plus className="w-3.5 h-3.5" />
+            <span>{t("Add Deposit") || "Add Deposit"}</span>
           </button>
         </div>
       ) : (
-        <div className="bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/40 rounded-2xl p-5 mb-6 text-start flex items-center justify-between">
+        <div className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-200/60 dark:border-emerald-900/40 rounded-2xl p-4 mb-5 text-start flex items-center justify-between">
           <div>
-            <h5 className="font-black text-sm text-emerald-600 dark:text-emerald-400 mb-1">
-              {t("Deposit Active") || "Deposit Active"}
-            </h5>
-            <p className="text-[10px] font-black text-slate-500 dark:text-slate-400">
-              AED {depositAmount.toLocaleString()} {t("Pre-Authorized") || "Pre-Authorized"}
+            <div className="flex items-center gap-1.5 mb-1">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <h5 className="font-black text-xs text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                {t("Deposit Active") || "Deposit Active"}
+              </h5>
+            </div>
+            <p className="text-xs font-black text-slate-900 dark:text-white">
+              AED {depositAmount.toLocaleString()}
             </p>
           </div>
           <button 
             onClick={() => setIsDepositOpen(true)}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-2xl transition-all active:scale-95 border-none"
+            className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all active:scale-95 border-none shadow-sm cursor-pointer"
           >
             + {t("Top Up") || "Top Up"}
           </button>
         </div>
-      )/* line 133 end */}
+      )}
 
       {/* Navigation List */}
       <div className="flex-1 space-y-1">
