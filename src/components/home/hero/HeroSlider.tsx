@@ -137,7 +137,7 @@ export function HeroSlider() {
             </div>
 
             {/* Bullet Slide Indicators */}
-            <div className="flex justify-center gap-2 absolute bottom-28 md:bottom-32 left-0 right-0 z-20">
+            <div className="flex justify-center gap-2 absolute bottom-16 md:bottom-20 left-0 right-0 z-20">
                 {heroSlides.map((_, idx) => (
                     <button
                         key={idx}
