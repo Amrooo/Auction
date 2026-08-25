@@ -18,17 +18,17 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
     const router = useRouter()
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-4 md:px-8 relative z-20 translate-y-12">
+        <div className="w-full max-w-6xl mx-auto px-4 md:px-8 relative z-20">
             
             {/* Tabs Container with Drop Shadow - scrollable on mobile */}
-            <div className="flex overflow-x-auto whitespace-nowrap scrollbar-none gap-2 pb-1 filter drop-shadow-[0_-5px_8px_rgba(0,0,0,0.18)] dark:drop-shadow-[0_-5px_8px_rgba(0,0,0,0.5)]">
+            <div className="flex overflow-x-auto whitespace-nowrap scrollbar-none gap-2 pb-0.5 filter drop-shadow-[0_-5px_8px_rgba(0,0,0,0.18)] dark:drop-shadow-[0_-5px_8px_rgba(0,0,0,0.5)]">
                 {categories.map((cat) => (
                     <button 
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
                         className={`px-6 md:px-8 py-3 font-bold text-xs md:text-sm rounded-t-2xl transition-all border-none cursor-pointer shrink-0 ${
                             activeCategory === cat 
-                                ? "bg-white text-[#1F2937] shadow-[0_-2px_10px_rgba(0,0,0,0.06)]" 
+                                ? "bg-white dark:bg-slate-900 text-[#1F2937] dark:text-white shadow-[0_-2px_10px_rgba(0,0,0,0.06)]" 
                                 : "bg-[#3B82F6] text-white hover:bg-[#3B82F6]/90"
                         }`}
                     >
