@@ -6,7 +6,7 @@ import { AuctionCard, SourceEntity } from "@/components/auction/AuctionCard"
 import { MotorFilters } from "@/components/motors/Filters"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Car } from "lucide-react"
 
 export default function CategoryPage() {
@@ -19,17 +19,47 @@ export default function CategoryPage() {
     const isAr = language === 'ar'
     const categoryName = (params.name as string).toLowerCase()
 
-    // Mock data for motors with official source entities
-    const motorsAuctions: Array<{
+    const [liveVehicles, setLiveVehicles] = useState<Array<{
         id: string
         title: string
+        titleAr?: string
         image: string
         currentBid: number
         endTime: string
         aiInsight?: string
         bids: number
         sourceEntity: SourceEntity
-    }> = [
+    }>>([])
+
+    // Load dynamic vehicles from Web Service API
+    useEffect(() => {
+        const fetchVehicles = async () => {
+            try {
+                const res = await fetch(`/api/vehicles?status=live&category=${categoryName}`)
+                if (res.ok) {
+                    const json = await res.json()
+                    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+                        const mapped = json.data.map((v: any) => ({
+                            id: v.id,
+                            title: isAr && v.titleAr ? v.titleAr : v.title,
+                            image: v.thumbnail || v.images?.[0] || "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop",
+                            currentBid: v.currentBid,
+                            endTime: "4h 20m",
+                            aiInsight: v.aiInsight?.badge,
+                            bids: v.bidsCount || 0,
+                            sourceEntity: v.sourceEntity
+                        }))
+                        setLiveVehicles(mapped)
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching live vehicles:", err)
+            }
+        }
+        fetchVehicles()
+    }, [categoryName, isAr])
+
+    const allAuctions = liveVehicles.length > 0 ? liveVehicles : (categoryName === 'motors' ? [
         {
             id: "m1",
             title: "2024 Mercedes-AMG G63",
@@ -101,26 +131,8 @@ export default function CategoryPage() {
                 arabicName: "شركة ساعد",
                 logo: "/images/saaed-logo.png"
             }
-        },
-        {
-            id: "m6",
-            title: "Porsche Taycan Turbo S",
-            image: "https://images.unsplash.com/photo-1611633235339-da9ca9b1f737?q=80&w=2574&auto=format&fit=crop",
-            currentBid: 650000,
-            endTime: "3d 4h",
-            aiInsight: "Trending",
-            bids: 28,
-            sourceEntity: {
-                id: "dubai-customs",
-                name: "Dubai Customs",
-                arabicName: "جمارك دبي",
-                logo: "/images/dubai-customs.png"
-            }
         }
-    ]
-
-    // General mock data for other categories
-    const generalAuctions = [
+    ] : [
         {
             id: "g1",
             title: `${categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} Item 1`,
@@ -135,9 +147,7 @@ export default function CategoryPage() {
                 logo: "/images/dmt-logo.png"
             }
         }
-    ]
-
-    const allAuctions = categoryName === 'motors' ? motorsAuctions : generalAuctions
+    ])
 
     const filteredAuctions = useMemo(() => {
         if (selectedSource === 'all') return allAuctions

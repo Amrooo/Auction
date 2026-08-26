@@ -36,11 +36,17 @@ const images = [
     "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2670&auto=format&fit=crop", // Performance Alloy Wheel & Caliper
 ]
 
+import { useParams } from "next/navigation"
+import { useEffect } from "react"
+
 export default function AuctionDetailPage() {
+    const params = useParams()
+    const vehicleId = (params?.id as string) || "m1"
     const { t, language } = useLanguage()
     const isAr = language === 'ar'
     const dir = isAr ? 'rtl' : 'ltr'
 
+    const [vehicle, setVehicle] = useState<any>(null)
     const [activeImage, setActiveImage] = useState(0)
     const [isBidOpen, setIsBidOpen] = useState(false)
     const [isTermsModalOpen, setIsTermsModalOpen] = useState(false)
@@ -52,6 +58,26 @@ export default function AuctionDetailPage() {
     const [pendingAction, setPendingAction] = useState<"bid" | null>(null)
     const [bidAmount, setBidAmount] = useState(960000)
     const [showSuccess, setShowSuccess] = useState(false)
+
+    // Fetch dynamic vehicle data from Web Service API
+    useEffect(() => {
+        const fetchVehicle = async () => {
+            try {
+                const res = await fetch(`/api/vehicles/${vehicleId}`)
+                if (res.ok) {
+                    const json = await res.json()
+                    if (json.success && json.data) {
+                        setVehicle(json.data)
+                        const nextMin = Number(json.data.currentBid || 0) + Number(json.data.minimumIncrement || 1000)
+                        setBidAmount(nextMin)
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching vehicle details:", err)
+            }
+        }
+        if (vehicleId) fetchVehicle()
+    }, [vehicleId])
 
     const handleAction = (action: "bid") => {
         if (!isTermsAccepted) {
@@ -78,32 +104,54 @@ export default function AuctionDetailPage() {
         setPendingAction(null)
     }
 
-    const handleBidSubmit = (e: React.FormEvent) => {
+    const handleBidSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        try {
+            const res = await fetch(`/api/vehicles/${vehicleId}/bid`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: bidAmount, bidderName: "Registered Bidder" })
+            })
+            if (res.ok) {
+                const json = await res.json()
+                if (json.success && json.vehicle) {
+                    setVehicle(json.vehicle)
+                }
+            }
+        } catch (err) {
+            console.error("Error submitting bid:", err)
+        }
         setIsBidOpen(false)
         setShowSuccess(true)
         setTimeout(() => setShowSuccess(false), 3000)
     }
 
+    const displayImages = (vehicle?.images && vehicle.images.length > 0) ? vehicle.images : images
+    const currentPrice = vehicle?.currentBid || 950000
+    const vehicleTitle = vehicle?.title ? (isAr && vehicle.titleAr ? vehicle.titleAr : vehicle.title) : (isAr ? 'مرسيدس AMG G63 2024' : '2024 Mercedes-AMG G63')
+    const vehicleSubtitle = vehicle?.trim || (isAr ? 'الإصدار الكبير • 1 من 1000 • صفر كيلومتر' : 'Grand Edition • 1 of 1000 • 0km Mileage')
+    const entityName = vehicle?.sourceEntity ? (isAr ? vehicle.sourceEntity.arabicName : vehicle.sourceEntity.name) : (isAr ? 'أبوظبي للتنقل' : 'Abu Dhabi Mobility')
+    const entityLogo = vehicle?.sourceEntity?.logo || '/images/abu-dhabi-mobility.png'
+
     // Translated specs with Arabic numerals support
     const specs = isAr ? [
-        { label: 'الجهة المصدرة', value: 'أبوظبي للتنقل', logo: '/images/abu-dhabi-mobility.png' },
-        { label: 'المحرك', value: `٤.٠ لتر V8 بيتوربو` },
-        { label: 'القوة', value: `٥٧٧ حصان` },
-        { label: 'ناقل الحركة', value: `أوتوماتيك ٩ سرعات` },
-        { label: '٠-١٠٠ كم/ساعة', value: `٤.٥ ثانية` },
-        { label: 'اللون', value: 'أسود ليلي مات' },
-        { label: 'الداخلية', value: 'أحمر البنغال / أسود' },
-        { label: 'رقم الهيكل', value: 'W1N463***291' }
+        { label: 'الجهة المصدرة', value: entityName, logo: entityLogo },
+        { label: 'المحرك', value: vehicle?.engineAr || vehicle?.engine || `٤.٠ لتر V8 بيتوربو` },
+        { label: 'القوة', value: `${toArabicNumerals(vehicle?.powerHp || 577)} حصان` },
+        { label: 'ناقل الحركة', value: vehicle?.transmissionAr || vehicle?.transmission || `أوتوماتيك ٩ سرعات` },
+        { label: '٠-١٠٠ كم/ساعة', value: vehicle?.acceleration0100 ? `${toArabicNumerals(vehicle.acceleration0100)}` : `٤.٥ ثانية` },
+        { label: 'اللون', value: vehicle?.exteriorColorAr || vehicle?.exteriorColor || 'أسود ليلي مات' },
+        { label: 'الداخلية', value: vehicle?.interiorColorAr || vehicle?.interiorColor || 'أحمر البنغال / أسود' },
+        { label: 'رقم الهيكل', value: vehicle?.vin || 'W1N463***291' }
     ] : [
-        { label: 'Source Entity', value: 'Abu Dhabi Mobility', logo: '/images/abu-dhabi-mobility.png' },
-        { label: 'Engine', value: '4.0L V8 Biturbo' },
-        { label: 'Power', value: '577 HP' },
-        { label: 'Transmission', value: '9-Speed Auto' },
-        { label: '0-100 km/h', value: '4.5s' },
-        { label: 'Color', value: 'Night Black Magno' },
-        { label: 'Interior', value: 'Bengal Red / Black' },
-        { label: 'VIN', value: 'W1N463***291' }
+        { label: 'Source Entity', value: entityName, logo: entityLogo },
+        { label: 'Engine', value: vehicle?.engine || '4.0L V8 Biturbo' },
+        { label: 'Power', value: `${vehicle?.powerHp || 577} HP` },
+        { label: 'Transmission', value: vehicle?.transmission || '9-Speed Auto' },
+        { label: '0-100 km/h', value: vehicle?.acceleration0100 || '4.5s' },
+        { label: 'Color', value: vehicle?.exteriorColor || 'Night Black Magno' },
+        { label: 'Interior', value: vehicle?.interiorColor || 'Bengal Red / Black' },
+        { label: 'VIN', value: vehicle?.vin || 'W1N463***291' }
     ]
 
     // Saaed terms and conditions
@@ -178,7 +226,11 @@ export default function AuctionDetailPage() {
                                     <Gavel className="w-8 h-8" />
                                 </div>
                                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{isAr ? 'قدّم مزايدتك' : 'Place Your Bid'}</h2>
-                                <p className="text-slate-500 mb-6">{isAr ? 'أعلى مزايدة حالية:' : 'Current Highest:'} <span className="font-bold text-slate-900 dark:text-white">AED 950,000</span></p>
+                                <p className="text-slate-500 mb-6">
+                                    {isAr ? 'أعلى مزايدة حالية:' : 'Current Highest:'} <span className="font-bold text-slate-900 dark:text-white">
+                                        {isAr ? `${toArabicNumerals(Number(currentPrice).toLocaleString())} درهم` : `AED ${Number(currentPrice).toLocaleString()}`}
+                                    </span>
+                                </p>
 
                                 <div className="space-y-4">
                                     <div>
@@ -189,7 +241,9 @@ export default function AuctionDetailPage() {
                                             onChange={(e) => setBidAmount(Number(e.target.value))}
                                             className="w-full mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-primary text-lg font-bold"
                                         />
-                                        <p className={`text-xs text-slate-400 mt-2 ${isAr ? 'mr-1 text-right' : 'ml-1'}`}>{isAr ? 'الحد الأدنى للزيادة: 5,000 درهم' : 'Minimum bid increment: AED 5,000'}</p>
+                                        <p className={`text-xs text-slate-400 mt-2 ${isAr ? 'mr-1 text-right' : 'ml-1'}`}>
+                                            {isAr ? `الحد الأدنى للزيادة: ${toArabicNumerals(vehicle?.minimumIncrement || 5000)} درهم` : `Minimum bid increment: AED ${(vehicle?.minimumIncrement || 5000).toLocaleString()}`}
+                                        </p>
                                     </div>
                                     <Button size="lg" className="w-full h-12 rounded-xl text-lg mt-4 cursor-pointer">{isAr ? 'تأكيد المزايدة' : 'Confirm Bid'}</Button>
                                 </div>
@@ -199,9 +253,7 @@ export default function AuctionDetailPage() {
                 )}
             </AnimatePresence>
 
-            {/* Hero Section */}
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
-                {/* Image Gallery */}
                 <div className="space-y-4">
                     <motion.div
                         key={activeImage}
@@ -211,7 +263,7 @@ export default function AuctionDetailPage() {
                         className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-slate-900 relative group shadow-2xl border border-white/10"
                     >
                         <img
-                            src={images[activeImage]}
+                            src={displayImages[activeImage]}
                             alt="Vehicle Preview"
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             onError={(e) => {
@@ -229,7 +281,7 @@ export default function AuctionDetailPage() {
                     </motion.div>
 
                     <div className="grid grid-cols-6 gap-3">
-                        {images.map((img, i) => (
+                        {displayImages.map((img: string, i: number) => (
                             <motion.button
                                 key={i}
                                 whileHover={{ scale: 1.05 }}
@@ -253,7 +305,6 @@ export default function AuctionDetailPage() {
                     </div>
                 </div>
 
-                {/* Info & Bidding */}
                 <div className="space-y-8 flex flex-col justify-center">
                     <div>
                         <div className={`flex flex-wrap items-center gap-3 mb-4 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
@@ -264,25 +315,24 @@ export default function AuctionDetailPage() {
                                 <ShieldCheck className="w-3 h-3" /> {t("Verified")}
                             </span>
 
-                            {/* Official Entity Badge */}
                             <div className={`inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs ${isAr ? 'flex-row-reverse' : ''}`}>
                                 <div className="w-9 h-5 bg-white rounded p-0.5 flex items-center justify-center shrink-0">
                                     <img
-                                        src="/images/abu-dhabi-mobility.png"
+                                        src={entityLogo}
                                         alt="Abu Dhabi Mobility"
                                         className="w-full h-full object-contain"
                                     />
                                 </div>
                                 <span className="text-xs font-bold text-teal-700 dark:text-teal-400">
-                                    {isAr ? 'أبوظبي للتنقل' : 'Abu Dhabi Mobility'}
+                                    {entityName}
                                 </span>
                             </div>
                         </div>
                         <h1 className={`text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
-                            {isAr ? 'مرسيدس AMG G63 2024' : '2024 Mercedes-AMG G63'}
+                            {vehicleTitle}
                         </h1>
                         <p className={`text-slate-500 dark:text-slate-400 text-lg font-medium ${isAr ? 'text-right' : 'text-left'}`}>
-                            {isAr ? 'الإصدار الكبير • 1 من 1000 • صفر كيلومتر' : 'Grand Edition • 1 of 1000 • 0km Mileage'}
+                            {vehicleSubtitle}
                         </p>
                     </div>
 
@@ -292,23 +342,58 @@ export default function AuctionDetailPage() {
                         <div className={`flex flex-col sm:flex-row justify-between items-end mb-8 relative z-10 gap-4 ${isAr ? 'sm:flex-row-reverse' : ''}`}>
                             <div className={isAr ? 'text-right' : 'text-left'}>
                                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">{t("Current Bid")}</p>
-                                <div className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">AED 950,000</div>
+                                <div className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                    {isAr ? `${toArabicNumerals('950,000')} درهم` : 'AED 950,000'}
+                                </div>
                             </div>
                             <div className={`bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 ${isAr ? 'text-right' : 'text-left sm:text-right'}`}>
                                 <div className={`flex items-center gap-2 text-orange-600 font-bold mb-1 ${isAr ? 'flex-row-reverse' : ''}`}>
                                     <Clock className="w-4 h-4 animate-pulse" />
-                                    <span className="font-mono">4h 20m 15s</span>
+                                    <span className="font-mono">
+                                        {isAr ? `${toArabicNumerals(4)}س ${toArabicNumerals(20)}د ${toArabicNumerals(15)}ث` : '4h 20m 15s'}
+                                    </span>
                                 </div>
-                                <p className="text-xs text-slate-400 font-medium">{isAr ? 'ينتهي اليوم، الساعة 6:00 مساءً' : 'Ends Today, 6:00 PM'}</p>
+                                <p className="text-xs text-slate-400 font-medium">
+                                    {isAr ? `ينتهي اليوم، الساعة ${toArabicNumerals(6)}:٠٠ مساءً` : 'Ends Today, 6:00 PM'}
+                                </p>
                             </div>
                         </div>
 
-                        <div className="space-y-4 mb-6 relative z-10">
-                            <Button size="lg" onClick={() => handleAction("bid")} className="w-full text-lg h-14 rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800 dark:hover:bg-slate-100 shadow-lg shadow-slate-900/20 transition-all hover:scale-[1.01] cursor-pointer">
-                                {isAr ? 'قدّم مزايدة' : 'Place Bid'} <span className="opacity-70 ml-2 font-normal text-sm">{isAr ? '(الحد الأدنى: 960,000 درهم)' : '(Min AED 960,000)'}</span>
+                        <div className="space-y-4 mb-4 relative z-10">
+                            <Button size="lg" onClick={() => handleAction("bid")} className="w-full text-lg h-14 rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800 dark:hover:bg-slate-100 shadow-lg shadow-slate-900/20 transition-all hover:scale-[1.01] cursor-pointer font-black">
+                                {isAr ? 'قدّم مزايدة' : 'Place Bid'} <span className="opacity-70 ml-2 font-normal text-sm">{isAr ? `(الحد الأدنى: ${toArabicNumerals('960,000')} درهم)` : '(Min AED 960,000)'}</span>
                             </Button>
 
-                            <div className="space-y-2">
+                            <div className={`flex items-start gap-2.5 text-xs pt-1 ${isAr ? 'flex-row-reverse text-right' : 'text-left'}`}>
+                                <input
+                                    type="checkbox"
+                                    id="agreeTerms"
+                                    checked={isTermsAccepted}
+                                    onChange={(e) => {
+                                        setIsTermsAccepted(e.target.checked)
+                                        if (e.target.checked) setTermsError(false)
+                                    }}
+                                    className="w-4 h-4 mt-0.5 rounded border-slate-300 dark:border-slate-700 text-red-600 focus:ring-red-500 accent-red-600 cursor-pointer shrink-0"
+                                />
+                                <label htmlFor="agreeTerms" className={cn(
+                                    "select-none cursor-pointer leading-tight font-medium",
+                                    termsError ? "text-red-600 dark:text-red-400 font-bold" : "text-slate-600 dark:text-slate-400"
+                                )}>
+                                    {isAr ? 'أوافق على ' : 'I agree to the '}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            setIsTermsModalOpen(true)
+                                        }}
+                                        className="text-red-600 dark:text-red-400 font-bold underline hover:text-red-700 cursor-pointer inline"
+                                    >
+                                        {isAr ? 'الشروط والأحكام الخاصة بشركة ساعد' : 'Saaed Auction Terms & Conditions'}
+                                    </button>
+                                </label>
+                            </div>
+
+                            <div className="space-y-2 pt-2">
                                 <p className={`text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-muted-foreground ${isAr ? 'text-right' : 'text-left'}`}>
                                     {isAr ? 'مزايدة سريعة (درهم)' : 'Quick Bid (AED)'}
                                 </p>
@@ -322,7 +407,7 @@ export default function AuctionDetailPage() {
                                             }}
                                             className="py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-[10px] font-black hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-500 cursor-pointer flex items-center justify-center gap-0.5"
                                         >
-                                            +{amount}
+                                            +{isAr ? toArabicNumerals(amount) : amount}
                                         </button>
                                     ))}
                                 </div>
@@ -330,11 +415,10 @@ export default function AuctionDetailPage() {
                         </div>
 
                         <p className={`text-center text-xs text-slate-400 relative z-10`}>
-                            {isAr ? '*جميع المزايدات ملزمة قانوناً. يشترط وديعة 5%.' : '*All bids are legally binding. 5% deposit required.'}
+                            {isAr ? `*جميع المزايدات ملزمة قانوناً. يشترط وديعة ${toArabicNumerals(5)}٪.` : '*All bids are legally binding. 5% deposit required.'}
                         </p>
                     </div>
 
-                    {/* AI Insights Box */}
                     <div className="p-6 rounded-[2rem] bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-500/20 backdrop-blur-sm relative overflow-hidden group">
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -349,7 +433,7 @@ export default function AuctionDetailPage() {
                                 </h3>
                                 <p className="text-sm text-indigo-800 dark:text-indigo-300 leading-relaxed max-w-md">
                                     {isAr
-                                        ? <>هذا العرض <span className="font-bold text-indigo-700 dark:text-white decoration-2 underline decoration-indigo-400/50">مقيّم بأقل من قيمته بنسبة 8%</span> مقارنةً بطرازات G63 المماثلة. الطلب <span className="font-bold text-green-600 dark:text-green-400">مرتفع</span>، والأسعار في اتجاه تصاعدي (+5%).</>
+                                        ? <>هذا العرض <span className="font-bold text-indigo-700 dark:text-white decoration-2 underline decoration-indigo-400/50">مقيّم بأقل من قيمته بنسبة {toArabicNumerals(8)}٪</span> مقارنةً بطرازات G63 المماثلة. الطلب <span className="font-bold text-green-600 dark:text-green-400">مرتفع</span>، والأسعار في اتجاه تصاعدي (+{toArabicNumerals(5)}٪).</>
                                         : <>This lot is currently <span className="font-bold text-indigo-700 dark:text-white decoration-2 underline decoration-indigo-400/50">undervalued by 8%</span> compared to similar G63 Grand Edition models. Demand is <span className="font-bold text-green-600 dark:text-green-400">High</span>, with prices trending upwards (+5%).</>
                                     }
                                 </p>
@@ -359,7 +443,6 @@ export default function AuctionDetailPage() {
                 </div>
             </div>
 
-            {/* Stats & Graph */}
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
@@ -371,7 +454,7 @@ export default function AuctionDetailPage() {
                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t("Bidding History")}</h3>
                             </div>
                             <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm font-medium px-3 py-2 text-slate-600 dark:text-slate-300 outline-none cursor-pointer">
-                                <option>{isAr ? 'آخر 24 ساعة' : 'Last 24 Hours'}</option>
+                                <option>{isAr ? 'آخر ٢٤ ساعة' : 'Last 24 Hours'}</option>
                                 <option>{isAr ? 'كل الوقت' : 'All Time'}</option>
                             </select>
                         </div>
@@ -391,8 +474,7 @@ export default function AuctionDetailPage() {
                                     <Tooltip
                                         contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(4px)' }}
                                         itemStyle={{ color: '#0f172a', fontWeight: 600 }}
-                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                        formatter={(value: any) => [`AED ${Number(value || 0).toLocaleString()}`, isAr ? 'مبلغ المزايدة' : 'Bid Amount']}
+                                        formatter={(value: any) => [isAr ? `${toArabicNumerals(Number(value || 0).toLocaleString())} درهم` : `AED ${Number(value || 0).toLocaleString()}`, isAr ? 'مبلغ المزايدة' : 'Bid Amount']}
                                     />
                                     <Area type="monotone" dataKey="bid" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorBid)" />
                                 </AreaChart>
@@ -402,14 +484,23 @@ export default function AuctionDetailPage() {
                 </div>
 
                 <div className="lg:col-span-1">
-                    {/* Specs Grid */}
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm h-full">
-                        <h3 className={`font-bold text-slate-900 dark:text-white mb-6 text-xl ${isAr ? 'text-right' : 'text-left'}`}>{t("Specifications")}</h3>
+                        <h3 className={`font-bold text-slate-900 dark:text-white mb-6 text-xl ${isAr ? 'text-right' : 'text-left'}`}>
+                            {t("Specifications")}
+                        </h3>
                         <div className="space-y-0">
                             {specs.map((spec) => (
-                                <div key={spec.label} className={`flex items-center justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-4 px-4 transition-colors ${isAr ? 'flex-row-reverse' : ''}`}>
-                                    <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">{spec.label}</span>
-                                    <div className={`flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
+                                <div
+                                    key={spec.label}
+                                    className="flex items-center justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-4 px-4 transition-colors"
+                                >
+                                    <span className={`text-sm text-slate-500 dark:text-slate-400 font-medium ${isAr ? 'text-right' : 'text-left'}`}>
+                                        {spec.label}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-sm font-bold text-slate-900 dark:text-white ${isAr ? 'text-left' : 'text-right'}`}>
+                                            {spec.value}
+                                        </span>
                                         {spec.logo && (
                                             <div className="w-8 h-5 bg-white rounded p-0.5 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0 overflow-hidden">
                                                 <img
@@ -419,35 +510,36 @@ export default function AuctionDetailPage() {
                                                 />
                                             </div>
                                         )}
-                                        <span className={`text-sm font-bold text-slate-900 dark:text-white ${isAr ? 'text-left' : 'text-right'}`}>{spec.value}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <Button variant="ghost" className={`w-full mt-6 text-slate-500 hover:text-slate-900 cursor-pointer flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
-                            {isAr ? 'عرض كامل المواصفات' : 'View Full Specs'} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+                        <Button variant="ghost" className="w-full mt-6 text-slate-500 hover:text-slate-900 cursor-pointer flex items-center justify-center gap-2">
+                            <span>{isAr ? 'عرض كامل المواصفات' : 'View Full Specs'}</span>
+                            <ArrowRight className={cn("w-4 h-4 transition-transform", isAr && "rotate-180")} />
                         </Button>
                     </div>
                 </div>
             </div>
 
-            {/* Inspection Location Section */}
             <div className="mt-14 space-y-4">
                 <h2 className={`text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
                     {isAr ? 'موقع المعاينة' : 'Inspection Location'}
                 </h2>
 
                 <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[500px] rounded-[2rem] overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-950 group">
-                    {/* Embedded Google Satellite Map */}
                     <iframe
-                        src="https://maps.google.com/maps?q=Emirates+Auction+Yard+-+Al+aweer+Dubai&t=k&z=16&ie=UTF8&iwloc=&output=embed"
-                        className="w-full h-full border-0 filter brightness-[0.98] contrast-[1.02]"
-                        loading="lazy"
+                        src="https://maps.google.com/maps?q=25.1764,55.3908&t=k&z=17&ie=UTF8&iwloc=&output=embed"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
                         allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
                         title="Inspection Location Map"
+                        className="w-full h-full filter contrast-105"
                     />
 
-                    {/* Fullscreen Button */}
                     <a
                         href="https://www.google.com/maps/search/?api=1&query=Emirates+Auction+Yard+-+Al+aweer+Dubai"
                         target="_blank"
@@ -458,7 +550,6 @@ export default function AuctionDetailPage() {
                         <Maximize2 className="w-5 h-5" />
                     </a>
 
-                    {/* Floating Branch Card */}
                     <div className={`absolute bottom-5 ${isAr ? 'right-5 text-right' : 'left-5 text-left'} z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-5 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-700/80 max-w-[280px] sm:max-w-xs transition-transform duration-300 group-hover:scale-[1.02]`}>
                         <div className={`flex items-center gap-2 mb-2 ${isAr ? 'flex-row-reverse' : ''}`}>
                             <div className="w-9 h-5 bg-white rounded p-0.5 flex items-center justify-center border border-slate-200 shadow-2xs shrink-0">
@@ -481,7 +572,6 @@ export default function AuctionDetailPage() {
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all hover:border-slate-400"
                         >
-                            {/* Google Maps Pin Multi-color SVG */}
                             <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19.527 4.799c-1.92-1.92-4.57-2.799-7.527-2.799C7.432 2 4.19 5.242 4.19 9.242c0 2.278 1.05 4.316 2.698 5.656l5.112 7.102 5.113-7.102c1.647-1.34 2.697-3.378 2.697-5.656 0-1.74-.537-3.355-1.583-4.443z" fill="#34A853"/>
                                 <path d="M12 2c2.957 0 5.607.879 7.527 2.799l-4.409 6.123A3.873 3.873 0 0 0 12 9.242c-2.14 0-3.873 1.734-3.873 3.873 0 .42.067.825.19 1.205L4.19 9.242C4.19 5.242 7.432 2 12 2z" fill="#4285F4"/>
@@ -497,32 +587,142 @@ export default function AuctionDetailPage() {
 
             {/* Terms And Conditions Section */}
             <div className="mt-14 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 sm:p-10 lg:p-12 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden space-y-6">
-                <div className={`flex items-center gap-3 ${isAr ? 'flex-row-reverse' : ''}`}>
-                    <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-800 dark:text-slate-200">
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-red-600/10 text-red-600 dark:text-red-400 rounded-2xl shrink-0">
                         <FileText className="w-6 h-6" />
                     </div>
-                    <h2 className={`text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
+                    <h2 className="text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                         {isAr ? 'الشروط والأحكام' : 'Terms And Conditions'}
                     </h2>
                 </div>
 
-                <p className={`text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-relaxed ${isAr ? 'text-right' : 'text-left'}`}>
+                <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-relaxed">
                     {isAr
                         ? 'تطبق الشروط والأحكام الخاصة بالمزاد العلني لشركة ساعد، بالإضافة إلى الشروط والأحكام التالية:'
                         : "Saaed's terms and conditions of public auction shall apply, along with the following terms and conditions"}
                 </p>
 
-                <div className="space-y-4">
-                    {terms.map((term, index) => (
-                        <p
-                            key={index}
-                            className={`text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed ${isAr ? 'text-right' : 'text-left'}`}
-                        >
-                            {term}
+                {/* Saaed Towing Fees Alert Hint Banner */}
+                <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex items-start gap-4">
+                    <div className="p-2.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl shrink-0">
+                        <Truck className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h4 className="font-extrabold text-sm text-amber-900 dark:text-amber-300 mb-1">
+                            {isAr ? 'تنبيه هـام: رسوم السحب والقطر (Saaed Towing Fees)' : 'Important Notice: Saaed Towing & Recovery Fees'}
+                        </h4>
+                        <p className="text-xs text-amber-800 dark:text-amber-300/90 leading-relaxed font-medium">
+                            {isAr
+                                ? 'يرجى العلم بأنه تطبق رسوم السحب والقطر الخاصة بشركة ساعد على جميع المركبات المباعة في المزاد وفقاً للائحة والتعرفة الرسمية المعتمدة وتضاف إلى إجمالي مستحقات الشراء.'
+                                : 'Please note that official Saaed Towing and Recovery Fees will be applied to all purchased vehicles in accordance with the approved regulatory tariff and added to the final settlement.'}
                         </p>
+                    </div>
+                </div>
+
+                {/* Bullet-styled Terms List */}
+                <div className="space-y-3 pt-2">
+                    {terms.map((term, index) => (
+                        <div
+                            key={index}
+                            className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        >
+                            <span className="w-7 h-7 rounded-xl bg-red-600/10 text-red-600 dark:text-red-400 font-extrabold text-xs flex items-center justify-center shrink-0 border border-red-600/20">
+                                {isAr ? toArabicNumerals(index + 1) : index + 1}
+                            </span>
+                            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium flex-1 pt-0.5">
+                                {term}
+                            </p>
+                        </div>
                     ))}
                 </div>
             </div>
+
+            {/* Terms & Conditions Modal Popup */}
+            <AnimatePresence>
+                {isTermsModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4"
+                        onClick={() => setIsTermsModalOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[85vh] flex flex-col rounded-[2.5rem] p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative overflow-hidden"
+                            dir={dir}
+                        >
+                            <button
+                                onClick={() => setIsTermsModalOpen(false)}
+                                className={`absolute top-6 ${isAr ? 'left-6' : 'right-6'} text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800`}
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2.5 bg-red-600/10 text-red-600 rounded-2xl shrink-0">
+                                    <FileText className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                        {isAr ? 'شروط وأحكام مزاد ساعد' : 'Saaed Auction Terms & Conditions'}
+                                    </h2>
+                                    <p className="text-xs text-slate-500">
+                                        {isAr ? 'يرجى مراجعة الشروط والموافقة عليها قبل المزايدة' : 'Please review and accept the terms before bidding'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Towing warning inside modal */}
+                            <div className="mb-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex items-start gap-3 text-xs">
+                                <Truck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                                <span>
+                                    {isAr ? 'تنويه: تطبق رسوم السحب والقطر الخاصة بشركة ساعد على جميع المركبات المباعة.' : 'Notice: Official Saaed towing fees apply to all sold vehicles.'}
+                                </span>
+                            </div>
+
+                            {/* Scrollable list of terms */}
+                            <div className="flex-1 overflow-y-auto pr-2 space-y-3 no-scrollbar my-2">
+                                {terms.map((term, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 leading-relaxed"
+                                    >
+                                        <span className="w-6 h-6 rounded-lg bg-red-600/10 text-red-600 font-bold text-[11px] flex items-center justify-center shrink-0">
+                                            {isAr ? toArabicNumerals(index + 1) : index + 1}
+                                        </span>
+                                        <span className="flex-1 pt-0.5">{term}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsTermsModalOpen(false)}
+                                    className="rounded-xl px-5 cursor-pointer"
+                                >
+                                    {isAr ? 'إغلاق' : 'Close'}
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        setIsTermsAccepted(true)
+                                        setTermsError(false)
+                                        setIsTermsModalOpen(false)
+                                    }}
+                                    className="rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold px-6 flex items-center gap-2 cursor-pointer shadow-md"
+                                >
+                                    <Check className="w-4 h-4" />
+                                    {isAr ? 'أوافق على الشروط' : 'I Agree & Accept'}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
