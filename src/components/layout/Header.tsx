@@ -92,32 +92,25 @@ export function Header() {
                 )}
             >
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between relative z-10">
-                    <div className="flex items-center relative">
-                        {/* UAE flag graphic: left side in English, right side in Arabic */}
-                        <div className={cn(
-                            "absolute top-1/2 -translate-y-1/2 z-20 bg-black rounded-xl p-1.5 sm:p-2 shadow-xl border border-slate-800 flex items-center justify-center",
-                            language === 'ar' ? "-right-6 sm:-right-10" : "-left-6 sm:-left-10"
-                        )}>
-                            <img
-                                src="/images/uae-flag-original.png"
-                                alt="UAE Flag"
-                                className="h-8 sm:h-10 w-auto object-contain"
-                            />
-                        </div>
-
-                        <Link href="/" className={cn(
-                            "flex items-center group relative z-10",
-                            language === 'ar' ? "pe-12 sm:pe-16" : "ps-12 sm:ps-16"
-                        )}>
+                    <div className="flex items-center gap-3 sm:gap-4">
+                        <Link href="/" className="flex items-center group shrink-0">
                             <img
                                 src="/images/saaed-logo.png"
                                 alt="Saaed"
                                 className={cn(
-                                    "h-11 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105",
+                                    "h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105",
                                     isScrolled && "dark:brightness-0 dark:invert"
                                 )}
                             />
                         </Link>
+
+                        <div className="bg-black rounded-xl p-1.5 sm:p-2 shadow-md border border-slate-800 flex items-center justify-center shrink-0">
+                            <img
+                                src="/images/uae-flag-original.png"
+                                alt="UAE Flag"
+                                className="h-7 sm:h-8 w-auto object-contain"
+                            />
+                        </div>
                     </div>
 
                     {/* Desktop Navigation */}

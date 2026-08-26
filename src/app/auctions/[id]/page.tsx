@@ -1,11 +1,11 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Clock, Heart, Share2, ShieldCheck, Zap, ArrowRight, LineChart as ChartIcon, X, CheckCircle, Gavel, Wallet, Maximize2, FileText } from "lucide-react"
+import { Clock, Heart, Share2, ShieldCheck, Zap, ArrowRight, LineChart as ChartIcon, X, CheckCircle, Gavel, Maximize2, FileText, Truck, AlertCircle, Check } from "lucide-react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
-import { cn } from "@/lib/utils"
+import { cn, toArabicNumerals } from "@/lib/utils"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { useLanguage } from "@/lib/language-context"
 
@@ -43,30 +43,38 @@ export default function AuctionDetailPage() {
 
     const [activeImage, setActiveImage] = useState(0)
     const [isBidOpen, setIsBidOpen] = useState(false)
-    const [isBuyNowOpen, setIsBuyNowOpen] = useState(false)
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false)
+    const [isTermsAccepted, setIsTermsAccepted] = useState(false)
+    const [termsError, setTermsError] = useState(false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
     const [authTab, setAuthTab] = useState<"login" | "signup">("login")
-    const [pendingAction, setPendingAction] = useState<"bid" | "buy" | null>(null)
+    const [pendingAction, setPendingAction] = useState<"bid" | null>(null)
     const [bidAmount, setBidAmount] = useState(960000)
     const [showSuccess, setShowSuccess] = useState(false)
 
-    const handleAction = (action: "bid" | "buy") => {
+    const handleAction = (action: "bid") => {
+        if (!isTermsAccepted) {
+            setTermsError(true)
+            setIsTermsModalOpen(true)
+            return
+        }
+        setTermsError(false)
         if (!isLoggedIn) {
             setAuthTab("login")
             setPendingAction(action)
             setIsAuthModalOpen(true)
         } else {
             if (action === "bid") setIsBidOpen(true)
-            if (action === "buy") setIsBuyNowOpen(true)
         }
     }
 
     const handleAuthComplete = () => {
         setIsLoggedIn(true)
         setIsAuthModalOpen(false)
-        if (pendingAction === "bid") setIsBidOpen(true)
-        if (pendingAction === "buy") setIsBuyNowOpen(true)
+        if (pendingAction === "bid") {
+            setIsBidOpen(true)
+        }
         setPendingAction(null)
     }
 
@@ -77,19 +85,13 @@ export default function AuctionDetailPage() {
         setTimeout(() => setShowSuccess(false), 3000)
     }
 
-    const handleBuyNowSubmit = () => {
-        setIsBuyNowOpen(false)
-        setShowSuccess(true)
-        setTimeout(() => setShowSuccess(false), 3000)
-    }
-
-    // Translated specs
+    // Translated specs with Arabic numerals support
     const specs = isAr ? [
         { label: 'الجهة المصدرة', value: 'أبوظبي للتنقل', logo: '/images/abu-dhabi-mobility.png' },
-        { label: 'المحرك', value: '4.0L V8 بيتوربو' },
-        { label: 'القوة', value: '577 حصان' },
-        { label: 'ناقل الحركة', value: 'أوتوماتيك 9 سرعات' },
-        { label: '0-100 كم/ساعة', value: '4.5 ثانية' },
+        { label: 'المحرك', value: `٤.٠ لتر V8 بيتوربو` },
+        { label: 'القوة', value: `٥٧٧ حصان` },
+        { label: 'ناقل الحركة', value: `أوتوماتيك ٩ سرعات` },
+        { label: '٠-١٠٠ كم/ساعة', value: `٤.٥ ثانية` },
         { label: 'اللون', value: 'أسود ليلي مات' },
         { label: 'الداخلية', value: 'أحمر البنغال / أسود' },
         { label: 'رقم الهيكل', value: 'W1N463***291' }
@@ -106,20 +108,20 @@ export default function AuctionDetailPage() {
 
     // Saaed terms and conditions
     const terms = isAr ? [
-        "تطبق الرسوم الإدارية بالإضافة إلى ضريبة القيمة المضافة على كل معروض على النحو التالي: 200 درهم لسعر البيع حتى 500 درهم، 300 درهم لسعر البيع بين 501 درهم و 1,000 درهم، 600 درهم لسعر البيع بين 1,001 درهم و 100,000 درهم، 1% من سعر البيع لما فوق 100,000 درهم.",
-        "يجب إتمام عملية الدفع واستلام المعروض خلال 48 ساعة من وقت انتهاء المزاد. يتم إنهاء مستندات المعروض خلال 10 أيام عمل تقريباً من تاريخ إتمام عملية الدفع.",
-        "تحتفظ شركة ساعد بالحق في تطبيق رسوم قدرها 100 درهم عن كل يوم تأخير، دون إشعار مسبق، لأي مركبة لم يتم سداد قيمتها أو استلامها خلال المدة المحددة.",
+        "تباع المركبة على حالتها الراهنة وفي مكان تواجدها 'كما هي'، ويتحمل المشتري كامل المسؤولية عن فحص ومعاينة المعروض قبل تقديم أي مزايدة، ولا تتحمل شركة ساعد أي ضمانات أو مسؤولية بعد رسو المزاد.",
+        "تطبق الرسوم الإدارية بالإضافة إلى ضريبة القيمة المضافة على كل معروض على النحو التالي: ٢٠٠ درهم لسعر البيع حتى ٥٠٠ درهم، ٣٠٠ درهم لسعر البيع بين ٥٠١ درهم و ١,٠٠٠ درهم، ٦٠٠ درهم لسعر البيع بين ١,٠٠١ درهم و ١٠٠,٠٠٠ درهم، ١٪ من سعر البيع لما فوق ١٠٠,٠٠٠ درهم.",
+        "يجب إتمام عملية الدفع واستلام المعروض خلال ٤٨ ساعة من وقت انتهاء المزاد. يتم إنهاء مستندات المعروض خلال ١٠ أيام عمل تقريباً من تاريخ إتمام عملية الدفع.",
+        "تحتفظ شركة ساعد بالحق في تطبيق رسوم قدرها ١٠٠ درهم عن كل يوم تأخير، دون إشعار مسبق، لأي مركبة لم يتم سداد قيمتها أو استلامها خلال المدة المحددة.",
         "شركة ساعد غير مسؤولة على الإطلاق عن المدة المستغرقة لإصدار أوراق نقل الملكية.",
-        "تباع المركبة على حالتها الراهنة وفي مكان تواجدها، ولا تتحمل شركة ساعد أي مسؤولية ويجب عليك معاينة المعروض قبل تقديم أي مزايدة.",
-        "تطبق رسوم تحميل/تنزيل قدرها 100 درهم عن كل سيارة.",
+        "تطبق رسوم تحميل/تنزيل قدرها ١٠٠ درهم عن كل سيارة.",
         "شركة ساعد لا تضمن تسجيل السيارات الكلاسيكية.",
-        "يتحمل المشتري 200 درهم رسوم إصدار الحيازة ... وفي حال تطلب إصدار الحيازة إجراء فحص تصدير، يتعين على المشتري إجراء الفحص وتسليمه إلى شركة ساعد لإصدار الحيازة على نفقة المشتري."
+        "يتحمل المشتري ٢٠٠ درهم رسوم إصدار الحيازة ... وفي حال تطلب إصدار الحيازة إجراء فحص تصدير، يتعين على المشتري إجراء الفحص وتسليمه إلى شركة ساعد لإصدار الحيازة على نفقة المشتري."
     ] : [
+        "The customer purchases the vehicle strictly on an 'as-is, where-is' basis. The bidder assumes full responsibility for inspecting and verifying the vehicle's condition prior to placing any bids. Saaed provides no warranties or guarantees whatsoever post-sale.",
         "Administrative fee plus VAT shall apply to each item as follows: 200 AED for sale price up to 500 AED, 300 AED for sale price between 501 AED and 1,000 AED, 600 AED for sale price between 1,001 AED and 100,000 AED, 1 percent of sale price above AED 100,000.",
         "You must complete payment and collection of the Lot within 48 hours from the time of auction's conclusion. Documents of the lot shall be finalized within approximately 10 working days of completing the payment process.",
         "Saaed reserves the right to apply fees of 100AED for each delay, without prior notice, for any vehicle not paid or received within the specified period",
         "Saaed is not responsible whatsoever for the period of issuing ownership documents.",
-        "To be sold as is where is, Saaed has no responsibility and you must inspect the lot before bid.",
         "AED 100 loading/unloading fees will be applied for each car.",
         "Saaed shall not guarantee the registration of the classic cars.",
         "The buyer bears 200 dirhams of possession issuance fees ... In the event that the issuance of possession requires an export examination, the buyer must conduct the examination and hand it over to Saaed to issue the possession at the buyer’s expense"
@@ -149,15 +151,15 @@ export default function AuctionDetailPage() {
                 )}
             </AnimatePresence>
 
-            {/* Modals Overlay */}
+            {/* Bid Modal Overlay */}
             <AnimatePresence>
-                {(isBidOpen || isBuyNowOpen) && (
+                {isBidOpen && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
-                        onClick={() => { setIsBidOpen(false); setIsBuyNowOpen(false) }}
+                        onClick={() => setIsBidOpen(false)}
                     >
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}
@@ -167,53 +169,31 @@ export default function AuctionDetailPage() {
                             className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] p-8 shadow-2xl border border-white/10 relative overflow-hidden"
                             dir={dir}
                         >
-                            <button onClick={() => { setIsBidOpen(false); setIsBuyNowOpen(false) }} className={`absolute top-6 ${isAr ? 'left-6' : 'right-6'} text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer`}>
+                            <button onClick={() => setIsBidOpen(false)} className={`absolute top-6 ${isAr ? 'left-6' : 'right-6'} text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer`}>
                                 <X className="w-6 h-6" />
                             </button>
 
-                            {isBidOpen && (
-                                <form onSubmit={handleBidSubmit}>
-                                    <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 text-slate-900 dark:text-white">
-                                        <Gavel className="w-8 h-8" />
-                                    </div>
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{isAr ? 'قدّم مزايدتك' : 'Place Your Bid'}</h2>
-                                    <p className="text-slate-500 mb-6">{isAr ? 'أعلى مزايدة حالية:' : 'Current Highest:'} <span className="font-bold text-slate-900 dark:text-white">AED 950,000</span></p>
-
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className={`text-sm font-medium text-slate-700 dark:text-slate-300 ${isAr ? 'mr-1' : 'ml-1'}`}>{isAr ? 'حد مزايدتك (درهم)' : 'Your Max Bid (AED)'}</label>
-                                            <input
-                                                type="number"
-                                                value={bidAmount}
-                                                onChange={(e) => setBidAmount(Number(e.target.value))}
-                                                className="w-full mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-primary text-lg font-bold"
-                                            />
-                                            <p className={`text-xs text-slate-400 mt-2 ${isAr ? 'mr-1 text-right' : 'ml-1'}`}>{isAr ? 'الحد الأدنى للزيادة: 5,000 درهم' : 'Minimum bid increment: AED 5,000'}</p>
-                                        </div>
-                                        <Button size="lg" className="w-full h-12 rounded-xl text-lg mt-4 cursor-pointer">{isAr ? 'تأكيد المزايدة' : 'Confirm Bid'}</Button>
-                                    </div>
-                                </form>
-                            )}
-
-                            {isBuyNowOpen && (
-                                <div>
-                                    <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-6 text-emerald-600 dark:text-emerald-400">
-                                        <Wallet className="w-8 h-8" />
-                                    </div>
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{isAr ? 'شراء فوري' : 'Buy It Now'}</h2>
-                                    <p className="text-slate-500 mb-6">{isAr ? 'أنت على وشك شراء هذه المركبة بسعر:' : 'You are about to purchase this vehicle for:'}</p>
-
-                                    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl mb-8 text-center border border-slate-100 dark:border-slate-700">
-                                        <span className="text-3xl font-bold text-slate-900 dark:text-white">AED 1,200,000</span>
-                                        <p className="text-sm text-slate-400 mt-1">{isAr ? '+ 5% رسوم المشتري' : '+ 5% Buyers Premium'}</p>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <Button variant="outline" size="lg" className="rounded-xl h-12 cursor-pointer" onClick={() => setIsBuyNowOpen(false)}>{isAr ? 'إلغاء' : 'Cancel'}</Button>
-                                        <Button size="lg" className="rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white border-0 cursor-pointer" onClick={handleBuyNowSubmit}>{isAr ? 'تأكيد الشراء' : 'Confirm Purchase'}</Button>
-                                    </div>
+                            <form onSubmit={handleBidSubmit}>
+                                <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 text-slate-900 dark:text-white">
+                                    <Gavel className="w-8 h-8" />
                                 </div>
-                            )}
+                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{isAr ? 'قدّم مزايدتك' : 'Place Your Bid'}</h2>
+                                <p className="text-slate-500 mb-6">{isAr ? 'أعلى مزايدة حالية:' : 'Current Highest:'} <span className="font-bold text-slate-900 dark:text-white">AED 950,000</span></p>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className={`text-sm font-medium text-slate-700 dark:text-slate-300 ${isAr ? 'mr-1' : 'ml-1'}`}>{isAr ? 'حد مزايدتك (درهم)' : 'Your Max Bid (AED)'}</label>
+                                        <input
+                                            type="number"
+                                            value={bidAmount}
+                                            onChange={(e) => setBidAmount(Number(e.target.value))}
+                                            className="w-full mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-primary text-lg font-bold"
+                                        />
+                                        <p className={`text-xs text-slate-400 mt-2 ${isAr ? 'mr-1 text-right' : 'ml-1'}`}>{isAr ? 'الحد الأدنى للزيادة: 5,000 درهم' : 'Minimum bid increment: AED 5,000'}</p>
+                                    </div>
+                                    <Button size="lg" className="w-full h-12 rounded-xl text-lg mt-4 cursor-pointer">{isAr ? 'تأكيد المزايدة' : 'Confirm Bid'}</Button>
+                                </div>
+                            </form>
                         </motion.div>
                     </motion.div>
                 )}
@@ -347,10 +327,6 @@ export default function AuctionDetailPage() {
                                     ))}
                                 </div>
                             </div>
-
-                            <Button variant="outline" size="lg" onClick={() => handleAction("buy")} className="w-full h-12 rounded-2xl border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 font-medium cursor-pointer">
-                                {isAr ? 'شراء فوري' : 'Buy It Now'} <span className="text-slate-400 ml-2">AED 1,200,000</span>
-                            </Button>
                         </div>
 
                         <p className={`text-center text-xs text-slate-400 relative z-10`}>
