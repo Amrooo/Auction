@@ -20,7 +20,13 @@ export default function Home() {
       currentBid: 185000,
       endTime: "2h 15m",
       aiInsight: "High Demand",
-      bids: 42
+      bids: 42,
+      sourceEntity: {
+        id: "saaed",
+        name: "Saaed Traffic Systems",
+        arabicName: "شركة ساعد",
+        logo: "/images/saaed-logo.png"
+      }
     },
     {
       id: "2",
@@ -29,7 +35,13 @@ export default function Home() {
       currentBid: 42000,
       endTime: "5d 12h",
       aiInsight: "Scrap Value High",
-      bids: 18
+      bids: 18,
+      sourceEntity: {
+        id: "dubai-police",
+        name: "Dubai Police",
+        arabicName: "شرطة دبي",
+        logo: "/images/dubai-police.png"
+      }
     },
     {
       id: "3",
@@ -38,7 +50,13 @@ export default function Home() {
       currentBid: 95000,
       endTime: "45m",
       aiInsight: "Clean Title",
-      bids: 156
+      bids: 156,
+      sourceEntity: {
+        id: "abu-dhabi-mobility",
+        name: "Abu Dhabi Mobility",
+        arabicName: "أبوظبي للتنقل",
+        logo: "/images/abu-dhabi-mobility.png"
+      }
     },
     {
       id: "4",
@@ -47,7 +65,13 @@ export default function Home() {
       currentBid: 78000,
       endTime: "12h 30m",
       aiInsight: "Ready for Release",
-      bids: 24
+      bids: 24,
+      sourceEntity: {
+        id: "dmt",
+        name: "Dept. of Municipalities & Transport",
+        arabicName: "دائرة البلديات والنقل",
+        logo: "/images/dmt-logo.png"
+      }
     }
   ]
 

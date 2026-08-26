@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Clock, Heart, Share2, ShieldCheck, Zap, ArrowRight, LineChart as ChartIcon, X, CheckCircle, Gavel, Wallet } from "lucide-react"
+import { Clock, Heart, Share2, ShieldCheck, Zap, ArrowRight, LineChart as ChartIcon, X, CheckCircle, Gavel, Wallet, Maximize2, FileText } from "lucide-react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
@@ -28,12 +28,12 @@ console.error = (...args) => {
 };
 
 const images = [
-    "https://images.unsplash.com/photo-1609521263047-f8f205293f24?q=80&w=2670&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=2670&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1553440638-dffe3a137aa8?q=80&w=2670&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=2664&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop", // Front 3/4 Exterior Angle
+    "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?q=80&w=2670&auto=format&fit=crop", // Side Profile & Aerodynamics
+    "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=2670&auto=format&fit=crop", // Front Grille & Headlight Close-up
+    "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=2670&auto=format&fit=crop", // Rear 3/4 & Tail Stance
+    "https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=2670&auto=format&fit=crop", // Interior Cabin & Cockpit
+    "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2670&auto=format&fit=crop", // Performance Alloy Wheel & Caliper
 ]
 
 export default function AuctionDetailPage() {
@@ -85,6 +85,7 @@ export default function AuctionDetailPage() {
 
     // Translated specs
     const specs = isAr ? [
+        { label: 'الجهة المصدرة', value: 'أبوظبي للتنقل', logo: '/images/abu-dhabi-mobility.png' },
         { label: 'المحرك', value: '4.0L V8 بيتوربو' },
         { label: 'القوة', value: '577 حصان' },
         { label: 'ناقل الحركة', value: 'أوتوماتيك 9 سرعات' },
@@ -93,6 +94,7 @@ export default function AuctionDetailPage() {
         { label: 'الداخلية', value: 'أحمر البنغال / أسود' },
         { label: 'رقم الهيكل', value: 'W1N463***291' }
     ] : [
+        { label: 'Source Entity', value: 'Abu Dhabi Mobility', logo: '/images/abu-dhabi-mobility.png' },
         { label: 'Engine', value: '4.0L V8 Biturbo' },
         { label: 'Power', value: '577 HP' },
         { label: 'Transmission', value: '9-Speed Auto' },
@@ -100,6 +102,27 @@ export default function AuctionDetailPage() {
         { label: 'Color', value: 'Night Black Magno' },
         { label: 'Interior', value: 'Bengal Red / Black' },
         { label: 'VIN', value: 'W1N463***291' }
+    ]
+
+    // Saaed terms and conditions
+    const terms = isAr ? [
+        "تطبق الرسوم الإدارية بالإضافة إلى ضريبة القيمة المضافة على كل معروض على النحو التالي: 200 درهم لسعر البيع حتى 500 درهم، 300 درهم لسعر البيع بين 501 درهم و 1,000 درهم، 600 درهم لسعر البيع بين 1,001 درهم و 100,000 درهم، 1% من سعر البيع لما فوق 100,000 درهم.",
+        "يجب إتمام عملية الدفع واستلام المعروض خلال 48 ساعة من وقت انتهاء المزاد. يتم إنهاء مستندات المعروض خلال 10 أيام عمل تقريباً من تاريخ إتمام عملية الدفع.",
+        "تحتفظ شركة ساعد بالحق في تطبيق رسوم قدرها 100 درهم عن كل يوم تأخير، دون إشعار مسبق، لأي مركبة لم يتم سداد قيمتها أو استلامها خلال المدة المحددة.",
+        "شركة ساعد غير مسؤولة على الإطلاق عن المدة المستغرقة لإصدار أوراق نقل الملكية.",
+        "تباع المركبة على حالتها الراهنة وفي مكان تواجدها، ولا تتحمل شركة ساعد أي مسؤولية ويجب عليك معاينة المعروض قبل تقديم أي مزايدة.",
+        "تطبق رسوم تحميل/تنزيل قدرها 100 درهم عن كل سيارة.",
+        "شركة ساعد لا تضمن تسجيل السيارات الكلاسيكية.",
+        "يتحمل المشتري 200 درهم رسوم إصدار الحيازة ... وفي حال تطلب إصدار الحيازة إجراء فحص تصدير، يتعين على المشتري إجراء الفحص وتسليمه إلى شركة ساعد لإصدار الحيازة على نفقة المشتري."
+    ] : [
+        "Administrative fee plus VAT shall apply to each item as follows: 200 AED for sale price up to 500 AED, 300 AED for sale price between 501 AED and 1,000 AED, 600 AED for sale price between 1,001 AED and 100,000 AED, 1 percent of sale price above AED 100,000.",
+        "You must complete payment and collection of the Lot within 48 hours from the time of auction's conclusion. Documents of the lot shall be finalized within approximately 10 working days of completing the payment process.",
+        "Saaed reserves the right to apply fees of 100AED for each delay, without prior notice, for any vehicle not paid or received within the specified period",
+        "Saaed is not responsible whatsoever for the period of issuing ownership documents.",
+        "To be sold as is where is, Saaed has no responsibility and you must inspect the lot before bid.",
+        "AED 100 loading/unloading fees will be applied for each car.",
+        "Saaed shall not guarantee the registration of the classic cars.",
+        "The buyer bears 200 dirhams of possession issuance fees ... In the event that the issuance of possession requires an export examination, the buyer must conduct the examination and hand it over to Saaed to issue the possession at the buyer’s expense"
     ]
 
     return (
@@ -209,8 +232,11 @@ export default function AuctionDetailPage() {
                     >
                         <img
                             src={images[activeImage]}
-                            alt="Mercedes G63"
+                            alt="Vehicle Preview"
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            onError={(e) => {
+                                e.currentTarget.src = "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop"
+                            }}
                         />
                         <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
                             <button className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white hover:text-red-500 transition-colors border border-white/20 cursor-pointer">
@@ -238,6 +264,9 @@ export default function AuctionDetailPage() {
                                     src={img}
                                     alt={`Gallery ${i + 1}`}
                                     className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop"
+                                    }}
                                 />
                             </motion.button>
                         ))}
@@ -247,13 +276,27 @@ export default function AuctionDetailPage() {
                 {/* Info & Bidding */}
                 <div className="space-y-8 flex flex-col justify-center">
                     <div>
-                        <div className={`flex items-center gap-3 mb-4 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
+                        <div className={`flex flex-wrap items-center gap-3 mb-4 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
                             <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider border border-blue-500/20">
                                 {t("Premium Lot")}
                             </span>
                             <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-emerald-500/20">
                                 <ShieldCheck className="w-3 h-3" /> {t("Verified")}
                             </span>
+
+                            {/* Official Entity Badge */}
+                            <div className={`inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs ${isAr ? 'flex-row-reverse' : ''}`}>
+                                <div className="w-9 h-5 bg-white rounded p-0.5 flex items-center justify-center shrink-0">
+                                    <img
+                                        src="/images/abu-dhabi-mobility.png"
+                                        alt="Abu Dhabi Mobility"
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
+                                <span className="text-xs font-bold text-teal-700 dark:text-teal-400">
+                                    {isAr ? 'أبوظبي للتنقل' : 'Abu Dhabi Mobility'}
+                                </span>
+                            </div>
                         </div>
                         <h1 className={`text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
                             {isAr ? 'مرسيدس AMG G63 2024' : '2024 Mercedes-AMG G63'}
@@ -388,9 +431,20 @@ export default function AuctionDetailPage() {
                         <h3 className={`font-bold text-slate-900 dark:text-white mb-6 text-xl ${isAr ? 'text-right' : 'text-left'}`}>{t("Specifications")}</h3>
                         <div className="space-y-0">
                             {specs.map((spec) => (
-                                <div key={spec.label} className={`flex justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-4 px-4 transition-colors ${isAr ? 'flex-row-reverse' : ''}`}>
+                                <div key={spec.label} className={`flex items-center justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-4 px-4 transition-colors ${isAr ? 'flex-row-reverse' : ''}`}>
                                     <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">{spec.label}</span>
-                                    <span className={`text-sm font-bold text-slate-900 dark:text-white ${isAr ? 'text-left' : 'text-right'}`}>{spec.value}</span>
+                                    <div className={`flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
+                                        {spec.logo && (
+                                            <div className="w-8 h-5 bg-white rounded p-0.5 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0 overflow-hidden">
+                                                <img
+                                                    src={spec.logo}
+                                                    alt={spec.value}
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            </div>
+                                        )}
+                                        <span className={`text-sm font-bold text-slate-900 dark:text-white ${isAr ? 'text-left' : 'text-right'}`}>{spec.value}</span>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -398,6 +452,99 @@ export default function AuctionDetailPage() {
                             {isAr ? 'عرض كامل المواصفات' : 'View Full Specs'} <ArrowRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
                         </Button>
                     </div>
+                </div>
+            </div>
+
+            {/* Inspection Location Section */}
+            <div className="mt-14 space-y-4">
+                <h2 className={`text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
+                    {isAr ? 'موقع المعاينة' : 'Inspection Location'}
+                </h2>
+
+                <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[500px] rounded-[2rem] overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-950 group">
+                    {/* Embedded Google Satellite Map */}
+                    <iframe
+                        src="https://maps.google.com/maps?q=Emirates+Auction+Yard+-+Al+aweer+Dubai&t=k&z=16&ie=UTF8&iwloc=&output=embed"
+                        className="w-full h-full border-0 filter brightness-[0.98] contrast-[1.02]"
+                        loading="lazy"
+                        allowFullScreen
+                        title="Inspection Location Map"
+                    />
+
+                    {/* Fullscreen Button */}
+                    <a
+                        href="https://www.google.com/maps/search/?api=1&query=Emirates+Auction+Yard+-+Al+aweer+Dubai"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Open in Google Maps Fullscreen"
+                        className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} z-20 p-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-lg border border-slate-200/60 dark:border-slate-700/60 hover:scale-105 active:scale-95`}
+                    >
+                        <Maximize2 className="w-5 h-5" />
+                    </a>
+
+                    {/* Floating Branch Card */}
+                    <div className={`absolute bottom-5 ${isAr ? 'right-5 text-right' : 'left-5 text-left'} z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-5 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-700/80 max-w-[280px] sm:max-w-xs transition-transform duration-300 group-hover:scale-[1.02]`}>
+                        <div className={`flex items-center gap-2 mb-2 ${isAr ? 'flex-row-reverse' : ''}`}>
+                            <div className="w-9 h-5 bg-white rounded p-0.5 flex items-center justify-center border border-slate-200 shadow-2xs shrink-0">
+                                <img
+                                    src="/images/abu-dhabi-mobility.png"
+                                    alt="Abu Dhabi Mobility"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
+                            <span className="text-[11px] font-extrabold text-teal-700 dark:text-teal-400">
+                                {isAr ? 'أبوظبي للتنقل' : 'Abu Dhabi Mobility'}
+                            </span>
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
+                            {isAr ? 'فرع موقع المعاينة' : 'Inspection Location Branch'}
+                        </h3>
+                        <a
+                            href="https://www.google.com/maps/search/?api=1&query=Emirates+Auction+Yard+-+Al+aweer+Dubai"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all hover:border-slate-400"
+                        >
+                            {/* Google Maps Pin Multi-color SVG */}
+                            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19.527 4.799c-1.92-1.92-4.57-2.799-7.527-2.799C7.432 2 4.19 5.242 4.19 9.242c0 2.278 1.05 4.316 2.698 5.656l5.112 7.102 5.113-7.102c1.647-1.34 2.697-3.378 2.697-5.656 0-1.74-.537-3.355-1.583-4.443z" fill="#34A853"/>
+                                <path d="M12 2c2.957 0 5.607.879 7.527 2.799l-4.409 6.123A3.873 3.873 0 0 0 12 9.242c-2.14 0-3.873 1.734-3.873 3.873 0 .42.067.825.19 1.205L4.19 9.242C4.19 5.242 7.432 2 12 2z" fill="#4285F4"/>
+                                <path d="M12 9.242a3.873 3.873 0 0 1 3.118 1.578l4.409-6.123A10.158 10.158 0 0 0 12 2v7.242z" fill="#EA4335"/>
+                                <path d="M12 16.988a3.873 3.873 0 0 1-3.683-2.668L4.19 9.242c-.085.325-.13.666-.13 1.018 0 2.278 1.05 4.316 2.698 5.656l5.112 7.102.13-6.03z" fill="#FBBC04"/>
+                                <circle cx="12" cy="11.5" r="2.2" fill="#FFFFFF"/>
+                            </svg>
+                            <span>{isAr ? 'عرض على خرائط Google' : 'View on Google maps'}</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {/* Terms And Conditions Section */}
+            <div className="mt-14 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 sm:p-10 lg:p-12 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden space-y-6">
+                <div className={`flex items-center gap-3 ${isAr ? 'flex-row-reverse' : ''}`}>
+                    <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-800 dark:text-slate-200">
+                        <FileText className="w-6 h-6" />
+                    </div>
+                    <h2 className={`text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
+                        {isAr ? 'الشروط والأحكام' : 'Terms And Conditions'}
+                    </h2>
+                </div>
+
+                <p className={`text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 leading-relaxed ${isAr ? 'text-right' : 'text-left'}`}>
+                    {isAr
+                        ? 'تطبق الشروط والأحكام الخاصة بالمزاد العلني لشركة ساعد، بالإضافة إلى الشروط والأحكام التالية:'
+                        : "Saaed's terms and conditions of public auction shall apply, along with the following terms and conditions"}
+                </p>
+
+                <div className="space-y-4">
+                    {terms.map((term, index) => (
+                        <p
+                            key={index}
+                            className={`text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed ${isAr ? 'text-right' : 'text-left'}`}
+                        >
+                            {term}
+                        </p>
+                    ))}
                 </div>
             </div>
         </div>

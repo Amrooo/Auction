@@ -37,15 +37,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <CanvasBackground />
-          <div 
-            className="fixed inset-0 pointer-events-none -z-20 overflow-hidden select-none"
-          >
-            <img
-              src="/bg-abstract.png"
-              alt="Abstract Background"
-              className="w-full h-full object-cover opacity-50 transition-opacity duration-300"
-            />
-          </div>
           <LanguageProvider>
             <Header />
             <main className="flex-1 pt-24 pb-12">

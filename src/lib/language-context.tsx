@@ -147,7 +147,15 @@ export const translations = {
         "High Demand": "High Demand",
         "Scrap Value High": "Scrap Value High",
         "Clean Title": "Clean Title",
-        "Ready for Release": "Ready for Release"
+        "Ready for Release": "Ready for Release",
+        "Inspection Location": "Inspection Location",
+        "Inspection Location Branch": "Inspection Location Branch",
+        "View on Google maps": "View on Google maps",
+        "Terms And Conditions": "Terms And Conditions",
+        "Terms and Conditions Description": "Saaed's terms and conditions of public auction shall apply, along with the following terms and conditions",
+        "Source Entity": "Source Entity",
+        "All Entities": "All Entities",
+        "Select Entity": "Select Entity"
     },
     ar: {
         "Home": "الرئيسية",
@@ -293,7 +301,15 @@ export const translations = {
         "High Demand": "طلب مرتفع",
         "Scrap Value High": "قيمة سكراب عالية",
         "Clean Title": "ملكية خالية من الرهون",
-        "Ready for Release": "جاهز للإفراج"
+        "Ready for Release": "جاهز للإفراج",
+        "Inspection Location": "موقع المعاينة",
+        "Inspection Location Branch": "فرع موقع المعاينة",
+        "View on Google maps": "عرض على خرائط Google",
+        "Terms And Conditions": "الشروط والأحكام",
+        "Terms and Conditions Description": "تطبق الشروط والأحكام الخاصة بالمزاد العلني لشركة ساعد، بالإضافة إلى الشروط والأحكام التالية:",
+        "Source Entity": "الجهة المصدرة",
+        "All Entities": "جميع الجهات",
+        "Select Entity": "اختر الجهة"
     }
 }
 
