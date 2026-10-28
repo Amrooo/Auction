@@ -31,7 +31,8 @@ export async function POST(
         return NextResponse.json({
             success: true,
             message: `Bid of AED ${amount.toLocaleString()} placed successfully.`,
-            vehicle: result.vehicle
+            vehicle: result.vehicle,
+            isBuyNow: result.isBuyNow
         })
     } catch (error) {
         return NextResponse.json({

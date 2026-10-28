@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-export type VehicleStatus = 'draft' | 'pending_approval' | 'approved' | 'live' | 'paused' | 'ended' | 'sold' | 'cancelled'
+export type VehicleStatus = 'draft' | 'pending_approval' | 'approved' | 'live' | 'paused' | 'ended' | 'sold' | 'cancelled' | 'disputed'
 
 export type EntityId = 'dmt' | 'abu-dhabi-mobility' | 'dubai-police' | 'abu-dhabi-police' | 'dubai-customs' | 'saaed' | 'sharjah-police' | 'other'
 
@@ -92,6 +92,7 @@ export interface Vehicle {
     status: VehicleStatus
     startDate: string
     endDate: string
+    extensionsCount?: number
     isFeatured?: boolean
     
     // Visual Assets
@@ -616,20 +617,54 @@ export class VehicleService {
         return list[index]
     }
 
-    static placeBid(id: string, amount: number, bidderName = 'Registered Bidder'): { success: boolean; vehicle?: Vehicle; error?: string } {
+    static placeBid(id: string, amount: number, bidderName = 'Registered Bidder'): { success: boolean; vehicle?: Vehicle; error?: string; isBuyNow?: boolean } {
         const list = ensureDataFile()
         const index = list.findIndex(v => v.id === id || v.lotNumber === id)
         if (index === -1) return { success: false, error: 'Vehicle not found' }
 
         const vehicle = list[index]
+        
+        // 1. Concurrency / Database Lock Check for "Buy It Now" (FIFO)
+        if (vehicle.status === 'sold' || vehicle.status === 'ended') {
+            return { success: false, error: 'Auction has already ended or the vehicle was sold via Buy It Now.' }
+        }
+        
         if (vehicle.status !== 'live') {
             return { success: false, error: 'Auction is not currently live for bidding' }
         }
 
-        if (amount < vehicle.currentBid + vehicle.minimumIncrement) {
+        const now = new Date()
+        const endDate = new Date(vehicle.endDate)
+        
+        if (now > endDate) {
+            vehicle.status = 'ended'
+            saveDataFile(list)
+            return { success: false, error: 'Auction time has expired' }
+        }
+
+        // Handle Buy It Now execution
+        let isBuyNow = false
+        if (vehicle.buyNowPrice && amount >= vehicle.buyNowPrice) {
+            amount = vehicle.buyNowPrice
+            vehicle.status = 'sold'
+            isBuyNow = true
+        } else if (amount < vehicle.currentBid + vehicle.minimumIncrement) {
             return {
                 success: false,
                 error: `Bid amount must be at least AED ${(vehicle.currentBid + vehicle.minimumIncrement).toLocaleString()}`
+            }
+        }
+
+        // 2. Anti-Sniping (التمديد المضاد للقنص)
+        // If within the last 2 minutes, extend by 2 minutes, up to max 10 times.
+        if (!isBuyNow) {
+            const timeRemainingMs = endDate.getTime() - now.getTime()
+            if (timeRemainingMs > 0 && timeRemainingMs <= 2 * 60 * 1000) {
+                vehicle.extensionsCount = vehicle.extensionsCount || 0
+                if (vehicle.extensionsCount < 10) {
+                    vehicle.endDate = new Date(endDate.getTime() + 2 * 60 * 1000).toISOString()
+                    vehicle.extensionsCount++
+                }
             }
         }
 
@@ -647,6 +682,6 @@ export class VehicleService {
         vehicle.updatedAt = new Date().toISOString()
 
         saveDataFile(list)
-        return { success: true, vehicle }
+        return { success: true, vehicle, isBuyNow }
     }
 }

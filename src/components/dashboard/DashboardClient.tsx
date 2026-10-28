@@ -3,10 +3,12 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { StatsCard } from "@/components/dashboard/StatsCard"
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed"
 import { AuctionCard } from "@/components/auction/AuctionCard"
+import VehicleListingWizard from "@/components/dashboard/VehicleListingWizard"
+import MyListingsTab from "@/components/dashboard/MyListingsTab"
 import { 
   Gavel, 
   Trophy, 
@@ -23,13 +25,16 @@ import {
   User,
   CheckCircle,
   AlertCircle,
-  Download
+  Download,
+  Car,
+  Plus
 } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export default function DashboardClient() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const currentTab = searchParams.get("tab") || "overview"
   const { t, language } = useLanguage()
@@ -174,7 +179,15 @@ export default function DashboardClient() {
           </p>
         </div>
 
-        <div className={cn("flex items-center gap-3 shrink-0", language === 'ar' && "flex-row-reverse")}>
+        <div className={cn("flex flex-wrap items-center gap-3 shrink-0", language === 'ar' && "flex-row-reverse")}>
+          <button
+            onClick={() => router.push("/dashboard?tab=sell")}
+            className="flex items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-red-600/25 active:scale-95 cursor-pointer border-none"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>{language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}</span>
+          </button>
+
           <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black text-xs shadow-md shadow-amber-500/20">
               VIP
@@ -235,6 +248,31 @@ export default function DashboardClient() {
           variants={panelVariants}
           className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-[0_15px_50px_rgba(0,0,0,0.03)]"
         >
+          {/* 0. VEHICLE LISTING WIZARD PANEL */}
+          {currentTab === "sell" && (
+            <div className="space-y-6">
+              <VehicleListingWizard
+                onSuccess={() => {
+                  router.push("/dashboard?tab=my-listings")
+                }}
+                onCancel={() => {
+                  router.push("/dashboard?tab=overview")
+                }}
+              />
+            </div>
+          )}
+
+          {/* 0.1 MY LISTED VEHICLES PANEL */}
+          {currentTab === "my-listings" && (
+            <div className="space-y-6">
+              <MyListingsTab
+                onStartListingWizard={() => {
+                  router.push("/dashboard?tab=sell")
+                }}
+              />
+            </div>
+          )}
+
           {/* 1. OVERVIEW PANEL */}
           {currentTab === "overview" && (
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">

@@ -394,7 +394,7 @@ export default function AuctionDetailPage() {
                             </div>
 
                             <div className="space-y-2 pt-2">
-                                <p className={`text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-muted-foreground ${isAr ? 'text-right' : 'text-left'}`}>
+                                <p className={`text-xs uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 ${isAr ? 'text-right' : 'text-left'}`}>
                                     {isAr ? 'مزايدة سريعة (درهم)' : 'Quick Bid (AED)'}
                                 </p>
                                 <div className="grid grid-cols-4 gap-2">
@@ -405,7 +405,7 @@ export default function AuctionDetailPage() {
                                                 setBidAmount(950000 + amount);
                                                 handleAction("bid");
                                             }}
-                                            className="py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-[10px] font-black hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-500 cursor-pointer flex items-center justify-center gap-0.5"
+                                            className="py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm sm:text-base font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 text-slate-800 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-500 cursor-pointer flex items-center justify-center gap-0.5 shadow-sm"
                                         >
                                             +{isAr ? toArabicNumerals(amount) : amount}
                                         </button>

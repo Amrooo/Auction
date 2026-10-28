@@ -87,8 +87,8 @@ export default function Home() {
         <GovernmentEntities />
 
         <section className="py-20 container mx-auto px-4">
-          <div className={`flex items-end justify-between mb-12 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
-            <div className={cn("flex flex-col gap-2", language === 'ar' ? 'text-right' : 'text-left')} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+          <div className="flex items-end justify-between mb-12">
+            <div className="flex flex-col gap-2 text-start">
               <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 {t("Live Auctions")}
               </h2>
@@ -96,8 +96,8 @@ export default function Home() {
                 {t("Happening now. Don't miss out.")}
               </p>
             </div>
-            <button className={`text-lg font-bold text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary transition-colors flex items-center gap-2 group ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
-              {t("View All")} <span className={`transition-transform ${language === 'ar' ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}>{language === 'ar' ? '←' : '→'}</span>
+            <button className="text-lg font-bold text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary transition-colors flex items-center gap-2 group cursor-pointer">
+              {t("View All")} <span className="transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 inline-block">→</span>
             </button>
           </div>
 

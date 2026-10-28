@@ -18,7 +18,9 @@ import {
   ChevronLeft,
   User,
   ShieldCheck,
-  Plus
+  Plus,
+  Car,
+  PlusCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/language-context"
@@ -26,6 +28,8 @@ import { DepositModal } from "@/components/dashboard/DepositModal"
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", value: "overview" },
+  { icon: Car, label: "My Listed Vehicles", value: "my-listings" },
+  { icon: PlusCircle, label: "Add Vehicle for Auction", value: "sell" },
   { icon: SlidersHorizontal, label: "Saved Filters", value: "saved-filters" },
   { icon: Heart, label: "Watchlist", value: "watchlist" },
   { icon: Gavel, label: "My Bids", value: "my-bids" },
@@ -83,7 +87,7 @@ export function DashboardSidebar() {
         <div className={cn("flex items-center gap-3 min-w-0", language === 'ar' && "flex-row-reverse")}>
           <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm shrink-0 bg-slate-200 dark:bg-slate-700">
             <img 
-              src="https://i.pravatar.cc/100?u=amro" 
+              src="/images/neutral-avatar.jpg" 
               alt="Amro El-Gezeri" 
               className="w-full h-full object-cover"
             />
@@ -149,6 +153,30 @@ export function DashboardSidebar() {
           </button>
         </div>
       )}
+
+      {/* Quick Sell Vehicle CTA Banner */}
+      <Link
+        href="/dashboard?tab=sell"
+        className={cn(
+          "flex items-center justify-between p-3.5 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-2xl hover:from-red-500 hover:to-rose-500 transition-all mb-4 shadow-lg shadow-red-600/20 active:scale-98 group cursor-pointer",
+          language === 'ar' && "flex-row-reverse"
+        )}
+      >
+        <div className={cn("flex items-center gap-3 min-w-0", language === 'ar' && "flex-row-reverse")}>
+          <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
+            <Car className="w-4 h-4 text-white" />
+          </div>
+          <div className="text-start min-w-0">
+            <h5 className="font-black text-xs uppercase tracking-wider text-white">
+              {language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}
+            </h5>
+            <p className="text-[10px] text-white/80 font-bold">
+              {language === 'ar' ? 'معالج الإدراج الذكي' : 'Start Seller Wizard'}
+            </p>
+          </div>
+        </div>
+        <Plus className="w-4 h-4 text-white stroke-[3] group-hover:scale-110 transition-transform" />
+      </Link>
 
       {/* Navigation List */}
       <div className="flex-1 space-y-1">

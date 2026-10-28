@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Search, Gavel, Menu, Globe, X } from "lucide-react"
+import { Search, Gavel, Menu, Globe, X, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useState, useEffect, useRef } from "react"
@@ -76,9 +76,28 @@ export function Header() {
         return "/dashboard"
     }
 
-    const openAuthModal = (view: "login" | "signup") => {
+    const [authNotice, setAuthNotice] = useState<{ title?: string; desc?: string }>({})
+
+    const openAuthModal = (view: "login" | "signup", customNotice?: { title?: string; desc?: string }) => {
         setAuthView(view)
+        if (customNotice) {
+            setAuthNotice(customNotice)
+        } else {
+            setAuthNotice({})
+        }
         setIsAuthModalOpen(true)
+    }
+
+    const handleAddVehicleClick = () => {
+        if (isLoggedIn) {
+            router.push("/dashboard?tab=sell")
+        } else {
+            localStorage.setItem("auth_redirect_target", "/dashboard?tab=sell")
+            openAuthModal("login", {
+                title: language === 'ar' ? 'تسجيل الدخول مطلوب لإضافة مركبة للمزاد' : 'Login Required to Add Vehicle for Auction',
+                desc: language === 'ar' ? 'يرجى تسجيل الدخول بحسابك أو إنشاء حساب جديد للبدء في معالج إدراج المركبة.' : 'Please sign in or create an account to start the vehicle consignment wizard.'
+            })
+        }
     }
 
     return (
@@ -87,12 +106,20 @@ export function Header() {
                 className={cn(
                     "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
                     isScrolled
-                        ? "bg-white dark:bg-slate-900 shadow-xl py-2 border-b border-slate-200 dark:border-border/50"
+                        ? "bg-white dark:bg-black shadow-xl py-2 border-b border-slate-200 dark:border-border/50"
                         : "bg-white dark:bg-transparent py-4 border-b border-white/10 dark:border-transparent"
                 )}
             >
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between relative z-10">
                     <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="bg-black rounded-xl p-1.5 sm:p-2 shadow-md border border-slate-800 flex items-center justify-center shrink-0">
+                            <img
+                                src="/images/uae-flag-original.png"
+                                alt="UAE Flag"
+                                className="h-7 sm:h-8 w-auto object-contain"
+                            />
+                        </div>
+
                         <Link href="/" className="flex items-center group shrink-0">
                             <img
                                 src="/images/saaed-logo.png"
@@ -103,14 +130,6 @@ export function Header() {
                                 )}
                             />
                         </Link>
-
-                        <div className="bg-black rounded-xl p-1.5 sm:p-2 shadow-md border border-slate-800 flex items-center justify-center shrink-0">
-                            <img
-                                src="/images/uae-flag-original.png"
-                                alt="UAE Flag"
-                                className="h-7 sm:h-8 w-auto object-contain"
-                            />
-                        </div>
                     </div>
 
                     {/* Desktop Navigation */}
@@ -124,7 +143,7 @@ export function Header() {
                             
                             {/* Dropdown Menu */}
                             <div className={cn(
-                                "absolute top-full mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-2 hidden group-hover:block z-50",
+                                "absolute top-full mt-2 w-48 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-2 hidden group-hover:block z-50",
                                 language === 'ar' ? 'right-0' : 'left-0'
                             )}>
                                 {[
@@ -186,6 +205,15 @@ export function Header() {
                             {isSearchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
                         </button>
 
+                        {/* Add Vehicle for Auction CTA Button */}
+                        <button
+                            onClick={handleAddVehicleClick}
+                            className="hidden lg:flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-md shadow-red-600/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 cursor-pointer border-none"
+                        >
+                            <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                            <span>{language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle'}</span>
+                        </button>
+
                         {isLoggedIn ? (
                             <div className="hidden sm:flex items-center gap-3 ms-2">
                                 <Link
@@ -232,7 +260,7 @@ export function Header() {
                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                     className="absolute top-full right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 md:w-96 max-w-sm z-[60]"
                                 >
-                                    <div className="bg-white dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/60 dark:border-border/50 rounded-2xl shadow-2xl p-4 overflow-hidden">
+                                    <div className="bg-white dark:bg-black/95 backdrop-blur-xl border border-slate-200/60 dark:border-border/50 rounded-2xl shadow-2xl p-4 overflow-hidden">
                                         <div className="relative group">
                                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-muted-foreground group-focus-within:text-accent transition-colors" />
                                             <input
@@ -281,7 +309,7 @@ export function Header() {
                             exit={{ x: language === 'ar' ? "-100%" : "100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
                             className={cn(
-                                "fixed top-0 bottom-0 w-80 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 z-[101] shadow-2xl p-6 flex flex-col justify-between md:hidden overflow-y-auto",
+                                "fixed top-0 bottom-0 w-80 bg-white dark:bg-black border-slate-200 dark:border-slate-800 z-[101] shadow-2xl p-6 flex flex-col justify-between md:hidden overflow-y-auto",
                                 language === 'ar' ? "left-0 border-r" : "right-0 border-l"
                             )}
                             dir={language === 'ar' ? 'rtl' : 'ltr'}
@@ -289,13 +317,6 @@ export function Header() {
                             <div>
                                 <div className="flex items-center justify-between mb-8">
                                     <div className="flex items-center gap-3">
-                                        <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                                            <img
-                                                src="/images/saaed-logo.png"
-                                                alt="Saaed"
-                                                className="h-9 w-auto object-contain dark:brightness-0 dark:invert"
-                                            />
-                                        </Link>
                                         <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200/80 dark:border-slate-700/80">
                                             <img
                                                 src="/images/uae-flag-ribbon.png"
@@ -306,6 +327,13 @@ export function Header() {
                                                 UAE
                                             </span>
                                         </div>
+                                        <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <img
+                                                src="/images/saaed-logo.png"
+                                                alt="Saaed"
+                                                className="h-9 w-auto object-contain dark:brightness-0 dark:invert"
+                                            />
+                                        </Link>
                                     </div>
                                     <button
                                         onClick={() => setIsMobileMenuOpen(false)}
@@ -388,6 +416,19 @@ export function Header() {
                                     </button>
                                     <ThemeToggle />
                                 </div>
+
+                                {/* Mobile Add Vehicle for Auction Button */}
+                                <button
+                                    onClick={() => {
+                                        setIsMobileMenuOpen(false)
+                                        handleAddVehicleClick()
+                                    }}
+                                    className="w-full py-3 rounded-2xl text-xs font-black bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/25 flex items-center justify-center gap-2 cursor-pointer border-none"
+                                >
+                                    <Plus className="w-4 h-4 stroke-[3]" />
+                                    <span>{language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}</span>
+                                </button>
+
                                 {isLoggedIn ? (
                                     <div className="flex flex-col gap-2">
                                         <Link
@@ -443,6 +484,8 @@ export function Header() {
                 isOpen={isAuthModalOpen}
                 onClose={() => setIsAuthModalOpen(false)}
                 defaultTab={authView}
+                noticeTitle={authNotice.title}
+                noticeDesc={authNotice.desc}
             />
         </>
     )

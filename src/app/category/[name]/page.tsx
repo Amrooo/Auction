@@ -157,7 +157,7 @@ export default function CategoryPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className={`flex flex-col lg:flex-row gap-8 ${isAr ? 'lg:flex-row-reverse' : ''}`}>
-                {/* Sidebar Filters - Only show for motors for now */}
+                {/* Sidebar Filters - Left side menu */}
                 {categoryName === 'motors' && (
                     <aside className="w-full lg:w-80 shrink-0">
                         <motion.div
@@ -174,23 +174,23 @@ export default function CategoryPage() {
                     </aside>
                 )}
 
-                {/* Main Content */}
+                {/* Main Content - Vehicle Cards aligned left beside menu */}
                 <div className="flex-1">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 ${isAr ? 'sm:flex-row-reverse' : ''}`}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
                     >
-                        <div>
-                            <h1 className={`text-3xl sm:text-4xl font-black text-slate-900 dark:text-white capitalize ${isAr ? 'text-right' : 'text-left'}`}>
+                        <div className="text-start">
+                            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white capitalize">
                                 {isAr ? `مزادات ${t(categoryName === 'motors' ? 'Motors' : categoryName)}` : `${categoryName} ${t("Listings")}`}
                             </h1>
-                            <p className={`text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-1 ${isAr ? 'text-right' : 'text-left'}`}>
+                            <p className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mt-1">
                                 {filteredAuctions.length} {t("listings")} {selectedSource !== 'all' ? `(${selectedSource})` : ''}
                             </p>
                         </div>
 
-                        <div className={`flex items-center gap-3 ${isAr ? 'flex-row-reverse' : ''}`}>
+                        <div className="flex items-center gap-3">
                             <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold whitespace-nowrap">{t("Sort by")}:</span>
                             <select className="bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 focus:ring-0 cursor-pointer outline-none tracking-tight">
                                 <option>{t("AI Recommended")}</option>
@@ -201,7 +201,7 @@ export default function CategoryPage() {
                     </motion.div>
 
                     {filteredAuctions.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-start">
                             {filteredAuctions.map((auction) => (
                                 <AuctionCard key={auction.id} {...auction} />
                             ))}

@@ -95,9 +95,9 @@ export function GovernmentEntities() {
             <div className="absolute inset-0 bg-secondary/20 dark:bg-secondary/10 pointer-events-none" />
 
             <div className="container mx-auto px-4 relative z-10 mb-8">
-                <div className={`flex flex-col md:flex-row items-center justify-between gap-6 ${isAr ? 'md:flex-row-reverse' : ''}`}>
-                    <div className={isAr ? 'text-right' : 'text-left'}>
-                        <div className={`flex items-center gap-2 mb-2 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="text-start">
+                        <div className="flex items-center gap-2 mb-2">
                             <span className="px-3 py-1 rounded-full bg-red-600/10 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider border border-red-600/20">
                                 {isAr ? 'الشركاء الاستراتيجيون' : 'Verified Government Partners'}
                             </span>
@@ -111,20 +111,20 @@ export function GovernmentEntities() {
                     </div>
 
                     {/* Navigation Buttons */}
-                    <div className={`flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
+                    <div className="flex items-center gap-2">
                         <button
                             onClick={() => handleScroll(isAr ? 'right' : 'left')}
                             aria-label="Previous Partners"
                             className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-sm active:scale-95 cursor-pointer"
                         >
-                            <ChevronLeft className="w-5 h-5" />
+                            <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
                         </button>
                         <button
                             onClick={() => handleScroll(isAr ? 'left' : 'right')}
                             aria-label="Next Partners"
                             className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-sm active:scale-95 cursor-pointer"
                         >
-                            <ChevronRight className="w-5 h-5" />
+                            <ChevronRight className="w-5 h-5 rtl:rotate-180" />
                         </button>
                     </div>
                 </div>

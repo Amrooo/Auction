@@ -12,9 +12,11 @@ interface AuthModalProps {
     isOpen: boolean
     onClose: () => void
     defaultTab?: "login" | "signup"
+    noticeTitle?: string
+    noticeDesc?: string
 }
 
-export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, defaultTab = "login", noticeTitle, noticeDesc }: AuthModalProps) {
     const [activeTab, setActiveTab] = useState<"login" | "signup">(defaultTab)
     const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState("")
@@ -51,7 +53,13 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
             } else {
                 localStorage.setItem("user_role", "bidder")
                 window.dispatchEvent(new Event("login_state_change"))
-                router.push("/dashboard")
+                const redirectTarget = localStorage.getItem("auth_redirect_target")
+                if (redirectTarget) {
+                    localStorage.removeItem("auth_redirect_target")
+                    router.push(redirectTarget)
+                } else {
+                    router.push("/dashboard")
+                }
             }
         }, 1500)
     }
@@ -85,6 +93,17 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
                             <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer">
                                 <X className="w-6 h-6" />
                             </button>
+
+                            {noticeTitle && (
+                                <div className="mb-6 p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-start">
+                                    <h4 className="text-xs font-black text-red-600 dark:text-red-400 uppercase tracking-wider mb-1">
+                                        {noticeTitle}
+                                    </h4>
+                                    <p className="text-xs text-slate-600 dark:text-slate-300 font-semibold leading-relaxed">
+                                        {noticeDesc || (language === 'ar' ? 'يجب تسجيل الدخول لمتابعة إضافة مركبتك للمزاد.' : 'Sign in is required to continue adding your vehicle for auction.')}
+                                    </p>
+                                </div>
+                            )}
 
                             <div className={`mb-8 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                                 <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{t("Welcome")}</h2>

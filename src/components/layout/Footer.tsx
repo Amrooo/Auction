@@ -12,7 +12,7 @@ export function Footer() {
     if (pathname.startsWith("/admin")) return null
 
     return (
-        <footer className="bg-slate-950 text-slate-400 py-16 rounded-t-[3rem] mt-20 relative overflow-hidden">
+        <footer className="bg-black text-slate-400 py-16 rounded-t-[3rem] mt-20 relative overflow-hidden border-t border-white/5">
             {/* Texture Overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
 

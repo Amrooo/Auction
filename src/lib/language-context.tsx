@@ -155,7 +155,9 @@ export const translations = {
         "Terms and Conditions Description": "Saaed's terms and conditions of public auction shall apply, along with the following terms and conditions",
         "Source Entity": "Source Entity",
         "All Entities": "All Entities",
-        "Select Entity": "Select Entity"
+        "Select Entity": "Select Entity",
+        "Add Vehicle for Auction": "Add Vehicle for Auction",
+        "My Listed Vehicles": "My Listed Vehicles"
     },
     ar: {
         "Home": "الرئيسية",
@@ -309,7 +311,9 @@ export const translations = {
         "Terms and Conditions Description": "تطبق الشروط والأحكام الخاصة بالمزاد العلني لشركة ساعد، بالإضافة إلى الشروط والأحكام التالية:",
         "Source Entity": "الجهة المصدرة",
         "All Entities": "جميع الجهات",
-        "Select Entity": "اختر الجهة"
+        "Select Entity": "اختر الجهة",
+        "Add Vehicle for Auction": "أضف مركبة للمزاد",
+        "My Listed Vehicles": "مركباتي المعروضة للمزاد"
     }
 }
 
