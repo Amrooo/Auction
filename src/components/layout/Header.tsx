@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Search, Gavel, Menu, Globe, X, Plus } from "lucide-react"
+import { Search, Gavel, Menu, Globe, X, Plus, LayoutDashboard, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useState, useEffect, useRef } from "react"
@@ -219,37 +219,42 @@ export function Header() {
                         </button>
 
                         {isLoggedIn ? (
-                            <div className="hidden sm:flex items-center gap-3 ms-2">
+                            <div className="hidden sm:flex items-center gap-2 ms-1">
                                 <Link
                                     href={getPortalHref()}
-                                    className="px-6 py-2.5 rounded-2xl text-xs font-black bg-slate-950 dark:bg-slate-850 text-white hover:bg-slate-900 dark:hover:bg-slate-700 transition-all cursor-pointer uppercase tracking-wider border-none shadow-md"
+                                    className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800/90 dark:hover:bg-slate-700 dark:text-slate-100 border border-slate-200/80 dark:border-slate-750 transition-all shadow-xs hover:shadow-sm"
                                 >
-                                    {userRole === "admin" ? "Admin Panel" :
-                                     userRole === "yard" ? "Yard Portal" :
-                                     userRole === "itc" ? "ITC Portal" :
-                                     userRole === "inspect" ? "Integrations" :
-                                     "Dashboard"}
+                                    <LayoutDashboard className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                                    <span>
+                                        {userRole === "admin" ? t("Admin Panel") :
+                                         userRole === "yard" ? t("Yard Portal") :
+                                         userRole === "itc" ? t("ITC Portal") :
+                                         userRole === "inspect" ? t("Integrations") :
+                                         t("Dashboard")}
+                                    </span>
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="px-6 py-2.5 rounded-2xl text-xs font-black bg-red-600 hover:bg-red-700 text-white transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] cursor-pointer uppercase tracking-wider border-none active:scale-95"
+                                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 border border-transparent hover:border-red-200 dark:hover:border-red-900/40 transition-all cursor-pointer active:scale-95"
                                 >
-                                    Sign Out
+                                    <LogOut className="w-3.5 h-3.5" />
+                                    <span>{t("Sign Out")}</span>
                                 </button>
                             </div>
                         ) : (
-                            <div className="hidden sm:flex items-center gap-3 ms-2">
+                            <div className="hidden sm:flex items-center gap-2 ms-1">
                                 <button 
                                     onClick={() => openAuthModal("signup")}
-                                    className="px-6 py-2.5 rounded-2xl text-xs font-black bg-slate-950 dark:bg-slate-800 text-white hover:bg-slate-900 dark:hover:bg-slate-700 transition-all cursor-pointer uppercase tracking-wider border-none shadow-md"
+                                    className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-750 transition-all cursor-pointer"
                                 >
                                     {t("Register")}
                                 </button>
                                 <button 
                                     onClick={() => openAuthModal("login")}
-                                    className="px-6 py-2.5 rounded-2xl text-xs font-black bg-red-600 hover:bg-red-700 text-white transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] cursor-pointer uppercase tracking-wider border-none active:scale-95"
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 shadow-sm hover:shadow transition-all cursor-pointer active:scale-95"
                                 >
-                                    {t("Login")}
+                                    <User className="w-3.5 h-3.5" />
+                                    <span>{t("Login")}</span>
                                 </button>
                             </div>
                         )}
@@ -450,22 +455,26 @@ export function Header() {
                                         <Link
                                             href={getPortalHref()}
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="w-full py-3 rounded-2xl text-sm font-black bg-slate-950 dark:bg-slate-800 text-white hover:bg-slate-900 dark:hover:bg-slate-700 transition-all cursor-pointer border-none shadow-md text-center block"
+                                            className="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white transition-all cursor-pointer border border-slate-200 dark:border-slate-700 shadow-xs text-center flex items-center justify-center gap-2"
                                         >
-                                            {userRole === "admin" ? "Admin Panel" :
-                                             userRole === "yard" ? "Yard Portal" :
-                                             userRole === "itc" ? "ITC Portal" :
-                                             userRole === "inspect" ? "Integrations" :
-                                             "Dashboard"}
+                                            <LayoutDashboard className="w-3.5 h-3.5" />
+                                            <span>
+                                                {userRole === "admin" ? t("Admin Panel") :
+                                                 userRole === "yard" ? t("Yard Portal") :
+                                                 userRole === "itc" ? t("ITC Portal") :
+                                                 userRole === "inspect" ? t("Integrations") :
+                                                 t("Dashboard")}
+                                            </span>
                                         </Link>
                                         <button
                                             onClick={() => {
                                                 setIsMobileMenuOpen(false);
                                                 handleLogout();
                                             }}
-                                            className="w-full py-3 rounded-2xl text-sm font-black bg-red-600 hover:bg-red-700 text-white transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] cursor-pointer border-none active:scale-95"
+                                            className="w-full py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-2"
                                         >
-                                            Sign Out
+                                            <LogOut className="w-3.5 h-3.5" />
+                                            <span>{t("Sign Out")}</span>
                                         </button>
                                     </div>
                                 ) : (
@@ -475,7 +484,7 @@ export function Header() {
                                                 setIsMobileMenuOpen(false);
                                                 openAuthModal("signup");
                                             }}
-                                            className="w-full py-3 rounded-2xl text-sm font-black bg-slate-950 dark:bg-slate-800 text-white hover:bg-slate-900 dark:hover:bg-slate-700 transition-all cursor-pointer border-none shadow-md"
+                                            className="w-full py-2.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
                                         >
                                             {t("Register")}
                                         </button>
@@ -484,9 +493,10 @@ export function Header() {
                                                 setIsMobileMenuOpen(false);
                                                 openAuthModal("login");
                                             }}
-                                            className="w-full py-3 rounded-2xl text-sm font-black bg-red-600 hover:bg-red-700 text-white transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] cursor-pointer border-none active:scale-95"
+                                            className="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
                                         >
-                                            {t("Login")}
+                                            <User className="w-3.5 h-3.5" />
+                                            <span>{t("Login")}</span>
                                         </button>
                                     </div>
                                 )}

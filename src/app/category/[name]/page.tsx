@@ -162,8 +162,8 @@ function CategoryContent() {
     }, [liveVehicles, selectedSource, searchQuery, selectedMakes, minPrice, maxPrice, selectedCondition, useAI, sortBy])
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className={`flex flex-col lg:flex-row gap-8 ${isAr ? 'lg:flex-row-reverse' : ''}`}>
+        <div className="container mx-auto px-4 py-8" dir={isAr ? 'rtl' : 'ltr'}>
+            <div className="flex flex-col lg:flex-row gap-8">
                 {/* Sidebar Filters */}
                 {categoryName === 'motors' && (
                     <aside className="w-full lg:w-80 shrink-0">

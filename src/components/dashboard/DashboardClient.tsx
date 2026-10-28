@@ -435,7 +435,7 @@ export default function DashboardClient() {
                       <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
                         <td className="px-6 py-4 font-black text-slate-900 dark:text-white">{item.id}</td>
                         <td className="px-6 py-4 font-bold text-xs">{item.date}</td>
-                        <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">{item.item}</td>
+                        <td className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">{t(item.item)}</td>
                         <td className="px-6 py-4 text-end font-black text-slate-900 dark:text-white">
                           AED {item.amount.toLocaleString()}
                         </td>
@@ -499,7 +499,7 @@ export default function DashboardClient() {
                     {requestsList.map((item) => (
                       <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
                         <td className="px-6 py-4 font-black text-slate-900 dark:text-white">{item.id}</td>
-                        <td className="px-6 py-4 font-bold">{item.type}</td>
+                        <td className="px-6 py-4 font-bold">{t(item.type)}</td>
                         <td className="px-6 py-4 text-center">
                           <span className={cn(
                             "px-3 py-1 rounded-full text-xs font-black uppercase",
@@ -507,7 +507,7 @@ export default function DashboardClient() {
                               ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400"
                               : "bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400"
                           )}>
-                            {item.status}
+                            {t(item.status)}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-center font-bold text-xs">{item.date}</td>
@@ -540,7 +540,7 @@ export default function DashboardClient() {
                     {appointmentsList.map((item) => (
                       <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
                         <td className="px-6 py-4 font-black text-slate-900 dark:text-white">{item.id}</td>
-                        <td className="px-6 py-4 font-bold">{item.service}</td>
+                        <td className="px-6 py-4 font-bold">{t(item.service)}</td>
                         <td className="px-6 py-4 text-center font-bold text-xs">{item.date} • {item.time}</td>
                         <td className="px-6 py-4 text-center">
                           <span className={cn(
@@ -549,7 +549,7 @@ export default function DashboardClient() {
                               ? "bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
                               : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                           )}>
-                            {item.status}
+                            {t(item.status)}
                           </span>
                         </td>
                       </tr>
@@ -582,8 +582,8 @@ export default function DashboardClient() {
                     {supportTicketsList.map((item) => (
                       <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
                         <td className="px-6 py-4 font-black text-slate-900 dark:text-white">{item.id}</td>
-                        <td className="px-6 py-4 font-bold">{item.subject}</td>
-                        <td className="px-6 py-4 font-bold text-xs">{item.category}</td>
+                        <td className="px-6 py-4 font-bold">{t(item.subject)}</td>
+                        <td className="px-6 py-4 font-bold text-xs">{t(item.category)}</td>
                         <td className="px-6 py-4 text-center">
                           <span className={cn(
                             "px-3 py-1 rounded-full text-xs font-black uppercase",
@@ -591,7 +591,7 @@ export default function DashboardClient() {
                               ? "bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400"
                               : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                           )}>
-                            {item.status}
+                            {t(item.status)}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-center font-bold text-xs">{item.lastUpdated}</td>

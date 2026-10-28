@@ -25,9 +25,9 @@
     "fuelType": "Petrol",
     "startingBid": 800000,
     "minimumIncrement": 5000,
-    "currentBid": 955000,
+    "currentBid": 995000,
     "depositRequiredAed": 47500,
-    "bidsCount": 56,
+    "bidsCount": 57,
     "status": "live",
     "startDate": "2026-08-26T10:52:39.673Z",
     "endDate": "2026-10-28T11:24:58.244Z",
@@ -76,8 +76,14 @@
       "summaryAr": "هذا العرض مقيّم بأقل من قيمته بنسبة ٨٪ مقارنةً بطرازات G63 المماثلة. الطلب مرتفع، والأسعار في اتجاه تصاعدي (+٥٪)."
     },
     "createdAt": "2026-08-26T10:52:39.673Z",
-    "updatedAt": "2026-10-28T06:55:08.393Z",
+    "updatedAt": "2026-10-28T08:41:14.237Z",
     "bidsHistory": [
+      {
+        "id": "bid_1793176874237",
+        "bidderName": "Registered Bidder",
+        "amount": 995000,
+        "timestamp": "2026-10-28T08:41:14.237Z"
+      },
       {
         "id": "bid_1793170508393",
         "bidderName": "Test Bidder",

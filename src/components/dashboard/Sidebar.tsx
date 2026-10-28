@@ -96,19 +96,16 @@ export function DashboardSidebar() {
   const ChevronIcon = language === 'ar' ? ChevronLeft : ChevronRight
 
   return (
-    <div className={cn(
-      "w-full lg:w-80 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-[0_10px_40px_rgba(0,0,0,0.03)]",
-      language === 'ar' && "text-right"
-    )}>
+    <div 
+      className="w-full lg:w-80 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-[0_10px_40px_rgba(0,0,0,0.03)]"
+      dir={language === 'ar' ? 'rtl' : 'ltr'}
+    >
       {/* User Header Profile Card */}
       <Link 
         href="/dashboard?tab=profile"
-        className={cn(
-          "flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all mb-5 group border border-slate-100 dark:border-slate-700/60 shadow-xs",
-          language === 'ar' && "flex-row-reverse"
-        )}
+        className="flex items-center justify-between p-3.5 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all mb-5 group border border-slate-100 dark:border-slate-700/60 shadow-xs"
       >
-        <div className={cn("flex items-center gap-3 min-w-0", language === 'ar' && "flex-row-reverse")}>
+        <div className="flex items-center gap-3 min-w-0">
           <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm shrink-0 bg-slate-200 dark:bg-slate-700">
             <img 
               src="/images/neutral-avatar.jpg" 
@@ -129,7 +126,7 @@ export function DashboardSidebar() {
             </div>
           </div>
         </div>
-        <div className={cn("flex items-center text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors shrink-0", language === 'ar' && "flex-row-reverse")}>
+        <div className="flex items-center text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors shrink-0">
           <ChevronIcon className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
         </div>
       </Link>
@@ -181,12 +178,9 @@ export function DashboardSidebar() {
       {/* Quick Sell Vehicle CTA Banner */}
       <Link
         href="/dashboard?tab=sell"
-        className={cn(
-          "flex items-center justify-between p-3.5 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-2xl hover:from-red-500 hover:to-rose-500 transition-all mb-4 shadow-lg shadow-red-600/20 active:scale-98 group cursor-pointer",
-          language === 'ar' && "flex-row-reverse"
-        )}
+        className="flex items-center justify-between p-3.5 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-2xl hover:from-red-500 hover:to-rose-500 transition-all mb-4 shadow-lg shadow-red-600/20 active:scale-98 group cursor-pointer"
       >
-        <div className={cn("flex items-center gap-3 min-w-0", language === 'ar' && "flex-row-reverse")}>
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
             <Car className="w-4 h-4 text-white" />
           </div>
@@ -215,11 +209,10 @@ export function DashboardSidebar() {
                 "flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer",
                 isActive 
                   ? "bg-slate-900 text-white dark:bg-white dark:text-slate-950 shadow-md" 
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-950 dark:hover:text-white",
-                language === 'ar' && "flex-row-reverse"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-950 dark:hover:text-white"
               )}
             >
-              <div className={cn("flex items-center gap-3.5", language === 'ar' && "flex-row-reverse")}>
+              <div className="flex items-center gap-3.5">
                 <Icon className={cn(
                   "w-4 h-4 transition-transform duration-300 group-hover:scale-110",
                   isActive ? "text-current" : "text-slate-400 dark:text-slate-500"
@@ -236,12 +229,9 @@ export function DashboardSidebar() {
       <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
         <button
           onClick={handleLogout}
-          className={cn(
-            "w-full flex items-center justify-between px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all group cursor-pointer font-bold text-xs",
-            language === 'ar' && "flex-row-reverse"
-          )}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all group cursor-pointer font-bold text-xs"
         >
-          <div className={cn("flex items-center gap-3.5", language === 'ar' && "flex-row-reverse")}>
+          <div className="flex items-center gap-3.5">
             <LogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             <span className="tracking-tight">{t("Logout") || "Logout"}</span>
           </div>

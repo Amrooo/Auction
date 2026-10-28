@@ -160,9 +160,9 @@ export function DepositModal({ isOpen, onClose, onSuccess }: DepositModalProps) 
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white hover:text-white rounded-2xl py-6 font-black uppercase text-xs tracking-wider transition-all active:scale-95 border-none"
+                        className="w-full bg-red-600 hover:bg-red-700 text-white hover:text-white rounded-2xl py-6 font-bold text-sm transition-all active:scale-95 border-none cursor-pointer shadow-md shadow-red-600/20"
                     >
-                        {isSubmitting ? (t("Processing...") || "Processing...") : `${t("Authorize Hold") || "Authorize Hold"} (AED ${Number(amount).toLocaleString()})`}
+                        {isSubmitting ? t("Processing...") : `${t("Authorize Hold")} (AED ${Number(amount).toLocaleString()})`}
                     </Button>
                 </form>
             </div>
