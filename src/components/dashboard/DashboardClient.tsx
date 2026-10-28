@@ -205,14 +205,6 @@ export default function DashboardClient() {
           </div>
 
           <div className={cn("flex flex-wrap items-center gap-3 shrink-0", language === 'ar' && "flex-row-reverse")}>
-            <button
-              onClick={() => router.push("/dashboard?tab=sell")}
-              className="flex items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-red-600/25 active:scale-95 cursor-pointer border-none"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>{language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}</span>
-            </button>
-
             <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black text-xs shadow-md shadow-amber-500/20">
                 VIP

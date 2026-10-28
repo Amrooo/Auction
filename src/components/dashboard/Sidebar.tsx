@@ -178,22 +178,27 @@ export function DashboardSidebar() {
       {/* Quick Sell Vehicle CTA Banner */}
       <Link
         href="/dashboard?tab=sell"
-        className="flex items-center justify-between p-3.5 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-2xl hover:from-red-500 hover:to-rose-500 transition-all mb-4 shadow-lg shadow-red-600/20 active:scale-98 group cursor-pointer"
+        className={cn(
+          "flex items-center justify-between p-3.5 rounded-2xl transition-all mb-4 active:scale-98 group cursor-pointer border",
+          currentTab === "sell"
+            ? "bg-slate-950 text-white border-slate-950 dark:bg-white dark:text-slate-950 dark:border-white shadow-md"
+            : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-750 border-slate-800 dark:border-slate-700 shadow-sm hover:shadow"
+        )}
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
-            <Car className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-xl bg-white/10 dark:bg-white/15 flex items-center justify-center shrink-0">
+            <Car className="w-4 h-4 text-white dark:text-slate-200" />
           </div>
           <div className="text-start min-w-0">
-            <h5 className="font-black text-xs uppercase tracking-wider text-white">
+            <h5 className="font-bold text-xs tracking-tight text-white dark:text-white">
               {language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}
             </h5>
-            <p className="text-[10px] text-white/80 font-bold">
+            <p className="text-[10px] text-slate-300 dark:text-slate-400 font-medium">
               {language === 'ar' ? 'معالج الإدراج الذكي' : 'Start Seller Wizard'}
             </p>
           </div>
         </div>
-        <Plus className="w-4 h-4 text-white stroke-[3] group-hover:scale-110 transition-transform" />
+        <Plus className="w-4 h-4 text-slate-300 group-hover:text-white stroke-[2.5] group-hover:scale-110 transition-transform" />
       </Link>
 
       {/* Navigation List */}
