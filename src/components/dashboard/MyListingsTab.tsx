@@ -99,7 +99,7 @@ export default function MyListingsTab({ onStartListingWizard }: MyListingsTabPro
 
         <button
           onClick={onStartListingWizard}
-          className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer border-none self-start sm:self-auto"
+          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-600/20 active:scale-95 cursor-pointer border-none self-start sm:self-auto"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>{isAr ? '+ إضافة مركبة للمزاد' : '+ Add Vehicle for Auction'}</span>

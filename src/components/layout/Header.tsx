@@ -209,17 +209,6 @@ export function Header() {
                             {isSearchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
                         </button>
 
-                        {/* Add Vehicle for Auction CTA Button - hidden in dashboard */}
-                        {!pathname.startsWith("/dashboard") && (
-                            <button
-                                onClick={handleAddVehicleClick}
-                                className="hidden lg:flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-md shadow-red-600/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 cursor-pointer border-none"
-                            >
-                                <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                                <span>{language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle'}</span>
-                            </button>
-                        )}
-
                         {isLoggedIn ? (
                             <div className="hidden sm:flex items-center gap-2 ms-1">
                                 <Link
@@ -439,20 +428,6 @@ export function Header() {
                                     </button>
                                     <ThemeToggle />
                                 </div>
-
-                                {/* Mobile Add Vehicle for Auction Button - hidden in dashboard */}
-                                {!pathname.startsWith("/dashboard") && (
-                                    <button
-                                        onClick={() => {
-                                            setIsMobileMenuOpen(false)
-                                            handleAddVehicleClick()
-                                        }}
-                                        className="w-full py-3 rounded-2xl text-xs font-black bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/25 flex items-center justify-center gap-2 cursor-pointer border-none"
-                                    >
-                                        <Plus className="w-4 h-4 stroke-[3]" />
-                                        <span>{language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}</span>
-                                    </button>
-                                )}
 
                                 {isLoggedIn ? (
                                     <div className="flex flex-col gap-2">

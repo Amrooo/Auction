@@ -419,7 +419,7 @@ export default function VehicleListingWizard({ onSuccess, onCancel }: VehicleLis
               setSubmittedLot(null)
               setCurrentStep(1)
             }}
-            className="w-full sm:w-auto px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100 rounded-2xl text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 border-none"
+            className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-bold transition-all cursor-pointer shadow-md shadow-blue-600/20 active:scale-95 border-none"
           >
             {isAr ? '+ إضافة مركبة أخرى' : '+ Add Another Vehicle'}
           </button>

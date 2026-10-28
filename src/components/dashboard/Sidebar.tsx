@@ -181,24 +181,24 @@ export function DashboardSidebar() {
         className={cn(
           "flex items-center justify-between p-3.5 rounded-2xl transition-all mb-4 active:scale-98 group cursor-pointer border",
           currentTab === "sell"
-            ? "bg-slate-950 text-white border-slate-950 dark:bg-white dark:text-slate-950 dark:border-white shadow-md"
-            : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-750 border-slate-800 dark:border-slate-700 shadow-sm hover:shadow"
+            ? "bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-600/30"
+            : "bg-blue-600 hover:bg-blue-700 text-white border-blue-500/80 shadow-md shadow-blue-600/20"
         )}
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-white/10 dark:bg-white/15 flex items-center justify-center shrink-0">
-            <Car className="w-4 h-4 text-white dark:text-slate-200" />
+          <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+            <Car className="w-4 h-4 text-white" />
           </div>
           <div className="text-start min-w-0">
-            <h5 className="font-bold text-xs tracking-tight text-white dark:text-white">
+            <h5 className="font-bold text-xs tracking-tight text-white">
               {language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}
             </h5>
-            <p className="text-[10px] text-slate-300 dark:text-slate-400 font-medium">
+            <p className="text-[10px] text-blue-100 font-medium">
               {language === 'ar' ? 'معالج الإدراج الذكي' : 'Start Seller Wizard'}
             </p>
           </div>
         </div>
-        <Plus className="w-4 h-4 text-slate-300 group-hover:text-white stroke-[2.5] group-hover:scale-110 transition-transform" />
+        <Plus className="w-4 h-4 text-white stroke-[2.5] group-hover:scale-110 transition-transform" />
       </Link>
 
       {/* Navigation List */}
