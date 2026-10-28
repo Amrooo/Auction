@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Sparkles, SlidersHorizontal, Search, Building2, Check } from "lucide-react"
+import { Sparkles, SlidersHorizontal, Search, Building2, Check, RotateCcw } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { cn } from "@/lib/utils"
 
@@ -54,32 +54,47 @@ export const filterEntities = [
 interface MotorFiltersProps {
     selectedSource?: string
     onSourceChange?: (sourceId: string) => void
+    searchQuery?: string
+    onSearchChange?: (q: string) => void
+    selectedMakes?: string[]
+    onMakeToggle?: (make: string) => void
+    minPrice?: string
+    maxPrice?: string
+    onMinPriceChange?: (v: string) => void
+    onMaxPriceChange?: (v: string) => void
+    selectedCondition?: string
+    onConditionChange?: (c: string) => void
+    useAI?: boolean
+    onToggleAI?: () => void
     onResetFilters?: () => void
 }
 
 export function MotorFilters({
     selectedSource = "all",
     onSourceChange,
+    searchQuery = "",
+    onSearchChange,
+    selectedMakes = [],
+    onMakeToggle,
+    minPrice = "",
+    maxPrice = "",
+    onMinPriceChange,
+    onMaxPriceChange,
+    selectedCondition = "all",
+    onConditionChange,
+    useAI = false,
+    onToggleAI,
     onResetFilters
 }: MotorFiltersProps) {
-    const [useAI, setUseAI] = useState(false)
-    const [activeSource, setActiveSource] = useState(selectedSource)
     const { t, language } = useLanguage()
     const isAr = language === 'ar'
 
-    const handleSelectSource = (id: string) => {
-        setActiveSource(id)
-        if (onSourceChange) {
-            onSourceChange(id)
-        }
-    }
-
     return (
-        <div className="space-y-7">
+        <div className="space-y-6">
             {/* AI Toggle */}
             <div
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${useAI ? 'border-red-500 bg-red-50/50 dark:bg-red-950/20' : 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50'}`}
-                onClick={() => setUseAI(!useAI)}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${useAI ? 'border-red-500 bg-red-50/50 dark:bg-red-950/20 shadow-sm' : 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50'}`}
+                onClick={onToggleAI}
             >
                 <div className={`flex items-center justify-between mb-2 ${isAr ? 'flex-row-reverse' : ''}`}>
                     <div className={`flex items-center gap-2 font-bold text-slate-900 dark:text-white text-sm ${isAr ? 'flex-row-reverse' : ''}`}>
@@ -95,11 +110,13 @@ export function MotorFilters({
                 </p>
             </div>
 
-            {/* Search */}
+            {/* Live Search Input */}
             <div className="relative">
                 <Search className={`absolute top-3.5 w-4 h-4 text-slate-400 ${isAr ? 'right-3.5' : 'left-3.5'}`} />
                 <input
                     type="text"
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange?.(e.target.value)}
                     placeholder={t("Search make, model...")}
                     className={`w-full py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 font-medium ${isAr ? 'pr-10 pl-4 text-right' : 'pl-10 pr-4'}`}
                 />
@@ -112,9 +129,9 @@ export function MotorFilters({
                         <Building2 className="w-4 h-4 text-red-600" />
                         {t("Source Entity")}
                     </h3>
-                    {activeSource !== 'all' && (
+                    {selectedSource !== 'all' && (
                         <button
-                            onClick={() => handleSelectSource('all')}
+                            onClick={() => onSourceChange?.('all')}
                             className="text-xs font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer"
                         >
                             {isAr ? 'إعادة ضبط' : 'Reset'}
@@ -122,13 +139,14 @@ export function MotorFilters({
                     )}
                 </div>
 
-                <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1 no-scrollbar">
+                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                     {filterEntities.map((entity) => {
-                        const isSelected = activeSource === entity.id
+                        const isSelected = selectedSource === entity.id
                         return (
                             <button
                                 key={entity.id}
-                                onClick={() => handleSelectSource(entity.id)}
+                                type="button"
+                                onClick={() => onSourceChange?.(entity.id)}
                                 className={cn(
                                     "w-full flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-left",
                                     isAr && "flex-row-reverse text-right",
@@ -168,50 +186,95 @@ export function MotorFilters({
                 </div>
             </div>
 
-            {/* Other Filters */}
+            {/* Detailed Filters: Make, Price, Condition */}
             <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <h3 className={`font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
-                    <SlidersHorizontal className="w-4 h-4" /> {t("Filters")}
+                    <SlidersHorizontal className="w-4 h-4 text-red-600" /> {t("Filters")}
                 </h3>
 
-                <div className="space-y-2.5">
+                {/* Make selector */}
+                <div className="space-y-2">
                     <label className={`text-xs font-bold text-slate-700 dark:text-slate-300 block ${isAr ? 'text-right' : 'text-left'}`}>{t("Make")}</label>
                     <div className="grid grid-cols-2 gap-2">
-                        {['Toyota', 'Nissan', 'Porsche', 'BMW', 'Mercedes', 'Ferrari'].map(make => (
-                            <label key={make} className={`flex items-center gap-2 px-3 py-2 border border-slate-100 dark:border-slate-800 rounded-xl hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer bg-white dark:bg-slate-900 transition-colors ${isAr ? 'flex-row-reverse' : ''}`}>
-                                <input type="checkbox" className="rounded border-slate-300 text-red-600 focus:ring-red-500 accent-red-600" />
-                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{make}</span>
-                            </label>
-                        ))}
+                        {['Mercedes-Benz', 'Lamborghini', 'BMW', 'Ferrari', 'Nissan', 'Toyota'].map(make => {
+                            const isChecked = selectedMakes.includes(make)
+                            return (
+                                <button
+                                    key={make}
+                                    type="button"
+                                    onClick={() => onMakeToggle?.(make)}
+                                    className={cn(
+                                        "flex items-center gap-2 px-3 py-2 border rounded-xl cursor-pointer transition-colors text-xs font-semibold",
+                                        isAr && "flex-row-reverse text-right",
+                                        isChecked 
+                                            ? "bg-red-50 dark:bg-red-950/40 border-red-500 text-red-600 dark:text-red-400 font-bold" 
+                                            : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400"
+                                    )}
+                                >
+                                    <div className={cn("w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0", isChecked ? "bg-red-600 border-red-600 text-white" : "border-slate-300 dark:border-slate-600")}>
+                                        {isChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                    </div>
+                                    <span className="truncate">{make}</span>
+                                </button>
+                            )
+                        })}
                     </div>
                 </div>
 
-                <div className="space-y-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                {/* Price Range */}
+                <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <label className={`text-xs font-bold text-slate-700 dark:text-slate-300 block ${isAr ? 'text-right' : 'text-left'}`}>{t("Price Range (AED)")}</label>
                     <div className={`flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
-                        <input type="number" placeholder={t("Min")} className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white ${isAr ? 'text-right' : 'text-left'}`} />
+                        <input 
+                            type="number" 
+                            placeholder={t("Min")} 
+                            value={minPrice}
+                            onChange={(e) => onMinPriceChange?.(e.target.value)}
+                            className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white ${isAr ? 'text-right' : 'text-left'}`} 
+                        />
                         <span className="text-slate-400 font-bold">-</span>
-                        <input type="number" placeholder={t("Max")} className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white ${isAr ? 'text-right' : 'text-left'}`} />
+                        <input 
+                            type="number" 
+                            placeholder={t("Max")} 
+                            value={maxPrice}
+                            onChange={(e) => onMaxPriceChange?.(e.target.value)}
+                            className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white ${isAr ? 'text-right' : 'text-left'}`} 
+                        />
                     </div>
                 </div>
 
-                <div className="space-y-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                {/* Condition */}
+                <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <label className={`text-xs font-bold text-slate-700 dark:text-slate-300 block ${isAr ? 'text-right' : 'text-left'}`}>{t("Condition")}</label>
                     <div className={`flex flex-wrap gap-2 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
-                        {['New', 'Used', 'Salvage', 'Classic'].map(type => (
-                            <button key={type} className="px-3 py-1.5 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 transition-colors cursor-pointer">
-                                {t(type)}
+                        {['all', 'New', 'Used', 'Salvage'].map(type => (
+                            <button 
+                                key={type} 
+                                type="button"
+                                onClick={() => onConditionChange?.(type)}
+                                className={cn(
+                                    "px-3 py-1.5 rounded-full text-xs font-bold border transition-colors cursor-pointer",
+                                    selectedCondition === type
+                                        ? "bg-red-600 text-white border-red-600"
+                                        : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                )}
+                            >
+                                {type === 'all' ? (isAr ? 'الكل' : 'All') : t(type)}
                             </button>
                         ))}
                     </div>
                 </div>
             </div>
 
+            {/* Reset Button */}
             <Button
+                type="button"
+                variant="outline"
                 onClick={onResetFilters}
-                className="w-full rounded-2xl bg-slate-900 py-6 text-white font-black text-sm dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 hover:bg-slate-800 transition-all cursor-pointer shadow-md"
+                className="w-full rounded-2xl py-5 font-bold text-xs border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer flex items-center justify-center gap-2"
             >
-                {t("Apply Filters")}
+                <RotateCcw className="w-3.5 h-3.5" />
+                {isAr ? 'إعادة تعيين كافة الفلاتر' : 'Reset All Filters'}
             </Button>
         </div>
     )

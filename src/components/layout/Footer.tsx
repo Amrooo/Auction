@@ -37,14 +37,14 @@ export function Footer() {
                         <h3 className="text-white font-bold mb-6 tracking-wide uppercase text-xs">{t("Platform")}</h3>
                         <ul className="space-y-3 text-sm">
                             {[
-                                { name: 'Live Auctions', path: '#' },
-                                { name: 'Ending Soon', path: '#' },
+                                { name: 'Live Auctions', path: '/category/motors' },
+                                { name: 'Ending Soon', path: '/category/motors' },
                                 { name: 'Motors', path: '/category/motors' },
-                                { name: 'Real Estate', path: '/category/real estate' },
-                                { name: 'Consignments', path: '#' }
+                                { name: 'Real Estate', path: '/category/real%20estate' },
+                                { name: 'Consignments', path: '/dashboard?tab=sell' }
                             ].map((item) => (
                                 <li key={item.name}>
-                                    <Link href={item.path} className="text-slate-500 hover:text-accent transition-colors">
+                                    <Link href={item.path} className="text-slate-500 hover:text-red-500 transition-colors">
                                         {t(item.name)}
                                     </Link>
                                 </li>
@@ -55,10 +55,16 @@ export function Footer() {
                     <div className={language === 'ar' ? 'text-right' : 'text-left'}>
                         <h3 className="text-white font-bold mb-6 tracking-wide uppercase text-xs">{t("Support")}</h3>
                         <ul className="space-y-3 text-sm">
-                            {['Help Center', 'Safety & Security', 'Terms of Service', 'Privacy Policy', 'Contact Us'].map((item) => (
-                                <li key={item}>
-                                    <Link href="#" className="text-slate-500 hover:text-accent transition-colors">
-                                        {t(item)}
+                            {[
+                                { name: 'Help Center', path: '/how-to-buy' },
+                                { name: 'Safety & Security', path: '/about' },
+                                { name: 'Terms of Service', path: '/how-to-buy#terms' },
+                                { name: 'Privacy Policy', path: '/about' },
+                                { name: 'Contact Us', path: '/contact' }
+                            ].map((item) => (
+                                <li key={item.name}>
+                                    <Link href={item.path} className="text-slate-500 hover:text-red-500 transition-colors">
+                                        {t(item.name)}
                                     </Link>
                                 </li>
                             ))}

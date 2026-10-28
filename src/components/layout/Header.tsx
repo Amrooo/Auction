@@ -25,6 +25,7 @@ export function Header() {
     const searchRef = useRef<HTMLDivElement>(null)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [userRole, setUserRole] = useState("")
+    const [headerSearch, setHeaderSearch] = useState("")
 
     if (pathname.startsWith("/admin")) return null
 
@@ -148,7 +149,7 @@ export function Header() {
                             )}>
                                 {[
                                     { name: "Motors", path: "/category/motors" },
-                                    { name: "Real Estate", path: "/category/real estate" },
+                                    { name: "Real Estate", path: "/category/real%20estate" },
                                     { name: "Jewelry", path: "/category/jewelry" },
                                     { name: "Plates", path: "/category/plates" },
                                     { name: "Watches", path: "/category/watches" },
@@ -261,16 +262,28 @@ export function Header() {
                                     className="absolute top-full right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 md:w-96 max-w-sm z-[60]"
                                 >
                                     <div className="bg-white dark:bg-black/95 backdrop-blur-xl border border-slate-200/60 dark:border-border/50 rounded-2xl shadow-2xl p-4 overflow-hidden">
-                                        <div className="relative group">
+                                        <form 
+                                            onSubmit={(e) => {
+                                                e.preventDefault()
+                                                if (headerSearch.trim()) {
+                                                    router.push(`/category/motors?search=${encodeURIComponent(headerSearch.trim())}`)
+                                                    setIsSearchOpen(false)
+                                                    setHeaderSearch("")
+                                                }
+                                            }}
+                                            className="relative group"
+                                        >
                                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-muted-foreground group-focus-within:text-accent transition-colors" />
                                             <input
                                                 suppressHydrationWarning
                                                 autoFocus
                                                 type="text"
+                                                value={headerSearch}
+                                                onChange={(e) => setHeaderSearch(e.target.value)}
                                                 placeholder={t("Search auctions, items, prices...")}
-                                                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-border/50 focus:border-accent focus:ring-4 focus:ring-accent/10 rounded-xl py-3 pl-11 pr-4 text-sm font-medium transition-all outline-none text-black dark:text-white"
+                                                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-border/50 focus:border-red-600 focus:ring-4 focus:ring-red-600/10 rounded-xl py-3 pl-11 pr-4 text-sm font-medium transition-all outline-none text-black dark:text-white"
                                             />
-                                        </div>
+                                        </form>
                                     </div>
                                 </motion.div>
                             )}
@@ -359,7 +372,7 @@ export function Header() {
                                         <div className="grid grid-cols-2 gap-2 pl-2 pr-2">
                                             {[
                                                 { name: "Motors", path: "/category/motors" },
-                                                { name: "Real Estate", path: "/category/real estate" },
+                                                { name: "Real Estate", path: "/category/real%20estate" },
                                                 { name: "Jewelry", path: "/category/jewelry" },
                                                 { name: "Plates", path: "/category/plates" },
                                                 { name: "Watches", path: "/category/watches" },

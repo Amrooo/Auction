@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { Search } from "lucide-react"
 import { CustomSelect } from "./CustomSelect"
 import { useLanguage } from "@/lib/language-context"
@@ -16,6 +16,17 @@ interface HeroFilterPanelProps {
 export function HeroFilterPanel({ categories, activeCategory, setActiveCategory }: HeroFilterPanelProps) {
     const { t, language } = useLanguage()
     const router = useRouter()
+    const [keyword, setKeyword] = useState("")
+    const [make, setMake] = useState("")
+
+    const handleSearch = () => {
+        const params = new URLSearchParams()
+        if (keyword.trim()) params.set("search", keyword.trim())
+        if (make) params.set("make", make)
+        const qs = params.toString() ? `?${params.toString()}` : ""
+        const cleanCat = encodeURIComponent(activeCategory.toLowerCase())
+        router.push(`/category/${cleanCat}${qs}`)
+    }
 
     return (
         <div className="w-full max-w-6xl mx-auto px-4 md:px-8 relative z-20">
@@ -48,6 +59,8 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                             <div className="lg:col-span-4">
                                 <input 
                                     type="text"
+                                    value={keyword}
+                                    onChange={(e) => setKeyword(e.target.value)}
                                     placeholder={t("Keyword")}
                                     className={cn(
                                         "w-full bg-[#EBF1FA] dark:bg-slate-800 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#3B82F6]/30 transition-all",
@@ -56,7 +69,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                                 />
                             </div>
                             <div className="lg:col-span-2 relative">
-                                <CustomSelect language={language} defaultValue="">
+                                <CustomSelect language={language} value={make} onChange={(e) => setMake(e.target.value)}>
                                     <option value="">{t("Make")}</option>
                                     <option value="toyota">{t("Toyota") || "Toyota"}</option>
                                     <option value="lexus">{t("Lexus") || "Lexus"}</option>
@@ -64,6 +77,9 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                                     <option value="ford">{t("Ford") || "Ford"}</option>
                                     <option value="mercedes">{t("Mercedes") || "Mercedes"}</option>
                                     <option value="audi">{t("Audi") || "Audi"}</option>
+                                    <option value="ferrari">{t("Ferrari") || "Ferrari"}</option>
+                                    <option value="lamborghini">{t("Lamborghini") || "Lamborghini"}</option>
+                                    <option value="bmw">{t("BMW") || "BMW"}</option>
                                 </CustomSelect>
                             </div>
                             <div className="lg:col-span-2 relative">
@@ -296,7 +312,8 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                     {/* Search button */}
                     <div className="lg:col-span-2">
                         <button
-                            onClick={() => router.push('/category/' + activeCategory.toLowerCase())}
+                            type="button"
+                            onClick={handleSearch}
                             className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-red-600/10 hover:shadow-xl hover:shadow-red-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer border-none uppercase text-xs tracking-wider active:scale-95"
                         >
                             <Search className="w-4 h-4" />

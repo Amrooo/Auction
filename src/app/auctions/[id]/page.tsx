@@ -1,22 +1,36 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Clock, Heart, Share2, ShieldCheck, Zap, ArrowRight, LineChart as ChartIcon, X, CheckCircle, Gavel, Maximize2, FileText, Truck, AlertCircle, Check } from "lucide-react"
+import { 
+    Clock, 
+    Heart, 
+    Share2, 
+    ShieldCheck, 
+    Zap, 
+    ArrowRight, 
+    LineChart as ChartIcon, 
+    X, 
+    CheckCircle, 
+    Gavel, 
+    Maximize2, 
+    FileText, 
+    Truck, 
+    AlertCircle, 
+    Check, 
+    Receipt, 
+    Wallet,
+    Info,
+    Sparkles,
+    Copy
+} from "lucide-react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { motion, AnimatePresence } from "framer-motion"
-import { useState } from "react"
-import { cn, toArabicNumerals } from "@/lib/utils"
+import { useState, useEffect, useMemo } from "react"
+import { cn, toArabicNumerals, calculateSettlement, formatPrice } from "@/lib/utils"
 import { AuthModal } from "@/components/auth/AuthModal"
+import { DepositModal } from "@/components/dashboard/DepositModal"
 import { useLanguage } from "@/lib/language-context"
-
-const data = [
-    { time: '10:00', bid: 850000 },
-    { time: '11:00', bid: 865000 },
-    { time: '12:00', bid: 880000 },
-    { time: '13:00', bid: 890000 },
-    { time: '14:00', bid: 920000 },
-    { time: '15:00', bid: 950000 },
-]
+import { useParams } from "next/navigation"
 
 // Suppress Recharts warning about defaultProps in development
 const originalConsoleError = console.error;
@@ -27,17 +41,14 @@ console.error = (...args) => {
     originalConsoleError(...args);
 };
 
-const images = [
-    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop", // Front 3/4 Exterior Angle
-    "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?q=80&w=2670&auto=format&fit=crop", // Side Profile & Aerodynamics
-    "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=2670&auto=format&fit=crop", // Front Grille & Headlight Close-up
-    "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=2670&auto=format&fit=crop", // Rear 3/4 & Tail Stance
-    "https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=2670&auto=format&fit=crop", // Interior Cabin & Cockpit
-    "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2670&auto=format&fit=crop", // Performance Alloy Wheel & Caliper
+const fallbackImages = [
+    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=2670&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=2670&auto=format&fit=crop",
 ]
-
-import { useParams } from "next/navigation"
-import { useEffect } from "react"
 
 export default function AuctionDetailPage() {
     const params = useParams()
@@ -55,11 +66,38 @@ export default function AuctionDetailPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
     const [authTab, setAuthTab] = useState<"login" | "signup">("login")
-    const [pendingAction, setPendingAction] = useState<"bid" | null>(null)
+    const [pendingAction, setPendingAction] = useState<"bid" | "buy_now" | null>(null)
     const [bidAmount, setBidAmount] = useState(960000)
     const [showSuccess, setShowSuccess] = useState(false)
+    const [successMessage, setSuccessMessage] = useState("")
+    const [bidError, setBidError] = useState<string | null>(null)
+    const [isSubmittingBid, setIsSubmittingBid] = useState(false)
 
-    // Fetch dynamic vehicle data from Web Service API
+    // Deposit state
+    const [isDepositModalOpen, setIsDepositModalOpen] = useState(false)
+    const [depositBalance, setDepositBalance] = useState(50000)
+
+    // Favorites & Share state
+    const [isWishlisted, setIsWishlisted] = useState(false)
+    const [shareToast, setShareToast] = useState(false)
+
+    // Countdown state
+    const [countdownStr, setCountdownStr] = useState("")
+    const [isExpired, setIsExpired] = useState(false)
+
+    // Sync deposit balance & favorites
+    useEffect(() => {
+        try {
+            const savedDeposit = localStorage.getItem("bid_security_deposit")
+            if (savedDeposit) setDepositBalance(50000 + Number(savedDeposit))
+            const favs = JSON.parse(localStorage.getItem("user_favorites") || "[]")
+            setIsWishlisted(favs.includes(vehicleId))
+            const logged = localStorage.getItem("user_logged_in") === "true"
+            setIsLoggedIn(logged)
+        } catch {}
+    }, [vehicleId])
+
+    // Fetch dynamic vehicle data
     useEffect(() => {
         const fetchVehicle = async () => {
             try {
@@ -68,7 +106,7 @@ export default function AuctionDetailPage() {
                     const json = await res.json()
                     if (json.success && json.data) {
                         setVehicle(json.data)
-                        const nextMin = Number(json.data.currentBid || 0) + Number(json.data.minimumIncrement || 1000)
+                        const nextMin = Number(json.data.currentBid || 0) + Number(json.data.minimumIncrement || 5000)
                         setBidAmount(nextMin)
                     }
                 }
@@ -79,7 +117,36 @@ export default function AuctionDetailPage() {
         if (vehicleId) fetchVehicle()
     }, [vehicleId])
 
-    const handleAction = (action: "bid") => {
+    // Real-time ticking countdown
+    useEffect(() => {
+        if (!vehicle?.endDate) return
+        const updateCountdown = () => {
+            const end = new Date(vehicle.endDate).getTime()
+            const now = Date.now()
+            const diff = end - now
+            if (diff <= 0) {
+                setCountdownStr(isAr ? "انتهى المزاد" : "Auction Ended")
+                setIsExpired(true)
+            } else {
+                setIsExpired(false)
+                const totalSeconds = Math.floor(diff / 1000)
+                const days = Math.floor(totalSeconds / 86400)
+                const hours = Math.floor((totalSeconds % 86400) / 3600)
+                const mins = Math.floor((totalSeconds % 3600) / 60)
+                const secs = totalSeconds % 60
+                if (days > 0) {
+                    setCountdownStr(isAr ? `${toArabicNumerals(days)}ي ${toArabicNumerals(hours)}س ${toArabicNumerals(mins)}د` : `${days}d ${hours}h ${mins}m`)
+                } else {
+                    setCountdownStr(isAr ? `${toArabicNumerals(hours)}س ${toArabicNumerals(mins)}د ${toArabicNumerals(secs)}ث` : `${hours}h ${mins}m ${secs}s`)
+                }
+            }
+        }
+        updateCountdown()
+        const interval = setInterval(updateCountdown, 1000)
+        return () => clearInterval(interval)
+    }, [vehicle?.endDate, isAr])
+
+    const handleAction = (action: "bid" | "buy_now") => {
         if (!isTermsAccepted) {
             setTermsError(true)
             setIsTermsModalOpen(true)
@@ -91,7 +158,12 @@ export default function AuctionDetailPage() {
             setPendingAction(action)
             setIsAuthModalOpen(true)
         } else {
-            if (action === "bid") setIsBidOpen(true)
+            if (action === "bid") {
+                const nextMin = Number(vehicle?.currentBid || 950000) + Number(vehicle?.minimumIncrement || 5000)
+                setBidAmount(nextMin)
+                setBidError(null)
+                setIsBidOpen(true)
+            }
         }
     }
 
@@ -99,6 +171,8 @@ export default function AuctionDetailPage() {
         setIsLoggedIn(true)
         setIsAuthModalOpen(false)
         if (pendingAction === "bid") {
+            const nextMin = Number(vehicle?.currentBid || 950000) + Number(vehicle?.minimumIncrement || 5000)
+            setBidAmount(nextMin)
             setIsBidOpen(true)
         }
         setPendingAction(null)
@@ -106,55 +180,143 @@ export default function AuctionDetailPage() {
 
     const handleBidSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setBidError(null)
+        setIsSubmittingBid(true)
+
+        const requiredDeposit = vehicle?.depositRequiredAed || Math.round(Number(currentPrice) * 0.05)
+        if (depositBalance < requiredDeposit) {
+            setBidError(
+                isAr
+                    ? `رصيد التأمين الحالي (${toArabicNumerals(depositBalance.toLocaleString())} درهم) أقل من التأمين المطلوب (${toArabicNumerals(requiredDeposit.toLocaleString())} درهم). يرجى إيداع التأمين للمتابعة.`
+                    : `Your deposit balance (AED ${depositBalance.toLocaleString()}) is below the required AED ${requiredDeposit.toLocaleString()}. Please top up your security deposit.`
+            )
+            setIsSubmittingBid(false)
+            return
+        }
+
         try {
             const res = await fetch(`/api/vehicles/${vehicleId}/bid`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ amount: bidAmount, bidderName: "Registered Bidder" })
             })
-            if (res.ok) {
-                const json = await res.json()
-                if (json.success && json.vehicle) {
+            const json = await res.json()
+            if (res.ok && json.success) {
+                if (json.vehicle) {
                     setVehicle(json.vehicle)
+                    const nextMin = Number(json.vehicle.currentBid) + Number(json.vehicle.minimumIncrement || 5000)
+                    setBidAmount(nextMin)
                 }
+                setIsBidOpen(false)
+                const msg = json.extended
+                    ? (isAr ? "تم تسجيل مزايدتك بنجاح وتم تمديد المزاد دقيقتين (مضاد للقنص)!" : "Bid placed successfully! Anti-sniping extended the auction by 2 minutes!")
+                    : (isAr ? `تمت المزايدة بنجاح بمبلغ ${toArabicNumerals(bidAmount.toLocaleString())} درهم!` : `Bid placed successfully for AED ${bidAmount.toLocaleString()}!`)
+                setSuccessMessage(msg)
+                setShowSuccess(true)
+                setTimeout(() => setShowSuccess(false), 4000)
+            } else {
+                setBidError(json.error || (isAr ? "فشلت المزايدة، يرجى المحاولة بمبلغ أعلى" : "Failed to place bid, please try a higher amount"))
             }
-        } catch (err) {
-            console.error("Error submitting bid:", err)
+        } catch (err: any) {
+            setBidError(err?.message || (isAr ? "حدث خطأ في الاتصال" : "Network error"))
+        } finally {
+            setIsSubmittingBid(false)
         }
-        setIsBidOpen(false)
-        setShowSuccess(true)
-        setTimeout(() => setShowSuccess(false), 3000)
     }
 
-    const displayImages = (vehicle?.images && vehicle.images.length > 0) ? vehicle.images : images
-    const currentPrice = vehicle?.currentBid || 950000
+    const toggleWishlist = () => {
+        try {
+            const favs = JSON.parse(localStorage.getItem("user_favorites") || "[]")
+            let updated: string[]
+            if (favs.includes(vehicleId)) {
+                updated = favs.filter((item: string) => item !== vehicleId)
+                setIsWishlisted(false)
+            } else {
+                updated = [...favs, vehicleId]
+                setIsWishlisted(true)
+            }
+            localStorage.setItem("user_favorites", JSON.stringify(updated))
+            window.dispatchEvent(new Event("favorites_changed"))
+        } catch {
+            setIsWishlisted(!isWishlisted)
+        }
+    }
+
+    const handleShare = () => {
+        if (typeof window !== "undefined") {
+            if (navigator.share) {
+                navigator.share({
+                    title: vehicleTitle,
+                    url: window.location.href
+                }).catch(() => {})
+            } else {
+                navigator.clipboard.writeText(window.location.href)
+                setShareToast(true)
+                setTimeout(() => setShareToast(false), 2500)
+            }
+        }
+    }
+
+    const displayImages = (vehicle?.images && vehicle.images.length > 0) ? vehicle.images : fallbackImages
+    const currentPrice = Number(vehicle?.currentBid || 950000)
+    const minIncrement = Number(vehicle?.minimumIncrement || 5000)
+    const minNextBid = currentPrice + minIncrement
     const vehicleTitle = vehicle?.title ? (isAr && vehicle.titleAr ? vehicle.titleAr : vehicle.title) : (isAr ? 'مرسيدس AMG G63 2024' : '2024 Mercedes-AMG G63')
     const vehicleSubtitle = vehicle?.trim || (isAr ? 'الإصدار الكبير • 1 من 1000 • صفر كيلومتر' : 'Grand Edition • 1 of 1000 • 0km Mileage')
     const entityName = vehicle?.sourceEntity ? (isAr ? vehicle.sourceEntity.arabicName : vehicle.sourceEntity.name) : (isAr ? 'أبوظبي للتنقل' : 'Abu Dhabi Mobility')
     const entityLogo = vehicle?.sourceEntity?.logo || '/images/abu-dhabi-mobility.png'
 
-    // Translated specs with Arabic numerals support
+    // Real live fees settlement calculation
+    const settlement = useMemo(() => calculateSettlement(currentPrice), [currentPrice])
+    const bidSettlement = useMemo(() => calculateSettlement(bidAmount), [bidAmount])
+
+    // Dynamic Chart points from real bidsHistory
+    const chartData = useMemo(() => {
+        if (!vehicle?.bidsHistory || vehicle.bidsHistory.length === 0) {
+            return [
+                { time: 'Start', bid: vehicle?.startingBid || 800000 },
+                { time: 'Current', bid: currentPrice }
+            ]
+        }
+        const chronBids = [...vehicle.bidsHistory].reverse()
+        return chronBids.map((b: any, i: number) => {
+            const date = new Date(b.timestamp)
+            const timeLabel = isNaN(date.getTime()) 
+                ? `#${i + 1}` 
+                : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            return {
+                time: timeLabel,
+                bid: Number(b.amount)
+            }
+        })
+    }, [vehicle?.bidsHistory, vehicle?.startingBid, currentPrice])
+
+    // Translated specs
     const specs = isAr ? [
         { label: 'الجهة المصدرة', value: entityName, logo: entityLogo },
+        { label: 'رقم اللوط', value: vehicle?.lotNumber || 'LOT-2024-001' },
         { label: 'المحرك', value: vehicle?.engineAr || vehicle?.engine || `٤.٠ لتر V8 بيتوربو` },
         { label: 'القوة', value: `${toArabicNumerals(vehicle?.powerHp || 577)} حصان` },
         { label: 'ناقل الحركة', value: vehicle?.transmissionAr || vehicle?.transmission || `أوتوماتيك ٩ سرعات` },
+        { label: 'المسافة المقطوعة', value: `${toArabicNumerals(vehicle?.mileageKm ?? 0)} كم` },
         { label: '٠-١٠٠ كم/ساعة', value: vehicle?.acceleration0100 ? `${toArabicNumerals(vehicle.acceleration0100)}` : `٤.٥ ثانية` },
-        { label: 'اللون', value: vehicle?.exteriorColorAr || vehicle?.exteriorColor || 'أسود ليلي مات' },
+        { label: 'اللون الخارجي', value: vehicle?.exteriorColorAr || vehicle?.exteriorColor || 'أسود ليلي مات' },
         { label: 'الداخلية', value: vehicle?.interiorColorAr || vehicle?.interiorColor || 'أحمر البنغال / أسود' },
         { label: 'رقم الهيكل', value: vehicle?.vin || 'W1N463***291' }
     ] : [
         { label: 'Source Entity', value: entityName, logo: entityLogo },
+        { label: 'Lot Number', value: vehicle?.lotNumber || 'LOT-2024-001' },
         { label: 'Engine', value: vehicle?.engine || '4.0L V8 Biturbo' },
         { label: 'Power', value: `${vehicle?.powerHp || 577} HP` },
         { label: 'Transmission', value: vehicle?.transmission || '9-Speed Auto' },
+        { label: 'Mileage', value: `${(vehicle?.mileageKm ?? 0).toLocaleString()} km` },
         { label: '0-100 km/h', value: vehicle?.acceleration0100 || '4.5s' },
-        { label: 'Color', value: vehicle?.exteriorColor || 'Night Black Magno' },
+        { label: 'Exterior Color', value: vehicle?.exteriorColor || 'Night Black Magno' },
         { label: 'Interior', value: vehicle?.interiorColor || 'Bengal Red / Black' },
         { label: 'VIN', value: vehicle?.vin || 'W1N463***291' }
     ]
 
-    // Saaed terms and conditions
+    // Saaed terms
     const terms = isAr ? [
         "تباع المركبة على حالتها الراهنة وفي مكان تواجدها 'كما هي'، ويتحمل المشتري كامل المسؤولية عن فحص ومعاينة المعروض قبل تقديم أي مزايدة، ولا تتحمل شركة ساعد أي ضمانات أو مسؤولية بعد رسو المزاد.",
         "تطبق الرسوم الإدارية بالإضافة إلى ضريبة القيمة المضافة على كل معروض على النحو التالي: ٢٠٠ درهم لسعر البيع حتى ٥٠٠ درهم، ٣٠٠ درهم لسعر البيع بين ٥٠١ درهم و ١,٠٠٠ درهم، ٦٠٠ درهم لسعر البيع بين ١,٠٠١ درهم و ١٠٠,٠٠٠ درهم، ١٪ من سعر البيع لما فوق ١٠٠,٠٠٠ درهم.",
@@ -177,11 +339,23 @@ export default function AuctionDetailPage() {
 
     return (
         <div className="container mx-auto px-4 py-8 lg:py-12 relative" dir={dir}>
-            {/* Global Auth Modal */}
+            {/* Global Modals */}
             <AuthModal
                 isOpen={isAuthModalOpen}
                 onClose={() => handleAuthComplete()}
                 defaultTab={authTab}
+            />
+
+            <DepositModal
+                isOpen={isDepositModalOpen}
+                onClose={() => setIsDepositModalOpen(false)}
+                onSuccess={(added) => {
+                    const newBal = depositBalance + added
+                    setDepositBalance(newBal)
+                    localStorage.setItem("bid_security_deposit", String(newBal - 50000))
+                    window.dispatchEvent(new Event("balance_update"))
+                    setBidError(null)
+                }}
             />
 
             {/* Success Toast */}
@@ -191,22 +365,37 @@ export default function AuctionDetailPage() {
                         initial={{ opacity: 0, y: -50 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -50 }}
-                        className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-emerald-500 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-md"
+                        className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-md border border-emerald-400"
                     >
-                        <CheckCircle className="w-6 h-6" />
-                        <span className="font-bold text-lg">{isAr ? 'تمت العملية بنجاح!' : 'Action Successful!'}</span>
+                        <CheckCircle className="w-6 h-6 shrink-0" />
+                        <span className="font-bold text-base sm:text-lg">{successMessage || (isAr ? 'تمت العملية بنجاح!' : 'Action Successful!')}</span>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Bid Modal Overlay */}
+            {/* Share Toast */}
+            <AnimatePresence>
+                {shareToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -50 }}
+                        className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-slate-700"
+                    >
+                        <Copy className="w-4 h-4 text-emerald-400" />
+                        <span className="font-bold text-sm">{isAr ? 'تم نسخ رابط المزاد إلى الحافظة' : 'Auction link copied to clipboard!'}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Interactive Bid Modal */}
             <AnimatePresence>
                 {isBidOpen && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+                        className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
                         onClick={() => setIsBidOpen(false)}
                     >
                         <motion.div
@@ -214,38 +403,108 @@ export default function AuctionDetailPage() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] p-8 shadow-2xl border border-white/10 relative overflow-hidden"
+                            className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative overflow-hidden my-8"
                             dir={dir}
                         >
-                            <button onClick={() => setIsBidOpen(false)} className={`absolute top-6 ${isAr ? 'left-6' : 'right-6'} text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer`}>
+                            <button 
+                                onClick={() => setIsBidOpen(false)} 
+                                className={`absolute top-6 ${isAr ? 'left-6' : 'right-6'} text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800`}
+                            >
                                 <X className="w-6 h-6" />
                             </button>
 
                             <form onSubmit={handleBidSubmit}>
-                                <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 text-slate-900 dark:text-white">
-                                    <Gavel className="w-8 h-8" />
+                                <div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-950/40 text-red-600 flex items-center justify-center mb-5">
+                                    <Gavel className="w-7 h-7" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{isAr ? 'قدّم مزايدتك' : 'Place Your Bid'}</h2>
-                                <p className="text-slate-500 mb-6">
-                                    {isAr ? 'أعلى مزايدة حالية:' : 'Current Highest:'} <span className="font-bold text-slate-900 dark:text-white">
-                                        {isAr ? `${toArabicNumerals(Number(currentPrice).toLocaleString())} درهم` : `AED ${Number(currentPrice).toLocaleString()}`}
+                                
+                                <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">
+                                    {isAr ? 'قدّم مزايدتك الرسمية' : 'Place Your Official Bid'}
+                                </h2>
+                                
+                                <p className="text-sm text-slate-500 mb-6">
+                                    {isAr ? 'أعلى مزايدة حالية:' : 'Current Highest Bid:'} <span className="font-black text-slate-900 dark:text-white">
+                                        {formatPrice(currentPrice, isAr)}
                                     </span>
                                 </p>
 
+                                {bidError && (
+                                    <div className="mb-4 p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-xs font-bold flex items-start gap-2.5">
+                                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                                        <div className="flex-1">
+                                            <p>{bidError}</p>
+                                            {bidError.includes("تأمين") || bidError.includes("deposit") ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setIsBidOpen(false)
+                                                        setIsDepositModalOpen(true)
+                                                    }}
+                                                    className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 cursor-pointer"
+                                                >
+                                                    <Wallet className="w-3.5 h-3.5" />
+                                                    {isAr ? 'إيداع تأمين الآن' : 'Deposit Funds Now'}
+                                                </button>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="space-y-4">
                                     <div>
-                                        <label className={`text-sm font-medium text-slate-700 dark:text-slate-300 ${isAr ? 'mr-1' : 'ml-1'}`}>{isAr ? 'حد مزايدتك (درهم)' : 'Your Max Bid (AED)'}</label>
-                                        <input
-                                            type="number"
-                                            value={bidAmount}
-                                            onChange={(e) => setBidAmount(Number(e.target.value))}
-                                            className="w-full mt-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-primary text-lg font-bold"
-                                        />
-                                        <p className={`text-xs text-slate-400 mt-2 ${isAr ? 'mr-1 text-right' : 'ml-1'}`}>
-                                            {isAr ? `الحد الأدنى للزيادة: ${toArabicNumerals(vehicle?.minimumIncrement || 5000)} درهم` : `Minimum bid increment: AED ${(vehicle?.minimumIncrement || 5000).toLocaleString()}`}
+                                        <label className={`text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5 ${isAr ? 'text-right' : 'text-left'}`}>
+                                            {isAr ? 'مبلغ المزايدة (درهم إماراتي)' : 'Your Bid Amount (AED)'}
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                step={minIncrement}
+                                                min={minNextBid}
+                                                value={bidAmount}
+                                                onChange={(e) => {
+                                                    setBidAmount(Number(e.target.value))
+                                                    setBidError(null)
+                                                }}
+                                                className="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-red-500 text-xl font-black text-slate-900 dark:text-white"
+                                            />
+                                        </div>
+                                        <p className={`text-xs text-slate-400 mt-2 ${isAr ? 'text-right' : 'text-left'}`}>
+                                            {isAr 
+                                                ? `الحد الأدنى للمزايدة القادمة: ${toArabicNumerals(minNextBid.toLocaleString())} درهم (الزيادة: ${toArabicNumerals(minIncrement.toLocaleString())} درهم)`
+                                                : `Minimum next bid: AED ${minNextBid.toLocaleString()} (Min increment: AED ${minIncrement.toLocaleString()})`}
                                         </p>
                                     </div>
-                                    <Button size="lg" className="w-full h-12 rounded-xl text-lg mt-4 cursor-pointer">{isAr ? 'تأكيد المزايدة' : 'Confirm Bid'}</Button>
+
+                                    {/* Estimated Total Breakdown in Modal */}
+                                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 space-y-2 text-xs">
+                                        <div className="flex justify-between items-center text-slate-500">
+                                            <span>{isAr ? 'المزايدة المقترحة:' : 'Bid Amount:'}</span>
+                                            <span className="font-bold text-slate-900 dark:text-white">{formatPrice(bidAmount, isAr)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-slate-500">
+                                            <span>{isAr ? 'الرسوم الإدارية + الفحص:' : 'Admin & Inspection Fees:'}</span>
+                                            <span className="font-bold text-slate-900 dark:text-white">{formatPrice(bidSettlement.adminFee + bidSettlement.loadingFee + bidSettlement.possessionFee, isAr)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-slate-500">
+                                            <span>{isAr ? 'ضريبة القيمة المضافة (٥٪):' : 'VAT (5%):'}</span>
+                                            <span className="font-bold text-slate-900 dark:text-white">{formatPrice(bidSettlement.vatAmount, isAr)}</span>
+                                        </div>
+                                        <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center font-extrabold text-sm text-slate-900 dark:text-white">
+                                            <span>{isAr ? 'الإجمالي التقديري للاستلام:' : 'Estimated Total Settlement:'}</span>
+                                            <span className="text-red-600 dark:text-red-400">{formatPrice(bidSettlement.totalPayable, isAr)}</span>
+                                        </div>
+                                    </div>
+
+                                    <Button 
+                                        type="submit" 
+                                        disabled={isSubmittingBid || isExpired}
+                                        size="lg" 
+                                        className="w-full h-14 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-lg font-black mt-2 cursor-pointer shadow-lg shadow-red-600/20 active:scale-95 transition-all"
+                                    >
+                                        {isSubmittingBid 
+                                            ? (isAr ? 'جارِ إرسال المزايدة...' : 'Submitting Bid...') 
+                                            : (isAr ? `تأكيد المزايدة (${toArabicNumerals(bidAmount.toLocaleString())} درهم)` : `Confirm Bid (AED ${bidAmount.toLocaleString()})`)}
+                                    </Button>
                                 </div>
                             </form>
                         </motion.div>
@@ -253,6 +512,7 @@ export default function AuctionDetailPage() {
                 )}
             </AnimatePresence>
 
+            {/* Top Grid: Gallery & Main Bidding Card */}
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
                 <div className="space-y-4">
                     <motion.div
@@ -260,21 +520,33 @@ export default function AuctionDetailPage() {
                         initial={{ opacity: 0.8 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.3 }}
-                        className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 dark:bg-slate-900 relative group shadow-2xl border border-white/10"
+                        className="aspect-[4/3] rounded-[2.5rem] overflow-hidden bg-slate-100 dark:bg-slate-900 relative group shadow-2xl border border-slate-200 dark:border-slate-800"
                     >
                         <img
                             src={displayImages[activeImage]}
                             alt="Vehicle Preview"
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             onError={(e) => {
-                                e.currentTarget.src = "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop"
+                                e.currentTarget.src = fallbackImages[0]
                             }}
                         />
-                        <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
-                            <button className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white hover:text-red-500 transition-colors border border-white/20 cursor-pointer">
-                                <Heart className="w-5 h-5" />
+                        <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} flex gap-2 z-20`}>
+                            <button 
+                                onClick={toggleWishlist}
+                                aria-label="Toggle Favorite"
+                                className={`p-3 backdrop-blur-md rounded-full transition-all border cursor-pointer shadow-md ${
+                                    isWishlisted 
+                                        ? 'bg-red-600 text-white border-red-600 shadow-red-600/30' 
+                                        : 'bg-white/80 dark:bg-slate-900/80 text-slate-800 dark:text-white hover:bg-white hover:text-red-600 border-white/30'
+                                }`}
+                            >
+                                <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
                             </button>
-                            <button className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white hover:text-slate-900 transition-colors border border-white/20 cursor-pointer">
+                            <button 
+                                onClick={handleShare}
+                                aria-label="Share Auction"
+                                className="p-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-full text-slate-800 dark:text-white hover:bg-white hover:text-slate-900 transition-colors border border-white/30 shadow-md cursor-pointer"
+                            >
                                 <Share2 className="w-5 h-5" />
                             </button>
                         </div>
@@ -289,7 +561,9 @@ export default function AuctionDetailPage() {
                                 onClick={() => setActiveImage(i)}
                                 className={cn(
                                     "aspect-square rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900 cursor-pointer transition-all border-2",
-                                    activeImage === i ? "border-primary ring-2 ring-primary/20 ring-offset-2 dark:ring-offset-slate-950" : "border-transparent opacity-70 hover:opacity-100"
+                                    activeImage === i 
+                                        ? "border-red-600 ring-2 ring-red-600/20 ring-offset-2 dark:ring-offset-slate-950" 
+                                        : "border-transparent opacity-70 hover:opacity-100"
                                 )}
                             >
                                 <img
@@ -297,7 +571,7 @@ export default function AuctionDetailPage() {
                                     alt={`Gallery ${i + 1}`}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
-                                        e.currentTarget.src = "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop"
+                                        e.currentTarget.src = fallbackImages[0]
                                     }}
                                 />
                             </motion.button>
@@ -305,21 +579,22 @@ export default function AuctionDetailPage() {
                     </div>
                 </div>
 
-                <div className="space-y-8 flex flex-col justify-center">
+                {/* Right Column: Dynamic Bidding Action & Financial Overview */}
+                <div className="space-y-6 flex flex-col justify-center">
                     <div>
                         <div className={`flex flex-wrap items-center gap-3 mb-4 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
                             <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider border border-blue-500/20">
                                 {t("Premium Lot")}
                             </span>
                             <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-emerald-500/20">
-                                <ShieldCheck className="w-3 h-3" /> {t("Verified")}
+                                <ShieldCheck className="w-3.5 h-3.5" /> {t("Verified")}
                             </span>
 
-                            <div className={`inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs ${isAr ? 'flex-row-reverse' : ''}`}>
-                                <div className="w-9 h-5 bg-white rounded p-0.5 flex items-center justify-center shrink-0">
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs ${isAr ? 'flex-row-reverse' : ''}`}>
+                                <div className="w-8 h-4.5 bg-white rounded p-0.5 flex items-center justify-center shrink-0">
                                     <img
                                         src={entityLogo}
-                                        alt="Abu Dhabi Mobility"
+                                        alt={entityName}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>
@@ -328,42 +603,59 @@ export default function AuctionDetailPage() {
                                 </span>
                             </div>
                         </div>
-                        <h1 className={`text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
+
+                        <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-2 tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
                             {vehicleTitle}
                         </h1>
-                        <p className={`text-slate-500 dark:text-slate-400 text-lg font-medium ${isAr ? 'text-right' : 'text-left'}`}>
+                        <p className={`text-slate-500 dark:text-slate-400 text-base sm:text-lg font-semibold ${isAr ? 'text-right' : 'text-left'}`}>
                             {vehicleSubtitle}
                         </p>
                     </div>
 
-                    <div className="p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden">
-                        <div className="absolute -top-20 -right-20 w-64 h-64 bg-accent/5 rounded-full blur-3xl" />
+                    {/* Bidding Control Panel */}
+                    <div className="p-6 sm:p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl relative overflow-hidden">
+                        <div className="absolute -top-20 -right-20 w-64 h-64 bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
 
-                        <div className={`flex flex-col sm:flex-row justify-between items-end mb-8 relative z-10 gap-4 ${isAr ? 'sm:flex-row-reverse' : ''}`}>
+                        <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 relative z-10 gap-4 ${isAr ? 'sm:flex-row-reverse' : ''}`}>
                             <div className={isAr ? 'text-right' : 'text-left'}>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">{t("Current Bid")}</p>
-                                <div className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                    {isAr ? `${toArabicNumerals('950,000')} درهم` : 'AED 950,000'}
+                                <p className="text-xs font-black text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">{t("Current Bid")}</p>
+                                <div className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                                    {formatPrice(currentPrice, isAr)}
                                 </div>
+                                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                    {isAr ? `${toArabicNumerals(vehicle?.bidsCount || 0)} مزايدة مسجلة` : `${vehicle?.bidsCount || 0} active bids placed`}
+                                </p>
                             </div>
-                            <div className={`bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700 ${isAr ? 'text-right' : 'text-left sm:text-right'}`}>
-                                <div className={`flex items-center gap-2 text-orange-600 font-bold mb-1 ${isAr ? 'flex-row-reverse' : ''}`}>
-                                    <Clock className="w-4 h-4 animate-pulse" />
-                                    <span className="font-mono">
-                                        {isAr ? `${toArabicNumerals(4)}س ${toArabicNumerals(20)}د ${toArabicNumerals(15)}ث` : '4h 20m 15s'}
+
+                            <div className={`bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 ${isAr ? 'text-right' : 'text-left sm:text-right'}`}>
+                                <div className={`flex items-center gap-2 text-orange-600 font-black mb-1 ${isAr ? 'flex-row-reverse' : ''}`}>
+                                    <Clock className="w-4 h-4 animate-pulse shrink-0" />
+                                    <span className="font-mono text-sm sm:text-base">
+                                        {countdownStr || (isAr ? 'جارِ التحميل...' : 'Calculating...')}
                                     </span>
                                 </div>
-                                <p className="text-xs text-slate-400 font-medium">
-                                    {isAr ? `ينتهي اليوم، الساعة ${toArabicNumerals(6)}:٠٠ مساءً` : 'Ends Today, 6:00 PM'}
+                                <p className="text-[11px] text-slate-400 font-bold">
+                                    {isExpired ? (isAr ? 'انتهت فترة المزاد' : 'Auction Finished') : (isAr ? 'تمديد تلقائي عند المزايدة بالدقائق الأخيرة' : 'Anti-sniping auto extension active')}
                                 </p>
                             </div>
                         </div>
 
                         <div className="space-y-4 mb-4 relative z-10">
-                            <Button size="lg" onClick={() => handleAction("bid")} className="w-full text-lg h-14 rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white hover:bg-slate-800 dark:hover:bg-slate-100 shadow-lg shadow-slate-900/20 transition-all hover:scale-[1.01] cursor-pointer font-black">
-                                {isAr ? 'قدّم مزايدة' : 'Place Bid'} <span className="opacity-70 ml-2 font-normal text-sm">{isAr ? `(الحد الأدنى: ${toArabicNumerals('960,000')} درهم)` : '(Min AED 960,000)'}</span>
+                            <Button 
+                                size="lg" 
+                                disabled={isExpired}
+                                onClick={() => handleAction("bid")} 
+                                className="w-full text-base sm:text-lg h-14 rounded-2xl bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/20 transition-all hover:scale-[1.01] active:scale-95 cursor-pointer font-black"
+                            >
+                                {isAr ? 'قدّم مزايدة الآن' : 'Place Bid'} 
+                                <span className="opacity-80 mx-2 font-normal text-xs sm:text-sm">
+                                    {isAr 
+                                        ? `(الحد الأدنى: ${toArabicNumerals(minNextBid.toLocaleString())} درهم)` 
+                                        : `(Min: AED ${minNextBid.toLocaleString()})`}
+                                </span>
                             </Button>
 
+                            {/* Terms Agreement Checkbox */}
                             <div className={`flex items-start gap-2.5 text-xs pt-1 ${isAr ? 'flex-row-reverse text-right' : 'text-left'}`}>
                                 <input
                                     type="checkbox"
@@ -393,49 +685,69 @@ export default function AuctionDetailPage() {
                                 </label>
                             </div>
 
+                            {/* Quick Bid Increments */}
                             <div className="space-y-2 pt-2">
-                                <p className={`text-xs uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400 ${isAr ? 'text-right' : 'text-left'}`}>
-                                    {isAr ? 'مزايدة سريعة (درهم)' : 'Quick Bid (AED)'}
+                                <p className={`text-xs uppercase font-extrabold tracking-wider text-slate-500 dark:text-slate-400 ${isAr ? 'text-right' : 'text-left'}`}>
+                                    {isAr ? 'مزايدة سريعة فورية (درهم)' : 'Quick Bids (AED)'}
                                 </p>
                                 <div className="grid grid-cols-4 gap-2">
-                                    {[100, 200, 400, 800].map((amount) => (
-                                        <button
-                                            key={amount}
-                                            onClick={() => {
-                                                setBidAmount(950000 + amount);
-                                                handleAction("bid");
-                                            }}
-                                            className="py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm sm:text-base font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 text-slate-800 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-500 cursor-pointer flex items-center justify-center gap-0.5 shadow-sm"
-                                        >
-                                            +{isAr ? toArabicNumerals(amount) : amount}
-                                        </button>
-                                    ))}
+                                    {[1, 2, 5, 10].map((mult) => {
+                                        const inc = minIncrement * mult
+                                        const targetBid = currentPrice + inc
+                                        return (
+                                            <button
+                                                key={mult}
+                                                type="button"
+                                                disabled={isExpired}
+                                                onClick={() => {
+                                                    setBidAmount(targetBid)
+                                                    handleAction("bid")
+                                                }}
+                                                className="py-2.5 px-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-extrabold hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-400 transition-all active:scale-95 text-slate-800 dark:text-slate-100 cursor-pointer shadow-xs"
+                                            >
+                                                +{isAr ? toArabicNumerals(inc.toLocaleString()) : inc.toLocaleString()}
+                                            </button>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>
 
-                        <p className={`text-center text-xs text-slate-400 relative z-10`}>
-                            {isAr ? `*جميع المزايدات ملزمة قانوناً. يشترط وديعة ${toArabicNumerals(5)}٪.` : '*All bids are legally binding. 5% deposit required.'}
-                        </p>
+                        {/* Deposit Status Notice */}
+                        <div className={`pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 ${isAr ? 'flex-row-reverse' : ''}`}>
+                            <span className="flex items-center gap-1.5">
+                                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                {isAr ? `تأمينك المتاح: ${toArabicNumerals(depositBalance.toLocaleString())} درهم` : `Security Deposit: AED ${depositBalance.toLocaleString()}`}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setIsDepositModalOpen(true)}
+                                className="font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer"
+                            >
+                                {isAr ? '+ زيادة التأمين' : '+ Top Up'}
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="p-6 rounded-[2rem] bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-500/20 backdrop-blur-sm relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                        <div className={`flex items-start gap-4 relative z-10 ${isAr ? 'flex-row-reverse' : ''}`}>
+                    {/* AI Market Insight Card */}
+                    <div className="p-6 rounded-[2rem] bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-500/20 backdrop-blur-sm relative overflow-hidden group">
+                        <div className="flex items-start gap-4 relative z-10">
                             <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl text-indigo-600 dark:text-indigo-400 shrink-0">
                                 <Zap className="w-6 h-6 fill-current" />
                             </div>
                             <div className={isAr ? 'text-right' : 'text-left'}>
-                                <h3 className="font-bold text-indigo-900 dark:text-indigo-200 mb-1 flex items-center gap-2">
+                                <h3 className="font-extrabold text-indigo-900 dark:text-indigo-200 mb-1 flex items-center gap-2">
                                     {t("AI Market Insight")}
-                                    <span className="px-2 py-0.5 rounded-full bg-indigo-200/50 dark:bg-indigo-500/20 text-[10px] uppercase font-bold tracking-wider text-indigo-700 dark:text-indigo-300">Beta</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-indigo-200/60 dark:bg-indigo-500/20 text-[10px] uppercase font-black text-indigo-700 dark:text-indigo-300">
+                                        {vehicle?.aiInsight?.badge || "Live"}
+                                    </span>
                                 </h3>
-                                <p className="text-sm text-indigo-800 dark:text-indigo-300 leading-relaxed max-w-md">
-                                    {isAr
-                                        ? <>هذا العرض <span className="font-bold text-indigo-700 dark:text-white decoration-2 underline decoration-indigo-400/50">مقيّم بأقل من قيمته بنسبة {toArabicNumerals(8)}٪</span> مقارنةً بطرازات G63 المماثلة. الطلب <span className="font-bold text-green-600 dark:text-green-400">مرتفع</span>، والأسعار في اتجاه تصاعدي (+{toArabicNumerals(5)}٪).</>
-                                        : <>This lot is currently <span className="font-bold text-indigo-700 dark:text-white decoration-2 underline decoration-indigo-400/50">undervalued by 8%</span> compared to similar G63 Grand Edition models. Demand is <span className="font-bold text-green-600 dark:text-green-400">High</span>, with prices trending upwards (+5%).</>
-                                    }
+                                <p className="text-xs sm:text-sm text-indigo-800 dark:text-indigo-300 leading-relaxed">
+                                    {vehicle?.aiInsight 
+                                        ? (isAr ? vehicle.aiInsight.summaryAr : vehicle.aiInsight.summaryEn) 
+                                        : (isAr 
+                                            ? `هذا العرض مقيّم بأقل من قيمته السوقية. الطلب مرتفع، والأسعار في اتجاه تصاعدي.`
+                                            : `This lot is currently undervalued compared to similar market comps. Demand is high with strong upside.`)}
                                 </p>
                             </div>
                         </div>
@@ -443,93 +755,188 @@ export default function AuctionDetailPage() {
                 </div>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
-                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm relative overflow-hidden">
-                        <div className={`flex items-center justify-between mb-8 ${isAr ? 'flex-row-reverse' : ''}`}>
+            {/* Middle Grid: Dynamic Bidding History & Specifications & Transparent Fee Settlement */}
+            <div className="grid lg:grid-cols-3 gap-8 mb-16">
+                {/* Bidding History Chart & Log */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                        <div className={`flex items-center justify-between mb-6 ${isAr ? 'flex-row-reverse' : ''}`}>
                             <div className={`flex items-center gap-3 ${isAr ? 'flex-row-reverse' : ''}`}>
-                                <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                                    <ChartIcon className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                                <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                                    <ChartIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{t("Bidding History")}</h3>
+                                <h3 className="text-xl font-black text-slate-900 dark:text-white">{t("Bidding History")}</h3>
                             </div>
-                            <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm font-medium px-3 py-2 text-slate-600 dark:text-slate-300 outline-none cursor-pointer">
-                                <option>{isAr ? 'آخر ٢٤ ساعة' : 'Last 24 Hours'}</option>
-                                <option>{isAr ? 'كل الوقت' : 'All Time'}</option>
-                            </select>
+                            <span className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+                                {isAr ? `${toArabicNumerals(vehicle?.bidsCount || 0)} مزايدة` : `${vehicle?.bidsCount || 0} bids`}
+                            </span>
                         </div>
 
-                        <div className="h-[300px] w-full">
+                        <div className="h-[280px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={data}>
+                                <AreaChart data={chartData}>
                                     <defs>
                                         <linearGradient id="colorBid" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#dc2626" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
-                                    <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} dy={10} />
-                                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} dx={-10} />
+                                    <XAxis dataKey="time" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} dy={8} />
+                                    <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `${Math.round(value / 1000)}k`} dx={-8} />
                                     <Tooltip
-                                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(4px)' }}
-                                        itemStyle={{ color: '#0f172a', fontWeight: 600 }}
-                                        formatter={(value: any) => [isAr ? `${toArabicNumerals(Number(value || 0).toLocaleString())} درهم` : `AED ${Number(value || 0).toLocaleString()}`, isAr ? 'مبلغ المزايدة' : 'Bid Amount']}
+                                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(4px)' }}
+                                        itemStyle={{ color: '#0f172a', fontWeight: 700 }}
+                                        formatter={(value: any) => [isAr ? `${toArabicNumerals(Number(value || 0).toLocaleString())} درهم` : `AED ${Number(value || 0).toLocaleString()}`, isAr ? 'قيمة المزايدة' : 'Bid Amount']}
                                     />
-                                    <Area type="monotone" dataKey="bid" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorBid)" />
+                                    <Area type="monotone" dataKey="bid" stroke="#dc2626" strokeWidth={3} fillOpacity={1} fill="url(#colorBid)" />
                                 </AreaChart>
                             </ResponsiveContainer>
+                        </div>
+
+                        {/* Recent Bids Feed */}
+                        {vehicle?.bidsHistory && vehicle.bidsHistory.length > 0 && (
+                            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+                                <h4 className={`text-xs font-black uppercase tracking-wider text-slate-400 mb-2 ${isAr ? 'text-right' : 'text-left'}`}>
+                                    {isAr ? 'آخر المزايدات المسجلة' : 'Recent Bid Log'}
+                                </h4>
+                                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                    {vehicle.bidsHistory.slice(0, 5).map((b: any, index: number) => (
+                                        <div key={b.id || index} className={`flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-xs ${isAr ? 'flex-row-reverse' : ''}`}>
+                                            <div className="flex items-center gap-2">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                <span className="font-bold text-slate-800 dark:text-slate-200">{b.bidderName}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className="font-black text-slate-900 dark:text-white">
+                                                    {formatPrice(Number(b.amount), isAr)}
+                                                </span>
+                                                <span className="text-[10px] text-slate-400">
+                                                    {new Date(b.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Transparent UAE Auction Settlement Calculator Card */}
+                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-amber-500/10 text-amber-600 rounded-xl shrink-0">
+                                <Receipt className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                                    {isAr ? 'حاسبة التكلفة النهائية للتملك' : 'Total Acquisition & Settlement Calculator'}
+                                </h3>
+                                <p className="text-xs text-slate-500">
+                                    {isAr ? 'حساب شفاف وشامل لكافة الرسوم الإدارية وضريبة القيمة المضافة طبقاً للوائح ساعد' : 'Transparent breakdown of admin fees, loading, and VAT under Saaed regulations'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
+                                <span className="text-slate-500">{isAr ? 'سعر الترسية المقدر:' : 'Hammer Bid Price:'}</span>
+                                <span className="font-extrabold text-slate-900 dark:text-white">{formatPrice(settlement.bidAmount, isAr)}</span>
+                            </div>
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
+                                <span className="text-slate-500">{isAr ? 'الرسوم الإدارية (ساعد):' : 'Saaed Admin Fee:'}</span>
+                                <span className="font-extrabold text-slate-900 dark:text-white">{formatPrice(settlement.adminFee, isAr)}</span>
+                            </div>
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
+                                <span className="text-slate-500">{isAr ? 'رسوم القطر والتحميل والحيازة:' : 'Loading & Possession Fees:'}</span>
+                                <span className="font-extrabold text-slate-900 dark:text-white">{formatPrice(settlement.loadingFee + settlement.possessionFee, isAr)}</span>
+                            </div>
+                            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
+                                <span className="text-slate-500">{isAr ? 'ضريبة القيمة المضافة (٥٪):' : 'Applicable VAT (5%):'}</span>
+                                <span className="font-extrabold text-slate-900 dark:text-white">{formatPrice(settlement.vatAmount, isAr)}</span>
+                            </div>
+                        </div>
+
+                        <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 flex justify-between items-center">
+                            <div>
+                                <span className="text-xs uppercase font-extrabold tracking-wider text-red-600 dark:text-red-400 block">
+                                    {isAr ? 'إجمالي المبلغ المطلوب سداده عند الفوز:' : 'Total Payable Upon Winning:'}
+                                </span>
+                                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                                    {isAr ? 'شامل كافة الرسوم والمصروفات والضريبة' : 'Includes all regulatory fees & taxes'}
+                                </span>
+                            </div>
+                            <span className="text-xl sm:text-2xl font-black text-red-600 dark:text-red-400">
+                                {formatPrice(settlement.totalPayable, isAr)}
+                            </span>
                         </div>
                     </div>
                 </div>
 
+                {/* Right Column: Specifications */}
                 <div className="lg:col-span-1">
-                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-sm h-full">
-                        <h3 className={`font-bold text-slate-900 dark:text-white mb-6 text-xl ${isAr ? 'text-right' : 'text-left'}`}>
-                            {t("Specifications")}
-                        </h3>
-                        <div className="space-y-0">
-                            {specs.map((spec) => (
-                                <div
-                                    key={spec.label}
-                                    className="flex items-center justify-between py-4 border-b border-slate-100 dark:border-slate-800 last:border-0 group hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-4 px-4 transition-colors"
-                                >
-                                    <span className={`text-sm text-slate-500 dark:text-slate-400 font-medium ${isAr ? 'text-right' : 'text-left'}`}>
-                                        {spec.label}
-                                    </span>
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-sm font-bold text-slate-900 dark:text-white ${isAr ? 'text-left' : 'text-right'}`}>
-                                            {spec.value}
+                    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm h-full flex flex-col justify-between">
+                        <div>
+                            <h3 className={`font-black text-slate-900 dark:text-white mb-6 text-xl ${isAr ? 'text-right' : 'text-left'}`}>
+                                {t("Specifications")}
+                            </h3>
+                            <div className="space-y-0">
+                                {specs.map((spec) => (
+                                    <div
+                                        key={spec.label}
+                                        className="flex items-center justify-between py-3.5 border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-3 px-3 rounded-lg transition-colors"
+                                    >
+                                        <span className={`text-xs text-slate-500 dark:text-slate-400 font-medium ${isAr ? 'text-right' : 'text-left'}`}>
+                                            {spec.label}
                                         </span>
-                                        {spec.logo && (
-                                            <div className="w-8 h-5 bg-white rounded p-0.5 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0 overflow-hidden">
-                                                <img
-                                                    src={spec.logo}
-                                                    alt={spec.value}
-                                                    className="w-full h-full object-contain"
-                                                />
-                                            </div>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-xs font-bold text-slate-900 dark:text-white ${isAr ? 'text-left' : 'text-right'}`}>
+                                                {spec.value}
+                                            </span>
+                                            {spec.logo && (
+                                                <div className="w-7 h-4 bg-white rounded p-0.5 flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0 overflow-hidden">
+                                                    <img
+                                                        src={spec.logo}
+                                                        alt={spec.value}
+                                                        className="w-full h-full object-contain"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                        <Button variant="ghost" className="w-full mt-6 text-slate-500 hover:text-slate-900 cursor-pointer flex items-center justify-center gap-2">
-                            <span>{isAr ? 'عرض كامل المواصفات' : 'View Full Specs'}</span>
-                            <ArrowRight className={cn("w-4 h-4 transition-transform", isAr && "rotate-180")} />
-                        </Button>
+
+                        {vehicle?.inspection && (
+                            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                <h4 className={`text-xs font-black uppercase tracking-wider text-slate-400 mb-3 ${isAr ? 'text-right' : 'text-left'}`}>
+                                    {isAr ? 'تقرير فحص ساعد الفني' : 'Saaed Inspection Report'}
+                                </h4>
+                                <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-xs space-y-2">
+                                    <div className="flex justify-between items-center font-bold">
+                                        <span className="text-emerald-800 dark:text-emerald-300">{isAr ? 'درجة الفحص الفني:' : 'Inspection Grade:'}</span>
+                                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-black text-xs">{vehicle.inspection.grade}</span>
+                                    </div>
+                                    <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
+                                        {vehicle.inspection.notes || (isAr ? 'اجتازت المركبة فحص السلامة والهيكل والمحرك بنجاح.' : 'Passed multi-point structural & mechanical inspection.')}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            <div className="mt-14 space-y-4">
+            {/* Inspection Location Map Section */}
+            <div className="mt-8 space-y-4">
                 <h2 className={`text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
-                    {isAr ? 'موقع المعاينة' : 'Inspection Location'}
+                    {isAr ? 'موقع المعاينة الرسمي' : 'Official Inspection Location'}
                 </h2>
 
-                <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[500px] rounded-[2rem] overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-950 group">
+                <div className="relative w-full h-[400px] sm:h-[460px] lg:h-[500px] rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-950 group">
                     <iframe
-                        src="https://maps.google.com/maps?q=25.1764,55.3908&t=k&z=17&ie=UTF8&iwloc=&output=embed"
+                        src={`https://maps.google.com/maps?q=${vehicle?.location?.latitude || 25.1764},${vehicle?.location?.longitude || 55.3908}&t=k&z=17&ie=UTF8&iwloc=&output=embed`}
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
@@ -541,7 +948,7 @@ export default function AuctionDetailPage() {
                     />
 
                     <a
-                        href="https://www.google.com/maps/search/?api=1&query=Emirates+Auction+Yard+-+Al+aweer+Dubai"
+                        href={vehicle?.location?.googleMapsUrl || "https://www.google.com/maps/search/?api=1&query=Emirates+Auction+Yard+-+Al+aweer+Dubai"}
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Open in Google Maps Fullscreen"
@@ -552,22 +959,25 @@ export default function AuctionDetailPage() {
 
                     <div className={`absolute bottom-5 ${isAr ? 'right-5 text-right' : 'left-5 text-left'} z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-5 rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-700/80 max-w-[280px] sm:max-w-xs transition-transform duration-300 group-hover:scale-[1.02]`}>
                         <div className={`flex items-center gap-2 mb-2 ${isAr ? 'flex-row-reverse' : ''}`}>
-                            <div className="w-9 h-5 bg-white rounded p-0.5 flex items-center justify-center border border-slate-200 shadow-2xs shrink-0">
+                            <div className="w-8 h-4.5 bg-white rounded p-0.5 flex items-center justify-center border border-slate-200 shadow-2xs shrink-0">
                                 <img
-                                    src="/images/abu-dhabi-mobility.png"
-                                    alt="Abu Dhabi Mobility"
+                                    src={entityLogo}
+                                    alt={entityName}
                                     className="w-full h-full object-contain"
                                 />
                             </div>
                             <span className="text-[11px] font-extrabold text-teal-700 dark:text-teal-400">
-                                {isAr ? 'أبوظبي للتنقل' : 'Abu Dhabi Mobility'}
+                                {entityName}
                             </span>
                         </div>
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
-                            {isAr ? 'فرع موقع المعاينة' : 'Inspection Location Branch'}
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1 tracking-tight">
+                            {vehicle?.location ? (isAr ? vehicle.location.branchNameAr : vehicle.location.branchNameEn) : (isAr ? 'فرع موقع المعاينة' : 'Inspection Location Branch')}
                         </h3>
+                        <p className="text-xs text-slate-500 mb-3 font-medium">
+                            {vehicle?.location ? (isAr ? vehicle.location.addressAr : vehicle.location.addressEn) : "Dubai, UAE"}
+                        </p>
                         <a
-                            href="https://www.google.com/maps/search/?api=1&query=Emirates+Auction+Yard+-+Al+aweer+Dubai"
+                            href={vehicle?.location?.googleMapsUrl || "https://www.google.com/maps/search/?api=1&query=Emirates+Auction+Yard+-+Al+aweer+Dubai"}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold shadow-sm transition-all hover:border-slate-400"
@@ -586,13 +996,13 @@ export default function AuctionDetailPage() {
             </div>
 
             {/* Terms And Conditions Section */}
-            <div className="mt-14 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 sm:p-10 lg:p-12 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden space-y-6">
+            <div className="mt-14 bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-10 lg:p-12 border border-slate-200 dark:border-slate-800 shadow-xl relative overflow-hidden space-y-6">
                 <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-red-600/10 text-red-600 dark:text-red-400 rounded-2xl shrink-0">
                         <FileText className="w-6 h-6" />
                     </div>
                     <h2 className="text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                        {isAr ? 'الشروط والأحكام' : 'Terms And Conditions'}
+                        {isAr ? 'الشروط والأحكام الرسمية للمزاد' : 'Official Auction Terms & Conditions'}
                     </h2>
                 </div>
 
@@ -676,7 +1086,6 @@ export default function AuctionDetailPage() {
                                 </div>
                             </div>
 
-                            {/* Towing warning inside modal */}
                             <div className="mb-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 flex items-start gap-3 text-xs">
                                 <Truck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                                 <span>
@@ -684,7 +1093,6 @@ export default function AuctionDetailPage() {
                                 </span>
                             </div>
 
-                            {/* Scrollable list of terms */}
                             <div className="flex-1 overflow-y-auto pr-2 space-y-3 no-scrollbar my-2">
                                 {terms.map((term, index) => (
                                     <div

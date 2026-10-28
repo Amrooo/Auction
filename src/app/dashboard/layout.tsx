@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { DashboardSidebar } from "@/components/dashboard/Sidebar"
 import { useLanguage } from "@/lib/language-context"
 import { cn } from "@/lib/utils"
@@ -18,8 +19,10 @@ export default function DashboardLayout({
           "flex flex-col lg:flex-row gap-8 pt-8",
           language === 'ar' && "lg:flex-row-reverse"
         )}>
-          {/* Dashboard Sidebar */}
-          <DashboardSidebar />
+          {/* Dashboard Sidebar wrapped in Suspense */}
+          <Suspense fallback={<div className="w-full lg:w-72 h-96 rounded-3xl bg-slate-100 dark:bg-slate-900 animate-pulse shrink-0" />}>
+            <DashboardSidebar />
+          </Suspense>
 
           {/* Dashboard Content */}
           <main className="flex-1 min-w-0">

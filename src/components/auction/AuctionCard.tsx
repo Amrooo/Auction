@@ -4,6 +4,8 @@ import Link from "next/link"
 import { Heart, TrendingUp, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/language-context"
+import { toArabicNumerals } from "@/lib/utils"
+import { useState, useEffect } from "react"
 
 export interface SourceEntity {
     id: string
@@ -15,6 +17,7 @@ export interface SourceEntity {
 interface AuctionCardProps {
     id: string
     title: string
+    titleAr?: string
     image: string
     currentBid: number
     currency?: string
@@ -27,6 +30,7 @@ interface AuctionCardProps {
 export function AuctionCard({
     id,
     title,
+    titleAr,
     image,
     currentBid,
     currency = "AED",
@@ -37,6 +41,38 @@ export function AuctionCard({
 }: AuctionCardProps) {
     const { t, language } = useLanguage()
     const isAr = language === 'ar'
+    const [isFavorited, setIsFavorited] = useState(false)
+
+    useEffect(() => {
+        try {
+            const favs = JSON.parse(localStorage.getItem("user_favorites") || "[]")
+            setIsFavorited(favs.includes(id))
+        } catch {
+            // ignore
+        }
+    }, [id])
+
+    const toggleFavorite = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        try {
+            const favs = JSON.parse(localStorage.getItem("user_favorites") || "[]")
+            let updated: string[]
+            if (favs.includes(id)) {
+                updated = favs.filter((item: string) => item !== id)
+                setIsFavorited(false)
+            } else {
+                updated = [...favs, id]
+                setIsFavorited(true)
+            }
+            localStorage.setItem("user_favorites", JSON.stringify(updated))
+            window.dispatchEvent(new Event("favorites_changed"))
+        } catch {
+            setIsFavorited(!isFavorited)
+        }
+    }
+
+    const displayTitle = isAr && titleAr ? titleAr : title
 
     return (
         <div className="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-4 shadow-[0_10px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)] transition-all duration-500 border border-slate-200 dark:border-slate-800 hover:-translate-y-1 flex flex-col justify-between">
@@ -47,7 +83,7 @@ export function AuctionCard({
                 <Link href={`/auctions/${id}`} className="block w-full h-full">
                     <img
                         src={image}
-                        alt={title}
+                        alt={displayTitle}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         onError={(e) => {
                             e.currentTarget.src = "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2670&auto=format&fit=crop"
@@ -76,10 +112,16 @@ export function AuctionCard({
 
                 <button
                     suppressHydrationWarning
+                    type="button"
+                    onClick={toggleFavorite}
                     aria-label="Add to wishlist"
-                    className={`absolute top-3.5 ${isAr ? 'left-3.5' : 'right-3.5'} z-20 p-2.5 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-full text-slate-800 dark:text-white hover:bg-white hover:text-red-600 dark:hover:bg-slate-800 dark:hover:text-red-500 transition-all shadow-md border border-white/40 dark:border-slate-700/40 cursor-pointer`}
+                    className={`absolute top-3.5 ${isAr ? 'left-3.5' : 'right-3.5'} z-20 p-2.5 backdrop-blur-md rounded-full transition-all shadow-md border cursor-pointer ${
+                        isFavorited
+                            ? 'bg-red-600 text-white border-red-600 shadow-red-600/30'
+                            : 'bg-white/70 dark:bg-slate-900/70 text-slate-800 dark:text-white hover:bg-white hover:text-red-600 dark:hover:bg-slate-800 dark:hover:text-red-500 border-white/40 dark:border-slate-700/40'
+                    }`}
                 >
-                    <Heart className="w-4 h-4" />
+                    <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
                 </button>
 
                 {aiInsight && (
@@ -96,7 +138,7 @@ export function AuctionCard({
                     <div className="flex justify-between items-start mb-2">
                         <Link href={`/auctions/${id}`} className="group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
                             <h3 className={`font-extrabold text-slate-900 dark:text-slate-100 line-clamp-1 text-lg tracking-tight ${isAr ? 'text-right' : 'text-left'}`}>
-                                {title}
+                                {displayTitle}
                             </h3>
                         </Link>
                     </div>
@@ -105,8 +147,10 @@ export function AuctionCard({
                         <div>
                             <p className="text-[10px] uppercase font-black tracking-widest text-slate-500 dark:text-muted-foreground mb-1">{t("Current Bid")}</p>
                             <p className="font-black text-xl text-slate-900 dark:text-white tracking-tight">
-                                <span className="text-xs me-1 text-slate-600 dark:text-slate-500 transition-colors">{currency}</span>
-                                {currentBid.toLocaleString()}
+                                <span className="text-xs me-1 text-slate-600 dark:text-slate-500 transition-colors">
+                                    {isAr ? 'درهم' : currency}
+                                </span>
+                                {isAr ? toArabicNumerals(currentBid.toLocaleString()) : currentBid.toLocaleString()}
                             </p>
                         </div>
                         <div className={isAr ? 'text-left' : 'text-right'}>
@@ -121,7 +165,7 @@ export function AuctionCard({
 
                 <div className={`flex items-center justify-between gap-4 pt-2 border-t border-slate-100 dark:border-slate-800 ${isAr ? 'flex-row-reverse' : ''}`}>
                     <div className="text-xs font-black text-slate-500 dark:text-slate-400">
-                        {bids} {t("Bids")}
+                        {isAr ? `${toArabicNumerals(bids)} مزايدة` : `${bids} ${t("Bids")}`}
                     </div>
                     <Link href={`/auctions/${id}`} className="flex-1">
                         <Button size="lg" className="w-full rounded-2xl bg-red-600 hover:bg-red-700 text-white hover:text-white font-black transition-all shadow-md hover:shadow-red-600/20 active:scale-95 text-xs uppercase tracking-widest border-none cursor-pointer">

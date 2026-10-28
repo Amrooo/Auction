@@ -25,12 +25,12 @@
     "fuelType": "Petrol",
     "startingBid": 800000,
     "minimumIncrement": 5000,
-    "currentBid": 950000,
+    "currentBid": 955000,
     "depositRequiredAed": 47500,
-    "bidsCount": 55,
+    "bidsCount": 56,
     "status": "live",
     "startDate": "2026-08-26T10:52:39.673Z",
-    "endDate": "2026-08-26T15:12:39.673Z",
+    "endDate": "2026-10-28T11:24:58.244Z",
     "isFeatured": true,
     "thumbnail": "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=2672&auto=format&fit=crop",
     "images": [
@@ -76,7 +76,57 @@
       "summaryAr": "هذا العرض مقيّم بأقل من قيمته بنسبة ٨٪ مقارنةً بطرازات G63 المماثلة. الطلب مرتفع، والأسعار في اتجاه تصاعدي (+٥٪)."
     },
     "createdAt": "2026-08-26T10:52:39.673Z",
-    "updatedAt": "2026-08-26T10:52:39.673Z"
+    "updatedAt": "2026-10-28T06:55:08.393Z",
+    "bidsHistory": [
+      {
+        "id": "bid_1793170508393",
+        "bidderName": "Test Bidder",
+        "amount": 955000,
+        "timestamp": "2026-10-28T06:55:08.393Z"
+      },
+      {
+        "id": "bid_m1_1",
+        "bidderName": "Bidder #173",
+        "amount": 950000,
+        "timestamp": "2026-10-28T06:29:58.244Z"
+      },
+      {
+        "id": "bid_m1_2",
+        "bidderName": "Bidder #246",
+        "amount": 928571,
+        "timestamp": "2026-10-28T06:04:58.244Z"
+      },
+      {
+        "id": "bid_m1_3",
+        "bidderName": "Bidder #319",
+        "amount": 907142,
+        "timestamp": "2026-10-28T05:39:58.244Z"
+      },
+      {
+        "id": "bid_m1_4",
+        "bidderName": "Bidder #392",
+        "amount": 885713,
+        "timestamp": "2026-10-28T05:14:58.244Z"
+      },
+      {
+        "id": "bid_m1_5",
+        "bidderName": "Bidder #465",
+        "amount": 864284,
+        "timestamp": "2026-10-28T04:49:58.244Z"
+      },
+      {
+        "id": "bid_m1_6",
+        "bidderName": "Bidder #538",
+        "amount": 842855,
+        "timestamp": "2026-10-28T04:24:58.244Z"
+      },
+      {
+        "id": "bid_m1_7",
+        "bidderName": "Bidder #611",
+        "amount": 821426,
+        "timestamp": "2026-10-28T03:59:58.244Z"
+      }
+    ]
   },
   {
     "id": "m2",
@@ -107,7 +157,7 @@
     "bidsCount": 32,
     "status": "live",
     "startDate": "2026-08-26T10:52:39.673Z",
-    "endDate": "2026-08-27T15:52:39.673Z",
+    "endDate": "2026-10-29T10:54:58.244Z",
     "isFeatured": true,
     "thumbnail": "https://images.unsplash.com/photo-1621609764095-b22d11ad25ac?q=80&w=2592&auto=format&fit=crop",
     "images": [
@@ -130,7 +180,51 @@
       "googleMapsUrl": "https://maps.google.com/maps?q=25.2811,55.3789"
     },
     "createdAt": "2026-08-26T10:52:39.673Z",
-    "updatedAt": "2026-08-26T10:52:39.673Z"
+    "updatedAt": "2026-08-26T10:52:39.673Z",
+    "bidsHistory": [
+      {
+        "id": "bid_m2_1",
+        "bidderName": "Bidder #173",
+        "amount": 1100000,
+        "timestamp": "2026-10-28T06:29:58.244Z"
+      },
+      {
+        "id": "bid_m2_2",
+        "bidderName": "Bidder #246",
+        "amount": 1078571,
+        "timestamp": "2026-10-28T06:04:58.244Z"
+      },
+      {
+        "id": "bid_m2_3",
+        "bidderName": "Bidder #319",
+        "amount": 1057142,
+        "timestamp": "2026-10-28T05:39:58.244Z"
+      },
+      {
+        "id": "bid_m2_4",
+        "bidderName": "Bidder #392",
+        "amount": 1035713,
+        "timestamp": "2026-10-28T05:14:58.244Z"
+      },
+      {
+        "id": "bid_m2_5",
+        "bidderName": "Bidder #465",
+        "amount": 1014284,
+        "timestamp": "2026-10-28T04:49:58.244Z"
+      },
+      {
+        "id": "bid_m2_6",
+        "bidderName": "Bidder #538",
+        "amount": 992855,
+        "timestamp": "2026-10-28T04:24:58.244Z"
+      },
+      {
+        "id": "bid_m2_7",
+        "bidderName": "Bidder #611",
+        "amount": 971426,
+        "timestamp": "2026-10-28T03:59:58.244Z"
+      }
+    ]
   },
   {
     "id": "m3",
@@ -161,7 +255,7 @@
     "bidsCount": 89,
     "status": "live",
     "startDate": "2026-08-26T10:52:39.673Z",
-    "endDate": "2026-08-26T17:07:39.673Z",
+    "endDate": "2026-10-30T10:54:58.244Z",
     "isFeatured": true,
     "thumbnail": "https://images.unsplash.com/photo-1555215696-99ac45e75d74?q=80&w=2670&auto=format&fit=crop",
     "images": [
@@ -184,7 +278,51 @@
       "googleMapsUrl": "https://maps.google.com/maps?q=24.3644,54.4988"
     },
     "createdAt": "2026-08-26T10:52:39.673Z",
-    "updatedAt": "2026-08-26T10:52:39.673Z"
+    "updatedAt": "2026-08-26T10:52:39.673Z",
+    "bidsHistory": [
+      {
+        "id": "bid_m3_1",
+        "bidderName": "Bidder #173",
+        "amount": 550000,
+        "timestamp": "2026-10-28T06:29:58.245Z"
+      },
+      {
+        "id": "bid_m3_2",
+        "bidderName": "Bidder #246",
+        "amount": 540000,
+        "timestamp": "2026-10-28T06:04:58.245Z"
+      },
+      {
+        "id": "bid_m3_3",
+        "bidderName": "Bidder #319",
+        "amount": 530000,
+        "timestamp": "2026-10-28T05:39:58.245Z"
+      },
+      {
+        "id": "bid_m3_4",
+        "bidderName": "Bidder #392",
+        "amount": 520000,
+        "timestamp": "2026-10-28T05:14:58.245Z"
+      },
+      {
+        "id": "bid_m3_5",
+        "bidderName": "Bidder #465",
+        "amount": 510000,
+        "timestamp": "2026-10-28T04:49:58.245Z"
+      },
+      {
+        "id": "bid_m3_6",
+        "bidderName": "Bidder #538",
+        "amount": 500000,
+        "timestamp": "2026-10-28T04:24:58.245Z"
+      },
+      {
+        "id": "bid_m3_7",
+        "bidderName": "Bidder #611",
+        "amount": 490000,
+        "timestamp": "2026-10-28T03:59:58.244Z"
+      }
+    ]
   },
   {
     "id": "m4",
@@ -215,7 +353,7 @@
     "bidsCount": 14,
     "status": "live",
     "startDate": "2026-08-26T10:52:39.673Z",
-    "endDate": "2026-08-28T22:52:39.673Z",
+    "endDate": "2026-10-31T09:54:58.244Z",
     "isFeatured": true,
     "thumbnail": "https://images.unsplash.com/photo-1592198084033-aade902d1aae?q=80&w=2670&auto=format&fit=crop",
     "images": [
@@ -238,7 +376,51 @@
       "googleMapsUrl": "https://maps.google.com/maps?q=24.4215,54.6892"
     },
     "createdAt": "2026-08-26T10:52:39.673Z",
-    "updatedAt": "2026-08-26T10:52:39.673Z"
+    "updatedAt": "2026-08-26T10:52:39.673Z",
+    "bidsHistory": [
+      {
+        "id": "bid_m4_1",
+        "bidderName": "Bidder #173",
+        "amount": 1250000,
+        "timestamp": "2026-10-28T06:29:58.245Z"
+      },
+      {
+        "id": "bid_m4_2",
+        "bidderName": "Bidder #246",
+        "amount": 1228571,
+        "timestamp": "2026-10-28T06:04:58.245Z"
+      },
+      {
+        "id": "bid_m4_3",
+        "bidderName": "Bidder #319",
+        "amount": 1207142,
+        "timestamp": "2026-10-28T05:39:58.245Z"
+      },
+      {
+        "id": "bid_m4_4",
+        "bidderName": "Bidder #392",
+        "amount": 1185713,
+        "timestamp": "2026-10-28T05:14:58.245Z"
+      },
+      {
+        "id": "bid_m4_5",
+        "bidderName": "Bidder #465",
+        "amount": 1164284,
+        "timestamp": "2026-10-28T04:49:58.245Z"
+      },
+      {
+        "id": "bid_m4_6",
+        "bidderName": "Bidder #538",
+        "amount": 1142855,
+        "timestamp": "2026-10-28T04:24:58.245Z"
+      },
+      {
+        "id": "bid_m4_7",
+        "bidderName": "Bidder #611",
+        "amount": 1121426,
+        "timestamp": "2026-10-28T03:59:58.245Z"
+      }
+    ]
   },
   {
     "id": "m5",
@@ -269,7 +451,7 @@
     "bidsCount": 67,
     "status": "live",
     "startDate": "2026-08-26T10:52:39.673Z",
-    "endDate": "2026-08-26T12:22:39.673Z",
+    "endDate": "2026-10-28T18:54:58.244Z",
     "isFeatured": false,
     "thumbnail": "https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=2670&auto=format&fit=crop",
     "images": [
@@ -292,6 +474,50 @@
       "googleMapsUrl": "https://maps.google.com/maps?q=25.1764,55.3908"
     },
     "createdAt": "2026-08-26T10:52:39.673Z",
-    "updatedAt": "2026-08-26T10:52:39.673Z"
+    "updatedAt": "2026-08-26T10:52:39.673Z",
+    "bidsHistory": [
+      {
+        "id": "bid_m5_1",
+        "bidderName": "Bidder #173",
+        "amount": 320000,
+        "timestamp": "2026-10-28T06:29:58.245Z"
+      },
+      {
+        "id": "bid_m5_2",
+        "bidderName": "Bidder #246",
+        "amount": 314286,
+        "timestamp": "2026-10-28T06:04:58.245Z"
+      },
+      {
+        "id": "bid_m5_3",
+        "bidderName": "Bidder #319",
+        "amount": 308572,
+        "timestamp": "2026-10-28T05:39:58.245Z"
+      },
+      {
+        "id": "bid_m5_4",
+        "bidderName": "Bidder #392",
+        "amount": 302858,
+        "timestamp": "2026-10-28T05:14:58.245Z"
+      },
+      {
+        "id": "bid_m5_5",
+        "bidderName": "Bidder #465",
+        "amount": 297144,
+        "timestamp": "2026-10-28T04:49:58.245Z"
+      },
+      {
+        "id": "bid_m5_6",
+        "bidderName": "Bidder #538",
+        "amount": 291430,
+        "timestamp": "2026-10-28T04:24:58.245Z"
+      },
+      {
+        "id": "bid_m5_7",
+        "bidderName": "Bidder #611",
+        "amount": 285716,
+        "timestamp": "2026-10-28T03:59:58.245Z"
+      }
+    ]
   }
 ]

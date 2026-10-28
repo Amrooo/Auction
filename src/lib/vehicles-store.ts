@@ -434,6 +434,36 @@ const INITIAL_VEHICLES: Vehicle[] = [
     }
 ]
 
+function generateInitialBidsHistory(v: Vehicle): VehicleBid[] {
+    const min = v.startingBid || 100000
+    const max = v.currentBid || min
+    const steps = Math.min(v.bidsCount || 6, 7)
+    if (steps <= 1 || max <= min) {
+        return [{
+            id: `bid_init_${v.id}`,
+            bidderName: "Bidder #104",
+            amount: max,
+            timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString()
+        }]
+    }
+
+    const bids: VehicleBid[] = []
+    const span = max - min
+    const stepAmount = Math.max(Math.round(span / steps), v.minimumIncrement || 1000)
+
+    for (let i = steps; i >= 1; i--) {
+        const timeAgoMins = i * 25
+        const amount = i === 1 ? max : Math.max(min, max - (i - 1) * stepAmount)
+        bids.push({
+            id: `bid_${v.id}_${i}`,
+            bidderName: `Bidder #${100 + (i * 73) % 900}`,
+            amount,
+            timestamp: new Date(Date.now() - timeAgoMins * 60 * 1000).toISOString()
+        })
+    }
+    return bids.reverse()
+}
+
 function ensureDataFile(): Vehicle[] {
     try {
         if (!fs.existsSync(DATA_DIR)) {
@@ -444,7 +474,27 @@ function ensureDataFile(): Vehicle[] {
             return INITIAL_VEHICLES
         }
         const data = fs.readFileSync(DATA_FILE, 'utf-8')
-        return JSON.parse(data)
+        let list: Vehicle[] = JSON.parse(data)
+        let modified = false
+        const now = Date.now()
+
+        // Keep live vehicles fresh and biddable
+        list.forEach((v, idx) => {
+            if (v.status === 'live' && new Date(v.endDate).getTime() <= now) {
+                const hoursAhead = [4.5, 28, 52, 75, 12][idx % 5]
+                v.endDate = new Date(now + hoursAhead * 3600 * 1000).toISOString()
+                modified = true
+            }
+            if (!v.bidsHistory || v.bidsHistory.length === 0) {
+                v.bidsHistory = generateInitialBidsHistory(v)
+                modified = true
+            }
+        })
+
+        if (modified) {
+            saveDataFile(list)
+        }
+        return list
     } catch {
         return INITIAL_VEHICLES
     }
@@ -506,7 +556,13 @@ export class VehicleService {
 
     static getById(id: string): Vehicle | null {
         const list = ensureDataFile()
-        return list.find(v => v.id === id || v.lotNumber === id) || null
+        const cleanId = String(id).trim().toLowerCase()
+        return list.find(v => 
+            v.id.toLowerCase() === cleanId || 
+            v.lotNumber.toLowerCase() === cleanId ||
+            v.id.toLowerCase() === `m${cleanId}` ||
+            cleanId === `m${v.id.toLowerCase()}`
+        ) || null
     }
 
     static create(input: Partial<Vehicle>): Vehicle {
@@ -617,9 +673,15 @@ export class VehicleService {
         return list[index]
     }
 
-    static placeBid(id: string, amount: number, bidderName = 'Registered Bidder'): { success: boolean; vehicle?: Vehicle; error?: string; isBuyNow?: boolean } {
+    static placeBid(id: string, amount: number, bidderName = 'Registered Bidder'): { success: boolean; vehicle?: Vehicle; error?: string; isBuyNow?: boolean; extended?: boolean } {
         const list = ensureDataFile()
-        const index = list.findIndex(v => v.id === id || v.lotNumber === id)
+        const cleanId = String(id).trim().toLowerCase()
+        const index = list.findIndex(v => 
+            v.id.toLowerCase() === cleanId || 
+            v.lotNumber.toLowerCase() === cleanId ||
+            v.id.toLowerCase() === `m${cleanId}` ||
+            cleanId === `m${v.id.toLowerCase()}`
+        )
         if (index === -1) return { success: false, error: 'Vehicle not found' }
 
         const vehicle = list[index]
@@ -657,6 +719,7 @@ export class VehicleService {
 
         // 2. Anti-Sniping (التمديد المضاد للقنص)
         // If within the last 2 minutes, extend by 2 minutes, up to max 10 times.
+        let extended = false
         if (!isBuyNow) {
             const timeRemainingMs = endDate.getTime() - now.getTime()
             if (timeRemainingMs > 0 && timeRemainingMs <= 2 * 60 * 1000) {
@@ -664,6 +727,7 @@ export class VehicleService {
                 if (vehicle.extensionsCount < 10) {
                     vehicle.endDate = new Date(endDate.getTime() + 2 * 60 * 1000).toISOString()
                     vehicle.extensionsCount++
+                    extended = true
                 }
             }
         }
@@ -682,6 +746,6 @@ export class VehicleService {
         vehicle.updatedAt = new Date().toISOString()
 
         saveDataFile(list)
-        return { success: true, vehicle, isBuyNow }
+        return { success: true, vehicle, isBuyNow, extended }
     }
 }
