@@ -39,8 +39,8 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                         onClick={() => setActiveCategory(cat)}
                         className={`px-6 md:px-8 py-3 font-bold text-xs md:text-sm rounded-t-2xl transition-all border-none cursor-pointer shrink-0 ${
                             activeCategory === cat 
-                                ? "bg-white dark:bg-slate-900 text-[#1F2937] dark:text-white shadow-[0_-2px_10px_rgba(0,0,0,0.06)]" 
-                                : "bg-[#3B82F6] text-white hover:bg-[#3B82F6]/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
+                                ? "bg-white dark:bg-[#0b1329] text-[#1F2937] dark:text-blue-100 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] dark:border-t dark:border-x dark:border-blue-900/50" 
+                                : "bg-[#3B82F6] text-white hover:bg-[#3B82F6]/90 dark:bg-[#131d35] dark:text-blue-200/80 dark:hover:bg-[#1a2747] dark:hover:text-blue-100"
                         }`}
                     >
                         {t(cat)}
@@ -49,7 +49,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
             </div>
 
             {/* Filter Form Card */}
-            <div className="bg-white dark:bg-slate-900 rounded-b-2xl rounded-tr-2xl shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-slate-200/60 dark:border-slate-800/80 p-5 md:p-6">
+            <div className="bg-white dark:bg-[#0b1329] rounded-b-2xl rounded-tr-2xl shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-slate-200/60 dark:border-blue-900/40 p-5 md:p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-6 items-center">
                     
                     {/* Render Category-Specific Filter Fields */}
@@ -63,7 +63,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                                     onChange={(e) => setKeyword(e.target.value)}
                                     placeholder={t("Keyword")}
                                     className={cn(
-                                        "w-full bg-[#EBF1FA] dark:bg-slate-800 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#3B82F6]/30 transition-all",
+                                        "w-full bg-[#EBF1FA] dark:bg-[#131d35] dark:text-blue-50 dark:placeholder-blue-300/40 dark:border dark:border-blue-900/40 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-[#3B82F6]/30 dark:focus:ring-blue-500/40 transition-all",
                                         language === 'ar' ? 'text-right' : 'text-left'
                                     )}
                                 />
@@ -111,7 +111,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                                     type="text"
                                     placeholder={t("Keyword")}
                                     className={cn(
-                                        "w-full bg-[#EBF1FA] dark:bg-slate-800 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#3B82F6]/30 transition-all",
+                                        "w-full bg-[#EBF1FA] dark:bg-[#131d35] dark:text-blue-50 dark:placeholder-blue-300/40 dark:border dark:border-blue-900/40 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-[#3B82F6]/30 dark:focus:ring-blue-500/40 transition-all",
                                         language === 'ar' ? 'text-right' : 'text-left'
                                     )}
                                 />
@@ -153,7 +153,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                                     type="text"
                                     placeholder={t("Keyword")}
                                     className={cn(
-                                        "w-full bg-[#EBF1FA] dark:bg-slate-800 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#3B82F6]/30 transition-all",
+                                        "w-full bg-[#EBF1FA] dark:bg-[#131d35] dark:text-blue-50 dark:placeholder-blue-300/40 dark:border dark:border-blue-900/40 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-[#3B82F6]/30 dark:focus:ring-blue-500/40 transition-all",
                                         language === 'ar' ? 'text-right' : 'text-left'
                                     )}
                                 />
@@ -194,7 +194,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                                     type="text"
                                     placeholder={t("Plate Number")}
                                     className={cn(
-                                        "w-full bg-[#EBF1FA] dark:bg-slate-800 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#3B82F6]/30 transition-all",
+                                        "w-full bg-[#EBF1FA] dark:bg-[#131d35] dark:text-blue-50 dark:placeholder-blue-300/40 dark:border dark:border-blue-900/40 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-[#3B82F6]/30 dark:focus:ring-blue-500/40 transition-all",
                                         language === 'ar' ? 'text-right' : 'text-left'
                                     )}
                                 />
@@ -238,7 +238,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                                     type="text"
                                     placeholder={t("Keyword")}
                                     className={cn(
-                                        "w-full bg-[#EBF1FA] dark:bg-slate-800 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#3B82F6]/30 transition-all",
+                                        "w-full bg-[#EBF1FA] dark:bg-[#131d35] dark:text-blue-50 dark:placeholder-blue-300/40 dark:border dark:border-blue-900/40 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-[#3B82F6]/30 dark:focus:ring-blue-500/40 transition-all",
                                         language === 'ar' ? 'text-right' : 'text-left'
                                     )}
                                 />
@@ -278,7 +278,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                                     type="text"
                                     placeholder={t("Keyword")}
                                     className={cn(
-                                        "w-full bg-[#EBF1FA] dark:bg-slate-800 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-[#3B82F6]/30 transition-all",
+                                        "w-full bg-[#EBF1FA] dark:bg-[#131d35] dark:text-blue-50 dark:placeholder-blue-300/40 dark:border dark:border-blue-900/40 border-none outline-none rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:ring-2 focus:ring-[#3B82F6]/30 dark:focus:ring-blue-500/40 transition-all",
                                         language === 'ar' ? 'text-right' : 'text-left'
                                     )}
                                 />

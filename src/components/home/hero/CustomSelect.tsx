@@ -11,7 +11,7 @@ export function CustomSelect({ language, children, className, ...props }: Custom
         <div className="w-full relative">
             <select
                 className={cn(
-                    "w-full bg-[#EBF1FA] dark:bg-slate-800 border-none outline-none rounded-xl py-3 text-sm font-medium text-slate-800 dark:text-slate-100 appearance-none cursor-pointer focus:ring-2 focus:ring-[#3B82F6]/30 transition-all",
+                    "w-full bg-[#EBF1FA] dark:bg-[#131d35] dark:text-blue-50 dark:border dark:border-blue-900/40 border-none outline-none rounded-xl py-3 text-sm font-medium text-slate-800 appearance-none cursor-pointer focus:ring-2 focus:ring-[#3B82F6]/30 dark:focus:ring-blue-500/40 transition-all",
                     language === 'ar' ? 'pl-8 pr-4 text-right' : 'pr-8 pl-4 text-left',
                     className
                 )}
@@ -20,7 +20,7 @@ export function CustomSelect({ language, children, className, ...props }: Custom
                 {children}
             </select>
             <span className={cn(
-                "absolute top-1/2 -translate-y-1/2 pointer-events-none text-xs text-slate-400",
+                "absolute top-1/2 -translate-y-1/2 pointer-events-none text-xs text-slate-400 dark:text-blue-400/70",
                 language === 'ar' ? 'left-4' : 'right-4'
             )}>
                 ▼

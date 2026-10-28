@@ -128,9 +128,9 @@ export function HeroSlider() {
                     </button>
                     <button
                         onClick={() => router.push('/category/motors')}
-                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-950 dark:bg-slate-800 text-white rounded-xl sm:rounded-2xl font-black shadow-lg hover:bg-slate-900 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2.5 text-sm sm:text-base md:text-lg group cursor-pointer border-none hover:scale-105 active:scale-95"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-950 text-white dark:bg-gradient-to-r dark:from-blue-900/90 dark:via-blue-800/80 dark:to-indigo-900/90 dark:text-blue-100 dark:border dark:border-blue-500/40 dark:shadow-[0_0_25px_rgba(59,130,246,0.3)] rounded-xl sm:rounded-2xl font-black shadow-lg hover:bg-slate-900 dark:hover:from-blue-800 dark:hover:to-indigo-800 transition-all flex items-center justify-center gap-2.5 text-sm sm:text-base md:text-lg group cursor-pointer border-none hover:scale-105 active:scale-95"
                     >
-                        <Gavel className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
+                        <Gavel className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce text-slate-300 dark:text-blue-300" />
                         <span>{t("Bidding Now")}</span>
                     </button>
                 </motion.div>

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Search, Gavel, Menu, Globe, X, Plus, LayoutDashboard, LogOut, User } from "lucide-react"
+import { Search, Gavel, Menu, Globe, X, LayoutDashboard, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useState, useEffect, useRef } from "react"
@@ -90,18 +90,6 @@ export function Header() {
             setAuthNotice({})
         }
         setIsAuthModalOpen(true)
-    }
-
-    const handleAddVehicleClick = () => {
-        if (isLoggedIn) {
-            router.push("/dashboard?tab=sell")
-        } else {
-            localStorage.setItem("auth_redirect_target", "/dashboard?tab=sell")
-            openAuthModal("login", {
-                title: language === 'ar' ? 'تسجيل الدخول مطلوب لإضافة مركبة للمزاد' : 'Login Required to Add Vehicle for Auction',
-                desc: language === 'ar' ? 'يرجى تسجيل الدخول بحسابك أو إنشاء حساب جديد للبدء في معالج إدراج المركبة.' : 'Please sign in or create an account to start the vehicle consignment wizard.'
-            })
-        }
     }
 
     return (

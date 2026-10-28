@@ -90,44 +90,52 @@ export function MotorFilters({
     const isAr = language === 'ar'
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6" dir={isAr ? "rtl" : "ltr"}>
             {/* AI Toggle */}
             <div
                 className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${useAI ? 'border-red-500 bg-red-50/50 dark:bg-red-950/20 shadow-sm' : 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50'}`}
                 onClick={onToggleAI}
             >
-                <div className={`flex items-center justify-between mb-2 ${isAr ? 'flex-row-reverse' : ''}`}>
-                    <div className={`flex items-center gap-2 font-bold text-slate-900 dark:text-white text-sm ${isAr ? 'flex-row-reverse' : ''}`}>
+                <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white text-sm">
                         <Sparkles className={`w-4 h-4 ${useAI ? 'text-red-600 dark:text-red-400' : 'text-slate-400'}`} />
-                        {t("Smart Match")}
+                        <span>{t("Smart Match")}</span>
                     </div>
                     <div className={`w-10 h-6 rounded-full transition-colors relative ${useAI ? 'bg-red-600' : 'bg-slate-200 dark:bg-slate-700'}`}>
-                        <div className={`absolute top-1 ${isAr ? 'right-1' : 'left-1'} w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${useAI ? (isAr ? '-translate-x-4' : 'translate-x-4') : ''}`} />
+                        <div className={cn(
+                            "absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all",
+                            isAr 
+                                ? (useAI ? "right-5" : "right-1") 
+                                : (useAI ? "left-5" : "left-1")
+                        )} />
                     </div>
                 </div>
-                <p className={`text-xs text-slate-500 dark:text-slate-400 font-medium ${isAr ? 'text-right' : 'text-left'}`}>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium text-start">
                     {t("Smart Match Description")}
                 </p>
             </div>
 
             {/* Live Search Input */}
             <div className="relative">
-                <Search className={`absolute top-3.5 w-4 h-4 text-slate-400 ${isAr ? 'right-3.5' : 'left-3.5'}`} />
+                <Search className={cn("absolute top-3.5 w-4 h-4 text-slate-400", isAr ? "right-3.5" : "left-3.5")} />
                 <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => onSearchChange?.(e.target.value)}
                     placeholder={t("Search make, model...")}
-                    className={`w-full py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 font-medium ${isAr ? 'pr-10 pl-4 text-right' : 'pl-10 pr-4'}`}
+                    className={cn(
+                        "w-full py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-slate-900 dark:text-white placeholder:text-slate-400 font-medium",
+                        isAr ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"
+                    )}
                 />
             </div>
 
             {/* Source Entity Filter */}
             <div className="space-y-3 pt-2">
-                <div className={`flex items-center justify-between ${isAr ? 'flex-row-reverse' : ''}`}>
-                    <h3 className={`font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
+                <div className="flex items-center justify-between">
+                    <h3 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
                         <Building2 className="w-4 h-4 text-red-600" />
-                        {t("Source Entity")}
+                        <span>{t("Source Entity")}</span>
                     </h3>
                     {selectedSource !== 'all' && (
                         <button
@@ -148,14 +156,13 @@ export function MotorFilters({
                                 type="button"
                                 onClick={() => onSourceChange?.(entity.id)}
                                 className={cn(
-                                    "w-full flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-left",
-                                    isAr && "flex-row-reverse text-right",
+                                    "w-full flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-start",
                                     isSelected
                                         ? "bg-red-50/80 dark:bg-red-950/30 border-red-500/80 text-red-700 dark:text-red-300 font-bold shadow-xs"
                                         : "bg-white dark:bg-slate-900/60 border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 font-medium"
                                 )}
                             >
-                                <div className={`flex items-center gap-2.5 min-w-0 ${isAr ? 'flex-row-reverse' : ''}`}>
+                                <div className="flex items-center gap-2.5 min-w-0">
                                     {entity.logo ? (
                                         <div className="w-6 h-6 rounded-lg bg-white p-0.5 flex items-center justify-center border border-slate-200 dark:border-slate-700 shrink-0 shadow-2xs overflow-hidden">
                                             <img
@@ -188,13 +195,14 @@ export function MotorFilters({
 
             {/* Detailed Filters: Make, Price, Condition */}
             <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <h3 className={`font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
-                    <SlidersHorizontal className="w-4 h-4 text-red-600" /> {t("Filters")}
+                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                    <SlidersHorizontal className="w-4 h-4 text-red-600" /> 
+                    <span>{t("Filters")}</span>
                 </h3>
 
                 {/* Make selector */}
                 <div className="space-y-2">
-                    <label className={`text-xs font-bold text-slate-700 dark:text-slate-300 block ${isAr ? 'text-right' : 'text-left'}`}>{t("Make")}</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block text-start">{t("Make")}</label>
                     <div className="grid grid-cols-2 gap-2">
                         {['Mercedes-Benz', 'Lamborghini', 'BMW', 'Ferrari', 'Nissan', 'Toyota'].map(make => {
                             const isChecked = selectedMakes.includes(make)
@@ -204,8 +212,7 @@ export function MotorFilters({
                                     type="button"
                                     onClick={() => onMakeToggle?.(make)}
                                     className={cn(
-                                        "flex items-center gap-2 px-3 py-2 border rounded-xl cursor-pointer transition-colors text-xs font-semibold",
-                                        isAr && "flex-row-reverse text-right",
+                                        "flex items-center gap-2 px-3 py-2 border rounded-xl cursor-pointer transition-colors text-xs font-semibold text-start",
                                         isChecked 
                                             ? "bg-red-50 dark:bg-red-950/40 border-red-500 text-red-600 dark:text-red-400 font-bold" 
                                             : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400"
@@ -223,14 +230,14 @@ export function MotorFilters({
 
                 {/* Price Range */}
                 <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <label className={`text-xs font-bold text-slate-700 dark:text-slate-300 block ${isAr ? 'text-right' : 'text-left'}`}>{t("Price Range (AED)")}</label>
-                    <div className={`flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block text-start">{t("Price Range (AED)")}</label>
+                    <div className="flex items-center gap-2">
                         <input 
                             type="number" 
                             placeholder={t("Min")} 
                             value={minPrice}
                             onChange={(e) => onMinPriceChange?.(e.target.value)}
-                            className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white ${isAr ? 'text-right' : 'text-left'}`} 
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white text-start" 
                         />
                         <span className="text-slate-400 font-bold">-</span>
                         <input 
@@ -238,15 +245,15 @@ export function MotorFilters({
                             placeholder={t("Max")} 
                             value={maxPrice}
                             onChange={(e) => onMaxPriceChange?.(e.target.value)}
-                            className={`w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white ${isAr ? 'text-right' : 'text-left'}`} 
+                            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white text-start" 
                         />
                     </div>
                 </div>
 
                 {/* Condition */}
                 <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <label className={`text-xs font-bold text-slate-700 dark:text-slate-300 block ${isAr ? 'text-right' : 'text-left'}`}>{t("Condition")}</label>
-                    <div className={`flex flex-wrap gap-2 ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block text-start">{t("Condition")}</label>
+                    <div className="flex flex-wrap gap-2">
                         {['all', 'New', 'Used', 'Salvage'].map(type => (
                             <button 
                                 key={type} 
