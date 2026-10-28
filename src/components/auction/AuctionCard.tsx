@@ -115,11 +115,10 @@ export function AuctionCard({
                     type="button"
                     onClick={toggleFavorite}
                     aria-label="Add to wishlist"
-                    className={`absolute top-3.5 ${isAr ? 'left-3.5' : 'right-3.5'} z-20 p-2.5 backdrop-blur-md rounded-full transition-all shadow-md border cursor-pointer ${
-                        isFavorited
-                            ? 'bg-red-600 text-white border-red-600 shadow-red-600/30'
-                            : 'bg-white/70 dark:bg-slate-900/70 text-slate-800 dark:text-white hover:bg-white hover:text-red-600 dark:hover:bg-slate-800 dark:hover:text-red-500 border-white/40 dark:border-slate-700/40'
-                    }`}
+                    className={`absolute top-3.5 ${isAr ? 'left-3.5' : 'right-3.5'} z-20 p-2.5 backdrop-blur-md rounded-full transition-all shadow-md border cursor-pointer ${isFavorited
+                        ? 'bg-red-600 text-white border-red-600 shadow-red-600/30'
+                        : 'bg-white/70 dark:bg-slate-900/70 text-slate-800 dark:text-white hover:bg-white hover:text-red-600 dark:hover:bg-slate-800 dark:hover:text-red-500 border-white/40 dark:border-slate-700/40'
+                        }`}
                 >
                     <Heart className={`w-4 h-4 ${isFavorited ? 'fill-current' : ''}`} />
                 </button>
