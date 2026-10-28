@@ -47,12 +47,28 @@ export function DashboardSidebar() {
   const { t, language } = useLanguage()
   const [isDepositOpen, setIsDepositOpen] = useState(false)
   const [depositAmount, setDepositAmount] = useState(0)
+  const [userName, setUserName] = useState("Amro El-Gezeri")
 
-  // Load deposit status from localStorage on client side
+  // Load deposit status & user info from localStorage on client side
   useEffect(() => {
-    const saved = localStorage.getItem("bid_security_deposit")
-    if (saved) {
-      setDepositAmount(Number(saved))
+    const syncSidebarData = () => {
+      const savedDeposit = localStorage.getItem("bid_security_deposit")
+      if (savedDeposit) {
+        setDepositAmount(Number(savedDeposit))
+      }
+      const savedName = localStorage.getItem("user_name")
+      if (savedName) {
+        setUserName(savedName)
+      }
+    }
+    syncSidebarData()
+
+    window.addEventListener("balance_update", syncSidebarData)
+    window.addEventListener("login_state_change", syncSidebarData)
+
+    return () => {
+      window.removeEventListener("balance_update", syncSidebarData)
+      window.removeEventListener("login_state_change", syncSidebarData)
     }
   }, [])
 
@@ -66,6 +82,14 @@ export function DashboardSidebar() {
 
   const handleLogout = () => {
     localStorage.removeItem("bid_security_deposit")
+    localStorage.removeItem("user_logged_in")
+    localStorage.removeItem("user_role")
+    localStorage.removeItem("user_name")
+    localStorage.removeItem("user_email")
+    sessionStorage.removeItem("user_logged_in")
+    sessionStorage.removeItem("user_role")
+    sessionStorage.removeItem("user_name")
+    window.dispatchEvent(new Event("login_state_change"))
     router.push("/")
   }
 
@@ -88,14 +112,14 @@ export function DashboardSidebar() {
           <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm shrink-0 bg-slate-200 dark:bg-slate-700">
             <img 
               src="/images/neutral-avatar.jpg" 
-              alt="Amro El-Gezeri" 
+              alt={userName} 
               className="w-full h-full object-cover"
             />
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900" />
           </div>
           <div className="text-start min-w-0 flex-1">
             <h4 className="font-black text-sm text-slate-900 dark:text-white tracking-tight truncate">
-              Amro El-Gezeri
+              {userName}
             </h4>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">

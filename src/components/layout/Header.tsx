@@ -63,6 +63,9 @@ export function Header() {
     const handleLogout = () => {
         localStorage.removeItem("user_logged_in")
         localStorage.removeItem("user_role")
+        localStorage.removeItem("user_name")
+        localStorage.removeItem("user_email")
+        localStorage.removeItem("bid_security_deposit")
         setIsLoggedIn(false)
         setUserRole("")
         window.dispatchEvent(new Event("login_state_change"))

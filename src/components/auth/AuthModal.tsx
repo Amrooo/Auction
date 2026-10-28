@@ -19,12 +19,29 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose, defaultTab = "login", noticeTitle, noticeDesc }: AuthModalProps) {
     const [activeTab, setActiveTab] = useState<"login" | "signup">(defaultTab)
     const [isLoading, setIsLoading] = useState(false)
+    const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const { t, language } = useLanguage()
     const router = useRouter()
 
     // Reset tab when opening
     if (!isOpen) return null
+
+    const handleUaePass = () => {
+        localStorage.setItem("user_logged_in", "true")
+        localStorage.setItem("user_role", "bidder")
+        localStorage.setItem("user_name", language === 'ar' ? "مواطن إماراتي" : "Emirati Bidder")
+        localStorage.setItem("user_email", "uaepass@digitaldubai.ae")
+        window.dispatchEvent(new Event("login_state_change"))
+        onClose()
+        const redirectTarget = localStorage.getItem("auth_redirect_target")
+        if (redirectTarget) {
+            localStorage.removeItem("auth_redirect_target")
+            router.push(redirectTarget)
+        } else {
+            router.push("/dashboard")
+        }
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -34,6 +51,14 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login", noticeTitle, 
             onClose()
             const emailLower = email.toLowerCase()
             localStorage.setItem("user_logged_in", "true")
+            localStorage.setItem("user_email", email)
+
+            const fallbackName = email.split("@")[0] 
+                ? (email.split("@")[0].charAt(0).toUpperCase() + email.split("@")[0].slice(1)) 
+                : "Amro"
+            const resolvedName = name.trim() || fallbackName
+            localStorage.setItem("user_name", resolvedName)
+
             if (emailLower.includes("admin")) {
                 localStorage.setItem("user_role", "admin")
                 window.dispatchEvent(new Event("login_state_change"))
@@ -61,7 +86,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login", noticeTitle, 
                     router.push("/dashboard")
                 }
             }
-        }, 1500)
+        }, 800)
     }
 
     return (
@@ -90,7 +115,13 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login", noticeTitle, 
 
                         {/* Header & Tabs */}
                         <div className="p-8 pb-0 relative z-10">
-                            <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer">
+                            <button 
+                                onClick={onClose} 
+                                className={cn(
+                                    "absolute top-6 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer z-20",
+                                    language === 'ar' ? "left-6" : "right-6"
+                                )}
+                            >
                                 <X className="w-6 h-6" />
                             </button>
 
@@ -138,7 +169,9 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login", noticeTitle, 
                                             <User className={`absolute top-3.5 w-5 h-5 text-slate-400 ${language === 'ar' ? 'right-4' : 'left-4'}`} />
                                             <input
                                                 type="text"
-                                                placeholder={t("John Doe")}
+                                                placeholder={language === 'ar' ? 'الاسم بالكامل' : 'Full Name'}
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
                                                 className={`w-full py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white font-medium ${language === 'ar' ? 'pr-12 pl-4' : 'pl-12 pr-4'}`}
                                                 required
                                             />
@@ -152,7 +185,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login", noticeTitle, 
                                         <Mail className={`absolute top-3.5 w-5 h-5 text-slate-400 ${language === 'ar' ? 'right-4' : 'left-4'}`} />
                                         <input
                                             type="email"
-                                            placeholder={t("John Doe")}
+                                            placeholder="name@example.com"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             className={`w-full py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white font-medium ${language === 'ar' ? 'pr-12 pl-4' : 'pl-12 pr-4'}`}
@@ -208,10 +241,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login", noticeTitle, 
 
                             <div className="space-y-3">
                                 <button 
-                                    onClick={() => {
-                                        router.push("/dashboard")
-                                        onClose()
-                                    }}
+                                    onClick={handleUaePass}
                                     className={`w-full h-14 flex items-center justify-center gap-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-white hover:bg-slate-50 transition-all duration-300 cursor-pointer shadow-sm group ${language === 'ar' ? 'flex-row-reverse' : ''}`}
                                 >
                                     <img

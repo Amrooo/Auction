@@ -39,8 +39,9 @@ export default function DashboardClient() {
   const currentTab = searchParams.get("tab") || "overview"
   const { t, language } = useLanguage()
   const [depositBalance, setDepositBalance] = useState(50000)
+  const [userName, setUserName] = useState("Amro")
 
-  // Sync deposit balance with localStorage updates
+  // Sync deposit balance and user profile with localStorage updates
   useEffect(() => {
     const checkBalance = () => {
       const saved = localStorage.getItem("bid_security_deposit")
@@ -51,9 +52,28 @@ export default function DashboardClient() {
         setDepositBalance(base)
       }
     }
+    const syncUser = () => {
+      const savedName = localStorage.getItem("user_name")
+      if (savedName) {
+        setUserName(savedName)
+        setProfileName(savedName)
+      }
+      const savedEmail = localStorage.getItem("user_email")
+      if (savedEmail) {
+        setProfileEmail(savedEmail)
+      }
+    }
+
     checkBalance()
+    syncUser()
+
     window.addEventListener("balance_update", checkBalance)
-    return () => window.removeEventListener("balance_update", checkBalance)
+    window.addEventListener("login_state_change", syncUser)
+
+    return () => {
+      window.removeEventListener("balance_update", checkBalance)
+      window.removeEventListener("login_state_change", syncUser)
+    }
   }, [])
 
   // Mock Data
@@ -139,6 +159,10 @@ export default function DashboardClient() {
 
   const handleProfileSave = (e: React.FormEvent) => {
     e.preventDefault()
+    setUserName(profileName)
+    localStorage.setItem("user_name", profileName)
+    localStorage.setItem("user_email", profileEmail)
+    window.dispatchEvent(new Event("login_state_change"))
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 3000)
   }
@@ -151,92 +175,96 @@ export default function DashboardClient() {
   }
 
   return (
-    <div className="space-y-10" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Welcome Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={cn(
-          "flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2",
-          language === 'ar' && "sm:flex-row-reverse"
-        )}
-      >
-        <div className="text-start">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200/60 dark:border-red-900/60">
-              {t("Customer Portal") || "Customer Portal"}
-            </span>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-              {language === 'ar' ? 'لوحة المزادات المباشرة' : 'Live Auction Hub'}
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-            {language === 'ar' ? `مرحباً، عمرو! 👋` : `Hello, Amro! 👋`}
-          </h1>
-          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-bold mt-1">
-            {t("Welcome back to your auction dashboard.")}
-          </p>
-        </div>
-
-        <div className={cn("flex flex-wrap items-center gap-3 shrink-0", language === 'ar' && "flex-row-reverse")}>
-          <button
-            onClick={() => router.push("/dashboard?tab=sell")}
-            className="flex items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-red-600/25 active:scale-95 cursor-pointer border-none"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>{language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}</span>
-          </button>
-
-          <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black text-xs shadow-md shadow-amber-500/20">
-              VIP
+    <div className="space-y-8" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      {/* Welcome Header - Rendered strictly on Overview tab to give other tabs full space */}
+      {currentTab === "overview" && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            "flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2",
+            language === 'ar' && "sm:flex-row-reverse"
+          )}
+        >
+          <div className="text-start">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200/60 dark:border-red-900/60">
+                {t("Customer Portal") || "Customer Portal"}
+              </span>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                {language === 'ar' ? 'لوحة المزادات المباشرة' : 'Live Auction Hub'}
+              </span>
             </div>
-            <div className="text-start">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider leading-none">
-                {t("Membership Tier") || "Membership Tier"}
-              </p>
-              <p className="font-black text-xs text-slate-900 dark:text-white mt-1 leading-none">
-                {t("Pro Bidder") || "Pro Bidder"}
-              </p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+              {language === 'ar' ? `مرحباً، ${userName}! 👋` : `Hello, ${userName}! 👋`}
+            </h1>
+            <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-bold mt-1">
+              {t("Welcome back to your auction dashboard.")}
+            </p>
+          </div>
+
+          <div className={cn("flex flex-wrap items-center gap-3 shrink-0", language === 'ar' && "flex-row-reverse")}>
+            <button
+              onClick={() => router.push("/dashboard?tab=sell")}
+              className="flex items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-2xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-red-600/25 active:scale-95 cursor-pointer border-none"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>{language === 'ar' ? 'أضف مركبة للمزاد' : 'Add Vehicle for Auction'}</span>
+            </button>
+
+            <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black text-xs shadow-md shadow-amber-500/20">
+                VIP
+              </div>
+              <div className="text-start">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider leading-none">
+                  {t("Membership Tier") || "Membership Tier"}
+                </p>
+                <p className="font-black text-xs text-slate-900 dark:text-white mt-1 leading-none">
+                  {t("Pro Bidder") || "Pro Bidder"}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard 
-          label={t("Active Bids")} 
-          value={activeBids.length.toString()} 
-          icon={Gavel} 
-          change="1" 
-          trend="up" 
-          color="blue"
-        />
-        <StatsCard 
-          label={t("Auctions Won") || "Auctions Won"} 
-          value={wonItemsList.length.toString()} 
-          icon={Trophy} 
-          change="0" 
-          trend="up" 
-          color="emerald"
-        />
-        <StatsCard 
-          label={t("Watchlist")} 
-          value={watchedAuctions.length.toString()} 
-          icon={Heart} 
-          change="2" 
-          trend="up" 
-          color="purple"
-        />
-        <StatsCard 
-          label={t("Available Balance")} 
-          value={`AED ${depositBalance.toLocaleString()}`} 
-          icon={Wallet} 
-          color="accent"
-        />
-      </div>
+      {/* Stats Overview - Rendered strictly on Overview tab to give other tabs full space */}
+      {currentTab === "overview" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatsCard 
+            label={t("Active Bids")} 
+            value={activeBids.length.toString()} 
+            icon={Gavel} 
+            change="1" 
+            trend="up" 
+            color="blue"
+          />
+          <StatsCard 
+            label={t("Auctions Won") || "Auctions Won"} 
+            value={wonItemsList.length.toString()} 
+            icon={Trophy} 
+            change="0" 
+            trend="up" 
+            color="emerald"
+          />
+          <StatsCard 
+            label={t("Watchlist")} 
+            value={watchedAuctions.length.toString()} 
+            icon={Heart} 
+            change="2" 
+            trend="up" 
+            color="purple"
+          />
+          <StatsCard 
+            label={t("Available Balance")} 
+            value={`AED ${depositBalance.toLocaleString()}`} 
+            icon={Wallet} 
+            color="accent"
+          />
+        </div>
+      )}
 
       {/* Dynamic Tab Panels */}
       <AnimatePresence mode="wait">
