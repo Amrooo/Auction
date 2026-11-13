@@ -37,24 +37,26 @@ export function Hero() {
                     onClick={() => {
                         window.scrollBy({ top: 480, behavior: "smooth" })
                     }}
-                    className="group flex flex-col items-center gap-1.5 text-slate-400 hover:text-blue-600 dark:text-blue-400/70 dark:hover:text-blue-300 transition-colors cursor-pointer border-none bg-transparent outline-none"
+                    className="group flex flex-col items-center gap-1.5 text-blue-600 hover:text-indigo-600 dark:text-blue-400/80 dark:hover:text-blue-300 transition-colors cursor-pointer border-none bg-transparent outline-none"
                     aria-label="Scroll down"
                 >
-                    {/* Mouse Shape */}
-                    <div className="w-5 h-8 md:w-6 md:h-9 rounded-full border-2 border-slate-300 dark:border-blue-500/50 group-hover:border-blue-600 dark:group-hover:border-blue-400 flex justify-center pt-1.5 transition-colors shadow-xs">
-                        {/* Animated Wheel / Dot inside mouse */}
-                        <motion.div
-                            animate={{
-                                y: [0, 8, 0],
-                                opacity: [1, 0.25, 1]
-                            }}
-                            transition={{
-                                repeat: Infinity,
-                                duration: 1.6,
-                                ease: "easeInOut"
-                            }}
-                            className="w-1 h-2 rounded-full bg-slate-400 dark:bg-blue-400 group-hover:bg-blue-600 dark:group-hover:bg-blue-300"
-                        />
+                    {/* Mouse Shape with Gradient Blue Border */}
+                    <div className="p-[2px] rounded-full bg-gradient-to-b from-blue-400 via-blue-500 to-indigo-600 dark:from-blue-500/70 dark:via-blue-600/50 dark:to-blue-900/30 shadow-md shadow-blue-500/20 group-hover:shadow-lg group-hover:shadow-blue-500/30 transition-all">
+                        <div className="w-[18px] h-[30px] md:w-[22px] md:h-[34px] rounded-full bg-white dark:bg-slate-900 flex justify-center pt-1.5">
+                            {/* Animated Wheel / Dot inside mouse */}
+                            <motion.div
+                                animate={{
+                                    y: [0, 8, 0],
+                                    opacity: [1, 0.25, 1]
+                                }}
+                                transition={{
+                                    repeat: Infinity,
+                                    duration: 1.6,
+                                    ease: "easeInOut"
+                                }}
+                                className="w-1 h-2 rounded-full bg-gradient-to-b from-blue-500 to-indigo-600 dark:bg-blue-400"
+                            />
+                        </div>
                     </div>
 
                     {/* Down Arrow Indicator */}
@@ -68,7 +70,7 @@ export function Hero() {
                             ease: "easeInOut"
                         }}
                     >
-                        <ChevronDown className="w-4 h-4 text-slate-400 dark:text-blue-400/80 group-hover:text-blue-600 dark:group-hover:text-blue-300" />
+                        <ChevronDown className="w-4 h-4 text-blue-600 dark:text-blue-400/80 group-hover:text-indigo-600 dark:group-hover:text-blue-300 transition-colors" />
                     </motion.div>
                 </button>
             </div>
