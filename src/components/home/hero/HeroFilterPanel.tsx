@@ -39,7 +39,7 @@ export function HeroFilterPanel({ categories, activeCategory, setActiveCategory 
                         onClick={() => setActiveCategory(cat)}
                         className={`px-6 md:px-8 py-3 font-bold text-xs md:text-sm rounded-t-2xl transition-all border-none cursor-pointer shrink-0 ${
                             activeCategory === cat 
-                                ? "bg-white dark:bg-[#0b1329] text-[#1F2937] dark:text-blue-100 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] dark:border-t dark:border-x dark:border-blue-900/50" 
+                                ? "bg-white dark:bg-white text-slate-900 dark:text-slate-900 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]" 
                                 : "bg-[#3B82F6] text-white hover:bg-[#3B82F6]/90 dark:bg-[#131d35] dark:text-blue-200/80 dark:hover:bg-[#1a2747] dark:hover:text-blue-100"
                         }`}
                     >
